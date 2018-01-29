@@ -14,9 +14,12 @@ void scene::Bounce::restart(Scene &scene)
 {
     Empty::restart(scene);
 
-    for (auto x = 0; x < 100; ++x)
+    auto t_x = width*2;
+    auto t_z = height*2;
+
+    for (decltype(t_x) x = 0; x < t_x; ++x)
     {
-        for (auto z = 0; z < 100; ++z)
+        for (decltype(t_z) z = 0; z < t_z; ++z)
         {
             auto obj = new item::LightBall(glm::vec3(x * 0.5, 7.5f + 2.5f * rnd() , z * 0.5f),
                                              glm::vec3(0.025f));

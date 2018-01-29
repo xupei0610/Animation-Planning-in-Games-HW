@@ -15,6 +15,8 @@ public:
     glm::vec3 gravity;
     glm::vec3 resistance;
 
+    unsigned int width, height;
+
 public:
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
@@ -25,6 +27,7 @@ public:
 
     Empty();
     ~Empty() override;
+
 protected:
     unsigned int vao[1], vbo[1], texture[4];
     float floor_v[66];

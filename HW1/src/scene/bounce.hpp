@@ -12,6 +12,9 @@ class Bounce;
 class px::scene::Bounce : public Empty
 {
 public:
+    using Empty::width;
+    using Empty::height;
+
     void restart(Scene &scene) override;
 
     Bounce();

@@ -7,7 +7,8 @@
 using namespace px;
 
 scene::Empty::Empty()
-        : BaseScene(), gravity(0.f, -5.f, 0.f), resistance(.5f),
+        : BaseScene(),
+          gravity(0.f, -5.f, 0.f), resistance(.5f), width(50), height(50),
           vao{0}, vbo{0}, texture{0},
           floor_v{
                   // coordinates     texture    norm            tangent
@@ -67,15 +68,13 @@ void scene::Empty::init(Scene &scene)
 
 void scene::Empty::restart(Scene &scene)
 {
-    constexpr auto u = 25;
-    constexpr auto v = 25;
-    constexpr auto w = 50;
-    constexpr auto h = 50;
+    auto u = std::max(1, static_cast<int>(width / 2));
+    auto v = std::max(1, static_cast<int>(height / 2));
 
     floor_v[25] = u; floor_v[47] = u; floor_v[58] = u;
     floor_v[4]  = v; floor_v[37] = v; floor_v[59] = v;
-    floor_v[22] = w; floor_v[44] = w; floor_v[55] = w;
-    floor_v[2]  = h; floor_v[35] = h; floor_v[57] = h;
+    floor_v[22] = width; floor_v[44] = width; floor_v[55] = width;
+    floor_v[2]  = height; floor_v[35] = height; floor_v[57] = height;
 
     scene.character.reset(50.f, scene.character.characterHeight(), 50.f, 0.f, 0.f);
     scene.opt->gravity() = gravity;

@@ -4,8 +4,8 @@
 using namespace px;
 
 const Light Item::LIGHT_STUB{};
-const glm::vec3 Item::ZERO_VEC(0, 0, 0);
-const glm::vec3 Item::ONE_VEC(1, 1, 1);
+const glm::vec3 Item::ZERO_VEC(0.f);
+const glm::vec3 Item::ONE_VEC(1.f);
 
 std::vector<ItemInfo> Item::_items;
 std::vector<ItemGenFn> Item::_item_gen_fn;
