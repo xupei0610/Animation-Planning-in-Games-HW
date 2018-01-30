@@ -21,9 +21,8 @@ public:
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
-    void render(Shader &scene_shader,
-                glm::mat4 const &view, glm::mat4 const &proj) override;
-    void render(glm::mat4 const &view, glm::mat4 const &proj) override;
+    void render(Shader &scene_shader) override;
+    void render() override;
 
     Empty();
     ~Empty() override;

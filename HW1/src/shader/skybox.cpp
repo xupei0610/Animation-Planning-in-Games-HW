@@ -144,20 +144,22 @@ void SkyBox::load(std::string const &xp,
 
     use();
     set("skybox", 0);
+    bind("GlobalAttributes", 0);
 }
 
-void SkyBox::render(glm::mat4 const &view, glm::mat4 const &proj)
+void SkyBox::render()
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
     use();
-    set("view", glm::mat4(glm::mat3(view)));
-    set("proj", proj);
     glBindVertexArray(vao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindVertexArray(0);
 
     glDepthFunc(GL_LESS);
 }

@@ -42,6 +42,7 @@ unsigned int item::LightBall::initShader(unsigned int n_theta)
         ;
 
         shader = new Shader(vs, fs);
+        shader->bind("GlobalAttributes", 0);
         glGenVertexArrays(1, &vao);
         glGenBuffers(2, vbo);
     }
@@ -165,15 +166,13 @@ void item::LightBall::init()
     _n_indices = initShader(grid());
 }
 
-void item::LightBall::render(glm::mat4 const &view, glm::mat4 const &proj)
+void item::LightBall::render()
 {
     auto model = glm::scale(glm::translate(glm::mat4(), pos()), scal());
 
     shader->use();
     shader->set("diffuse", color());
     shader->set("model", model);
-    shader->set("view", view);
-    shader->set("proj", proj);
 
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, _n_indices, GL_UNSIGNED_INT, 0);

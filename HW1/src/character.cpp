@@ -155,8 +155,8 @@ void Character::resetKeepableAbility()
 void Character::shoot()
 {
     auto obj = new item::LightBall(cam->pos() + 0.1f * cam->direction(),
-                                     glm::vec3(0.025f), 1.f,
-                                     cam->direction() * 5.f);
+                                     glm::vec3(0.025f), 1.f + rnd() * 0.5f,
+                                     cam->direction() * (5.f + rnd()));
     obj->resistance(scene->opt->resistance());
     obj->acceleration(scene->opt->gravity());
     obj->color().r = rnd() * .5f + .5f;
@@ -198,7 +198,7 @@ glm::vec3 Character::makeAction(float dt)
     if (isJumping())
         makeJump(dt);
 
-    if (!(isDropping() || isJumping()))
+    if (!(isDropping() || isAscending()))
         updateMoveDir();
 
     if (isTurningLeft() ^ isTurningRight())
@@ -206,7 +206,6 @@ glm::vec3 Character::makeAction(float dt)
         charTurnLeft(dt);
         charTurnRight(dt);
     }
-
 
     if (last_shoot < shootGap())
     {
@@ -236,6 +235,11 @@ void Character::updateMoveDir()
         updateMoveDirLeft();
         updateMoveDirRight();
     }
+
+    activate(Action::MoveForward, false);
+    activate(Action::MoveBackward, false);
+    activate(Action::MoveRight, false);
+    activate(Action::MoveLeft, false);
 }
 
 void Character::makeJump(float dt)
@@ -267,7 +271,6 @@ void Character::updateMoveDirForward()
             move_dir.z += forwardSpeed() * cam->direction().z / len;
         }
     }
-    activate(Action::MoveForward, false);
 }
 
 void Character::updateMoveDirBackward()
@@ -275,16 +278,15 @@ void Character::updateMoveDirBackward()
     if (isMovingBackward() && !isMovingForward())
     {
         if (canFloat())
-            cam->pos() -= backwardSpeed() * cam->direction();
+            move_dir -= backwardSpeed() * cam->direction();
         else
         {
             auto len = std::sqrt(cam->direction().x * cam->direction().x +
-                                 cam->direction().z * cam->direction().z);
+                                  cam->direction().z * cam->direction().z);
             move_dir.x -= backwardSpeed() * cam->direction().x / len;
             move_dir.z -= backwardSpeed() * cam->direction().z / len;
         }
     }
-    activate(Action::MoveBackward, false);
 }
 
 void Character::updateMoveDirRight()
@@ -301,7 +303,6 @@ void Character::updateMoveDirRight()
             move_dir.z += sidestepSpeed() * cam->right().z / len;
         }
     }
-    activate(Action::MoveRight, false);
 }
 
 void Character::updateMoveDirLeft()
@@ -318,7 +319,6 @@ void Character::updateMoveDirLeft()
             move_dir.z -= sidestepSpeed() * cam->right().z / len;
         }
     }
-    activate(Action::MoveLeft, false);
 }
 
 void Character::charTurnRight(float dt)

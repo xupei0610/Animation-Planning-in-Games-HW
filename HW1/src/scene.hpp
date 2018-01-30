@@ -46,6 +46,7 @@ protected:
 
     std::vector<std::shared_ptr<Item> > objs;
 
+    unsigned int ubo;
     unsigned int deferred_vao, deferred_vbo;
     unsigned int deferred_fbo[2], deferred_rbo[2], deferred_out[7];
 

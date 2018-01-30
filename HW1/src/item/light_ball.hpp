@@ -38,7 +38,7 @@ public:
     glm::vec3 const &movement() const override { return _movement; }
 
     void init() override;
-    void render(glm::mat4 const &view, glm::mat4 const &proj) override;
+    void render() override;
 
     void setGrid(unsigned int n);
     inline glm::vec3 &color() noexcept { return _color; }

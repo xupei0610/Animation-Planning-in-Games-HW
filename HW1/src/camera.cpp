@@ -76,12 +76,12 @@ void Camera::updateView()
 
     view = rot * trans;
 
-    strafe.x = -view[0][2];
-    strafe.y = -view[1][2];
-    strafe.z = -view[2][2];
-    forward.x = view[0][0];
-    forward.y = view[1][0];
-    forward.z = view[2][0];
+    forward.x = -view[0][2];
+    forward.y = -view[1][2];
+    forward.z = -view[2][2];
+    strafe.x = view[0][0];
+    strafe.y = view[1][0];
+    strafe.z = view[2][0];
 }
 
 void Camera::updateProj()

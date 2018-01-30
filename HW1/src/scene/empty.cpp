@@ -63,6 +63,7 @@ void scene::Empty::init(Scene &scene)
 
     glBindVertexArray(vao[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(floor_v), nullptr, GL_STATIC_DRAW);
     ATTRIB_BIND_HELPER_WITH_TANGENT
 }
 
@@ -76,7 +77,7 @@ void scene::Empty::restart(Scene &scene)
     floor_v[22] = width; floor_v[44] = width; floor_v[55] = width;
     floor_v[2]  = height; floor_v[35] = height; floor_v[57] = height;
 
-    scene.character.reset(50.f, scene.character.characterHeight(), 50.f, 0.f, 0.f);
+    scene.character.reset(0.f, scene.character.characterHeight(), 0.f, 135.f, 0.f);
     scene.opt->gravity() = gravity;
     scene.opt->resistance() = resistance;
 
@@ -89,7 +90,8 @@ void scene::Empty::upload(Shader &scene_shader)
 
     glBindVertexArray(vao[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(floor_v), floor_v, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(floor_v), floor_v);
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -102,13 +104,10 @@ void scene::Empty::upload(Shader &scene_shader)
     scene_shader.set("headlight.coef_a2", .032f);
     scene_shader.set("global_ambient", glm::vec3(.3f, .3f, .3f));
 
-    glClearColor(.2f, .3f, .3f, 1.f);
-
     need_upload = false;
 }
 
-void scene::Empty::render(Shader &scene_shader,
-                           glm::mat4 const &view, glm::mat4 const &proj)
+void scene::Empty::render(Shader &scene_shader)
 {
     scene_shader.use();
     scene_shader.set("use_tangent", 1);
@@ -133,7 +132,7 @@ void scene::Empty::render(Shader &scene_shader,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void scene::Empty::render(glm::mat4 const &view, glm::mat4 const &proj)
+void scene::Empty::render()
 {
-    skybox->render(view, proj);
+    skybox->render();
 }

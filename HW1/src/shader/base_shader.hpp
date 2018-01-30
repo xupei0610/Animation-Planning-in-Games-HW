@@ -48,7 +48,7 @@
 
 #define ATTRIB_BIND_HELPER_WITH_TANGENT                                                             \
 {                                                                                                   \
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), 0);                           \
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void *)0);                           \
     glEnableVertexAttribArray(0);                                                                   \
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void *)(3*sizeof(float)));   \
     glEnableVertexAttribArray(1);                                                                   \
@@ -118,6 +118,10 @@ public:
     void set(GLint id, glm::mat4 const &val) const;
     void set(std::string const &name, glm::mat4 const &val) const;
     void set(const char *name, glm::mat4 const &val) const;
+
+    void bind(GLuint id, int val) const;
+    void bind(std::string const &name, int val) const;
+    void bind(const char *name, int val) const;
 
     void output(std::string const &out);
 

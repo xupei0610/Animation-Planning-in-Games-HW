@@ -2,6 +2,7 @@
 
 #include "scene/empty.hpp"
 #include "scene/bounce.hpp"
+#include "scene/particle.hpp"
 
 #include <cstring>
 
@@ -21,7 +22,7 @@ App* App::instance()
 App::App()
         : opt(), scene(&opt), menu(),
           window(nullptr),
-          scenes{new scene::Empty, new scene::Bounce},
+          scenes{new scene::Empty, new scene::Bounce, new scene::Particle},
           _height(WIN_HEIGHT), _width(WIN_WIDTH), _title(WIN_TITLE)
 {}
 
@@ -130,18 +131,18 @@ void App::close()
 void App::gui()
 {
     constexpr auto scale = 0.4f;
-    auto x = frameWidth() - menu.fontSize() * 7 * scale;
+    auto x = frameWidth() - 10;
     constexpr auto y = 10.f;
     auto gap = menu.fontSize() * scale;
 
     menu.text_shader->render("FPS: " + std::to_string(_fps),
                              x, y, 0.4f,
                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                             Anchor::LeftTop);
+                             Anchor::RightTop);
     menu.text_shader->render(scene.character.canFloat() ? "Fly: on" : "Fly: off",
                              x, y+gap, 0.4f,
                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                             Anchor::LeftTop);
+                             Anchor::RightTop);
 }
 
 void App::togglePause()
@@ -149,7 +150,7 @@ void App::togglePause()
     if (state == State::Pausing)
     {
         state = State::Running;
-//        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouse_detected = false;
         time_gap = -1;
     }
@@ -271,7 +272,7 @@ void App::input(int keycode, int mods, int action, bool mouse)
 #define LOAD_SCENE(Idx)                                         \
     if (scenes[Idx] != scene.scene()) { scene.load(scenes[Idx]); restart(); }
 
-    if (keycode == opt.shortcuts[Action::Pause] && action == GLFW_PRESS)
+    if (keycode == opt.shortcuts[System::Pause] && action == GLFW_PRESS)
     {
         if (menu.page != Menu::Page::Pause)
             menu.page = Menu::Page::Pause;
@@ -285,6 +286,10 @@ void App::input(int keycode, int mods, int action, bool mouse)
     else if (keycode == GLFW_KEY_2 && action == GLFW_PRESS)
     {
         LOAD_SCENE(1);
+    }
+    else if (keycode == GLFW_KEY_3 && action == GLFW_PRESS)
+    {
+        LOAD_SCENE(2);
     }
     else if (keycode == GLFW_KEY_R && action == GLFW_PRESS)
     {

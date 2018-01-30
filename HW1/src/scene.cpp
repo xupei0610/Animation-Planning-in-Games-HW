@@ -9,12 +9,16 @@ using namespace px;
 Scene::Scene(Option *opt)
         : opt(opt), cam(), character(&cam, this),
           geo_shader(nullptr), light_shader(nullptr),
+          ubo(0), deferred_vao(0), deferred_vbo(0),
           deferred_fbo{0}, deferred_rbo{0}, deferred_out{0},
           _scene(nullptr)
 {}
 
 Scene::~Scene()
 {
+    glDeleteBuffers(1, &ubo);
+    glDeleteVertexArrays(1, &deferred_vao);
+    glDeleteBuffers(1, &deferred_vbo);
     glDeleteFramebuffers(2, deferred_fbo);
     glDeleteTextures(7, deferred_out);
     glDeleteRenderbuffers(2, deferred_rbo);
@@ -57,6 +61,7 @@ void Scene::init()
         ,
         #include "shader/glsl/scene_light_shader.fs"
         );
+        glGenBuffers(1, &ubo);
         glGenVertexArrays(1, &deferred_vao);
         glGenBuffers(1, &deferred_vbo);
         glGenFramebuffers(2, deferred_fbo);
@@ -69,6 +74,12 @@ void Scene::init()
     geo_shader->set("material.normal",   1);
     geo_shader->set("material.specular", 2);
     geo_shader->set("material.displace", 3);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, 2*sizeof(glm::mat4)+sizeof(glm::vec3), nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    geo_shader->bind("GlobalAttributes", 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2*sizeof(glm::mat4)+sizeof(glm::vec3));
+
 
     light_shader->use();
     light_shader->set("gPosition", 0);
@@ -78,7 +89,7 @@ void Scene::init()
     light_shader->set("gDiffuse",  4);
     light_shader->set("gSpecular", 5);
     light_shader->output("color");
-    float vertices[] = {
+    constexpr static float vertices[] = {
             // x     y       u     v
             -1.0f,  1.0f,   0.0f, 1.0f,
             -1.0f, -1.0f,   0.0f, 0.0f,
@@ -95,6 +106,8 @@ void Scene::init()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    glClearColor(.2f, .3f, .3f, 1.f);
 }
 
 void Scene::restart()
@@ -128,19 +141,23 @@ void Scene::render()
 
     geo_shader->use();
     upload();
-    geo_shader->set("view", cam.viewMat());
-    geo_shader->set("proj", cam.projMat());
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cam.viewMat()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(cam.projMat()));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(cam.pos()));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     geo_shader->set("model", Camera::IDENTITY_MAT4);
-    geo_shader->set("cam_pos", cam.pos());
     geo_shader->set("headlight.pos", cam.pos());
     geo_shader->set("headlight.dir", cam.direction());
 
     // render normal objects, would be influenced by lighting
-    _scene->render(*geo_shader, cam.viewMat(), cam.projMat());
+    _scene->render(*geo_shader);
     for (auto & o : objs)
     {
         if (o->preRender())
-            o->render(*geo_shader, cam.viewMat(), cam.projMat());
+            o->render(*geo_shader);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -205,9 +222,9 @@ void Scene::render()
     for (auto & o : objs)
     {
         if (o->postRender())
-            o->render(cam.viewMat(), cam.projMat());
+            o->render();
     }
-    _scene->render(cam.viewMat(), cam.projMat());
+    _scene->render();
 }
 
 void Scene::resize(int w, int h)
@@ -231,7 +248,7 @@ void Scene::resize(int w, int h)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glBindTexture(GL_TEXTURE_2D, deferred_out[6]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, cam.width(), cam.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, cam.width(), cam.height(), 0, GL_RGB, GL_FLOAT, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -297,7 +314,7 @@ bool Scene::run(float dt)
                 auto above_field = (*it)->pos().y >= h;
                 (*it)->move((*it)->movement());
                 auto & pos = (*it)->pos();
-                if (above_field && pos.y <= h)
+                if (above_field && pos.y < h)
                 {
                     glm::vec3 at(pos.x, h, pos.z);
                     (*it)->place(at);
@@ -312,6 +329,8 @@ bool Scene::run(float dt)
             continue;
         }
     }
+
+    _scene->update(dt);
 
     return true;
 }

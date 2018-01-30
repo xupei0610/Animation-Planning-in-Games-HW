@@ -149,6 +149,21 @@ void Shader::set(const char *name, glm::vec4 const &val) const
                  1, glm::value_ptr(val));
 }
 
+void Shader::bind(GLuint id, int val) const
+{
+    glUniformBlockBinding(_pid, id, val);
+}
+
+void Shader::bind(std::string const &name, int val) const
+{
+    glUniformBlockBinding(_pid, glGetUniformBlockIndex(_pid, name.c_str()), val);
+}
+
+void Shader::bind(const char *name, int val) const
+{
+    glUniformBlockBinding(_pid, glGetUniformBlockIndex(_pid, name), val);
+}
+
 void Shader::output(std::string const &out)
 {
     glBindFragDataLocation(_pid, 0, "color");

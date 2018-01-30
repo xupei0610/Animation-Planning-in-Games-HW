@@ -12,7 +12,6 @@ namespace px {
 #define N_ACTIONS 10
 enum class Action : unsigned int
 {
-    Pause = 0,
     MoveForward = 1,
     MoveBackward = 2,
     MoveLeft = 3,
@@ -22,8 +21,11 @@ enum class Action : unsigned int
     Jump = 7,
     Run = 8,
     Shoot = 9,
+};
 
-    Unknown = 100
+enum class System : unsigned int
+{
+    Pause = 0
 };
 
 static constexpr
@@ -66,6 +68,10 @@ public:
         Shortcuts &operator=(Shortcuts &&) = default;
 
         decltype(GLFW_KEY_0) operator[](Action a)
+        {
+            return shortcuts[static_cast<unsigned int>(a)];
+        }
+        decltype(GLFW_KEY_0) operator[](System a)
         {
             return shortcuts[static_cast<unsigned int>(a)];
         }

@@ -52,8 +52,8 @@ public:
     Camera &yaw(float dyaw);
     Camera &roll(float droll);
 
-    inline glm::vec3 &direction() {return strafe;}
-    inline glm::vec3 &right() {return forward;}
+    inline glm::vec3 &direction() {return forward;}
+    inline glm::vec3 &right() {return strafe;}
 
     void updateView();
     void updateProj();

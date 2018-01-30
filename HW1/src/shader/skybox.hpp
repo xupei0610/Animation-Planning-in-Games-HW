@@ -31,8 +31,7 @@ public:
               std::string const &zp,
               std::string const &zn);
 
-    void render(glm::mat4 const &view,
-                glm::mat4 const &proj);
+    void render();
 
 protected:
     void init();

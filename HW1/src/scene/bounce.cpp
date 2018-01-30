@@ -12,6 +12,9 @@ scene::Bounce::Bounce()
 
 void scene::Bounce::restart(Scene &scene)
 {
+    width = 25;
+    height = 25;
+
     Empty::restart(scene);
 
     auto t_x = width*2;
@@ -22,7 +25,7 @@ void scene::Bounce::restart(Scene &scene)
         for (decltype(t_z) z = 0; z < t_z; ++z)
         {
             auto obj = new item::LightBall(glm::vec3(x * 0.5, 7.5f + 2.5f * rnd() , z * 0.5f),
-                                             glm::vec3(0.025f));
+                                           glm::vec3(0.025f));
             obj->resistance(scene.opt->resistance());
             obj->acceleration(scene.opt->gravity());
 

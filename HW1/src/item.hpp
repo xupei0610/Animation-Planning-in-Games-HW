@@ -121,9 +121,9 @@ public:
 
     virtual void init() {}
     // pre-render, rendering with scene, rendering into buffer
-    virtual void render(Shader &scene_shader, glm::mat4 const &view, glm::mat4 const &proj) {}
+    virtual void render(Shader &scene_shader) {}
     // post-render, rendering after lighting rendering, rendering directly for output
-    virtual void render(glm::mat4 const &view, glm::mat4 const &proj) {}
+    virtual void render() {}
 
 protected:
     glm::vec3 _position;
