@@ -24,7 +24,7 @@ TextShader::TextShader()
       current_font(0),
       _font_height(FONT_HEIGHT)
 {
-    glBindFragDataLocation(pid(), 0, "color");
+    output("color");
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -32,7 +32,7 @@ TextShader::TextShader()
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 }
 
@@ -152,7 +152,7 @@ void TextShader::render(std::string const &text,
             break;
     }
 
-    use();
+    activate();
 
     set("text_color", color);
     set("proj", glm::ortho(0.0f, static_cast<float>(w),
@@ -185,4 +185,8 @@ void TextShader::render(std::string const &text,
 
         x += chars[i].advance * scale;
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    activate(false);
 }

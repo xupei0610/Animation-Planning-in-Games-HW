@@ -87,10 +87,17 @@ public:
     inline const std::string &title() const noexcept {return _title;}
     inline const float &timeGap() const noexcept {return time_gap;}
     inline const int &fps() const noexcept {return _fps;}
+    inline const float &currentTime() const noexcept {return current_time;}
 
     void setSize(int width, int height);
     void setTitle(std::string const &title);
 
+    inline GLFWwindow * const &window() const noexcept { return _window; }
+
+    void text(std::string const &text,
+              float x, float y, float scale,
+              glm::vec4 const &color,
+              Anchor anchor);
 protected:
     App();
     ~App();
@@ -107,15 +114,17 @@ protected:
     static void frameBufferSizeCallback(GLFWwindow *, int width, int height);
 
 protected:
-    GLFWwindow * window;
+    GLFWwindow * _window;
 
     float time_gap;
+    float current_time;
     bool mouse_detected;
 
     bool action[N_ACTIONS];
 
     const std::vector<scene::BaseScene *> scenes;
 
+    TextShader *text_shader;
 private:
     int _height, _width;
     float _center_y, _center_x;

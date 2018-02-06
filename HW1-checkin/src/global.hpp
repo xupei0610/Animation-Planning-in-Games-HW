@@ -1,0 +1,17 @@
+#ifndef PX_CG_GLOBAL_HPP
+#define PX_CG_GLOBAL_HPP
+
+#ifndef ASSET_PATH
+#define ASSET_PATH "../asset"
+#endif
+
+#ifndef ITEM_REGISTER_CAPACITY
+#define ITEM_REGISTER_CAPACITY 10000
+#endif
+
+#ifndef OBJECT_REGISTER_CAPACITY
+#define OBJECT_REGISTER_CAPACITY 1000
+#endif
+
+
+#endif

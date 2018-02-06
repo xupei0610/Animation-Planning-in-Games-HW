@@ -29,7 +29,7 @@
                               err_handle_fn)                                                    \
     {                                                                                           \
         target_var = glCreateShader(GL_##VERTEX_or_FRAGMENT_or_others##_SHADER);                \
-        glShaderSource(target_var, 1, &source_code, 0);                                         \
+        glShaderSource(target_var, 1, &source_code, nullptr);                                         \
         glCompileShader(target_var);                                                            \
         OPENGL_ERROR_CHECK(target_var, Shader, COMPILE, err_handle_fn)                          \
         glAttachShader(program, target_var);                                                    \
@@ -80,6 +80,13 @@ public:
            const char *geo_shader = nullptr,
            const char *tc_shader = nullptr,
            const char *te_shader = nullptr);
+    Shader(const char *vertex_shader,
+            const char *feedback_varying[], const int n_feedback,
+            const char *frag_shader = nullptr,
+            const char *geo_shader = nullptr,
+            const char *tc_shader = nullptr,
+            const char *te_shader = nullptr);
+    Shader(const char *compute_shader);
     ~Shader();
 
     Shader &operator=(Shader const &) = delete;
@@ -90,8 +97,11 @@ public:
     void init(const char *vertex_shader, const char *frag_shader,
               const char *geo_shader = nullptr,
               const char *tc_shader = nullptr,
-              const char *te_shader = nullptr);
-    void use();
+              const char *te_shader = nullptr,
+              const char *feedback_varying[] = nullptr,
+              const int n_feedback = 0);
+    void init(const char *compute_shader);
+    void activate(bool enable = true);
 
     inline unsigned int &pid() {return _pid;}
 
@@ -106,6 +116,10 @@ public:
     void set(GLint id, float val) const;
     void set(std::string const &name, float val) const;
     void set(const char *name, float val) const;
+
+    void set(GLint id, const float *val, unsigned int n) const;
+    void set(std::string const &name, const float *val, unsigned int n) const;
+    void set(const char *name, const float *val, unsigned int n) const;
 
     void set(GLint id, glm::vec3 const &val) const;
     void set(std::string const &name, glm::vec3 const &val) const;

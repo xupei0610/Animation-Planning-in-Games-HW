@@ -26,23 +26,24 @@ public:
     void scale(glm::vec3 const &s) override { _scale = s; _half_size = scal();}
     void zoom(glm::vec3 const &s) override { _scale *= s; _half_size = scal();}
 
-    bool lighting() const override { return true; }
+    bool lighting() const override { return _lighting; }
     bool postRender() const override { return true; }
     bool move() const override { return true; }
 
-    Light const &light() const override { return _light; }
-    void enlight(Light const &light) override { _light = light; }
+    Light *light() override { return &_light; }
+    void enlight(const Light *light) override;
 
     void update(float dt) override;
     void hit(glm::vec3 const &at, glm::vec3 const &norm) override;
-    glm::vec3 const &movement() const override { return _movement; }
+    glm::vec3 *movement() override { return &_movement; }
 
     void init() override;
+    void blend(GLenum sfactor, GLenum dfactor) override;
     void render() override;
 
     void setGrid(unsigned int n);
-    inline glm::vec3 &color() noexcept { return _color; }
-    inline const glm::vec3 &color() const noexcept { return _color; }
+    inline glm::vec4 &color() noexcept { return _color; }
+    inline const glm::vec4 &color() const noexcept { return _color; }
 
     LightBall(glm::vec3 const &position = glm::vec3(0.f, 0.f, 0.f),
               glm::vec3 const &scale = glm::vec3(1.f),
@@ -58,9 +59,12 @@ protected:
 
 private:
     glm::vec3 _movement;
+    bool _lighting;
     Light _light;
     unsigned int _n_theta, _n_indices;
-    glm::vec3 _color;
+    glm::vec4 _color;
+
+    GLenum blend_s, blend_d;
 };
 
 #endif

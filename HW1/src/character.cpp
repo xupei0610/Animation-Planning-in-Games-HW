@@ -154,19 +154,24 @@ void Character::resetKeepableAbility()
 
 void Character::shoot()
 {
+
+    static Light light{glm::vec3(.5f), glm::vec3(.5f), glm::vec3(.5f), glm::vec3(1.f, 1.f, 2.f)};
+
     auto obj = new item::LightBall(cam->pos() + 0.1f * cam->direction(),
-                                     glm::vec3(0.025f), 1.f + rnd() * 0.5f,
-                                     cam->direction() * (5.f + rnd()));
+                                     glm::vec3(0.025f), rnd2(),
+                                     cam->direction() * (5.f + rnd_np()));
     obj->resistance(scene->opt->resistance());
     obj->acceleration(scene->opt->gravity());
-    obj->color().r = rnd() * .5f + .5f;
-    obj->color().g = rnd() * .5f + .5f;
-    obj->color().b = rnd() * .5f + .5f;
-    auto l = obj->light();
-    l.diffuse = obj->color();
-    l.ambient = l.diffuse * .05f;
-    l.specular = l.diffuse * .5f;
-    obj->enlight(l);
+    obj->color().r = rnd();
+    obj->color().g = rnd();
+    obj->color().b = rnd();
+
+    light.diffuse.r = obj->color().r;
+    light.diffuse.g = obj->color().g;
+    light.diffuse.b = obj->color().b;
+    light.ambient = light.diffuse * .05f;
+    light.specular = light.diffuse * .5f;
+    obj->enlight(&light);
 
     scene->add(obj);
 
@@ -176,7 +181,7 @@ void Character::shoot()
 
 void Character::activate(Action a, bool enable)
 {
-    if (isDropping() || isJumping())
+    if (isDropping() || isAscending())
     {
         if (a == Action::MoveForward || a == Action::MoveBackward ||
             a == Action::MoveLeft || a == Action::MoveRight)
@@ -198,7 +203,7 @@ glm::vec3 Character::makeAction(float dt)
     if (isJumping())
         makeJump(dt);
 
-    if (!(isDropping() || isAscending()))
+    if (!isDropping() && !isAscending())
         updateMoveDir();
 
     if (isTurningLeft() ^ isTurningRight())
@@ -240,6 +245,7 @@ void Character::updateMoveDir()
     activate(Action::MoveBackward, false);
     activate(Action::MoveRight, false);
     activate(Action::MoveLeft, false);
+
 }
 
 void Character::makeJump(float dt)

@@ -77,10 +77,6 @@ private:
     static std::vector<ItemInfo> _items;
     static std::vector<ItemGenFn> _item_gen_fn;
 public:
-    static const Light LIGHT_STUB;
-    static const glm::vec3 ZERO_VEC;
-    static const glm::vec3 ONE_VEC;
-
     static std::size_t reg(ItemInfo &item_info, ItemGenFn fn);
     static ItemInfo const &lookup(std::size_t const &id);
     static std::shared_ptr<Item> gen(std::size_t const &index);
@@ -108,18 +104,20 @@ public:
     virtual bool lighting() const { return false; }
     virtual bool postRender() const { return false; }
 
-    virtual void enlight(Light const &) {}
-    virtual Light const &light() const { return LIGHT_STUB; }
+    virtual void enlight(const Light *) {}
+    virtual Light *light() { return nullptr; }
 
     virtual bool alive() const { return true; }
     virtual bool move() const { return false; }
     virtual float const &lifetime() const { return _lifetime; }
 
     virtual void update(float dt) { _lifetime += dt; }
-    virtual glm::vec3 const &movement() const { return ZERO_VEC; }
+    virtual glm::vec3 *movement() { return nullptr; }
     virtual void hit(glm::vec3 const &at, glm::vec3 const &norm) {}
 
     virtual void init() {}
+    virtual void blend(GLenum sfactor, GLenum dfactor) {};
+
     // pre-render, rendering with scene, rendering into buffer
     virtual void render(Shader &scene_shader) {}
     // post-render, rendering after lighting rendering, rendering directly for output

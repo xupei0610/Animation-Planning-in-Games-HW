@@ -13,6 +13,23 @@ Shader::Shader(const char *vertex_shader, const char *frag_shader,
     init(vertex_shader, frag_shader, geo_shader, tc_shader, te_shader);
 }
 
+
+Shader::Shader(const char *vertex_shader,
+               const char *feedback_varying[], const int n_feedback,
+               const char *frag_shader,
+               const char *geo_shader,
+               const char *tc_shader,
+               const char *te_shader)
+        : _pid(0)
+{
+    init(vertex_shader, frag_shader, geo_shader, tc_shader, te_shader, feedback_varying, n_feedback);
+}
+
+Shader::Shader(const char *compute_shader)
+    : _pid(0)
+{
+    init(compute_shader);
+}
 Shader::~Shader()
 {
     glDeleteProgram(_pid);
@@ -28,20 +45,26 @@ void Shader::init(const char *vertex_shader,
                   const char *frag_shader,
                   const char *geo_shader,
                   const char *tc_shader,
-                  const char *te_shader)
+                  const char *te_shader,
+                  const char *feedback_varying[],
+                  const int n_feedback)
 {
-    if (_pid == 0)
-        _pid = glCreateProgram();
+    glDeleteProgram(_pid);
+    _pid = glCreateProgram();
 
-    unsigned int vs, fs, gs = 0, tcs = 0, tes = 0;
+    unsigned int vs, fs = 0, gs = 0, tcs = 0, tes = 0;
     SHADER_COMPILE_HELPER(vs, VERTEX, _pid, vertex_shader, err)
-    SHADER_COMPILE_HELPER(fs, FRAGMENT, _pid, frag_shader, err)
+    if (frag_shader != nullptr)
+        SHADER_COMPILE_HELPER(fs, FRAGMENT, _pid, frag_shader, err)
     if (geo_shader != nullptr)
         SHADER_COMPILE_HELPER(gs, GEOMETRY, _pid, geo_shader, err);
     if (tc_shader != nullptr)
         SHADER_COMPILE_HELPER(tcs, TESS_CONTROL, _pid, tc_shader, err);
     if (te_shader != nullptr)
         SHADER_COMPILE_HELPER(tes, TESS_EVALUATION, _pid, te_shader, err);
+
+    if (feedback_varying != nullptr)
+        glTransformFeedbackVaryings(_pid, n_feedback, feedback_varying, GL_INTERLEAVED_ATTRIBS);
 
     glLinkProgram(_pid);
     OPENGL_ERROR_CHECK(_pid, Program, LINK, err)
@@ -60,9 +83,29 @@ void Shader::init(const char *vertex_shader,
     glUseProgram(0);
 }
 
-void Shader::use()
+void Shader::init(const char *compute_shader)
 {
-    glUseProgram(_pid);
+    glDeleteProgram(_pid);
+    _pid = glCreateProgram();
+
+    unsigned int cs;
+    SHADER_COMPILE_HELPER(cs, COMPUTE, _pid, compute_shader, err)
+    glLinkProgram(_pid);
+    OPENGL_ERROR_CHECK(_pid, Program, LINK, err)
+
+
+    glDetachShader(_pid, cs);
+    glDeleteShader(cs);
+
+    glUseProgram(0);
+}
+
+void Shader::activate(bool enable)
+{
+    if (enable)
+        glUseProgram(_pid);
+    else
+        glUseProgram(0);
 }
 
 void Shader::set(GLint id, glm::mat4 const &val) const
@@ -117,6 +160,19 @@ void Shader::set(std::string const &name, float val) const
 void Shader::set(const char *name, float val) const
 {
     glUniform1f(glGetUniformLocation(_pid, name), val);
+}
+
+void Shader::set(GLint id, const float *val, unsigned int n) const
+{
+    glUniform1fv(id, n, val);
+}
+void Shader::set(std::string const &name, const float *val, unsigned int n) const
+{
+    glUniform1fv(glGetUniformLocation(_pid, name.c_str()), n, val);
+}
+void Shader::set(const char *name, const float *val, unsigned int n) const
+{
+    glUniform1fv(glGetUniformLocation(_pid, name), n, val);
 }
 
 void Shader::set(GLint id, glm::vec3 const &val) const

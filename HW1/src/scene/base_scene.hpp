@@ -13,12 +13,12 @@ class BaseScene;
 class px::scene::BaseScene
 {
 public:
-    virtual void init(Scene &scene) = 0;
-    virtual void restart(Scene &scene) = 0;
-    virtual void upload(Shader &scene_shader) = 0;
+    virtual void init(Scene &scene) {};
+    virtual void restart(Scene &scene) {};
+    virtual void upload(Shader &scene_shader) {};
     virtual void update(float dt) {}
     // pre-render
-    virtual void render(Shader &scene_shader) = 0;
+    virtual void render(Shader &scene_shader) {};
     // post-render
     virtual void render() {};
 

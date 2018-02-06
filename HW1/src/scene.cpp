@@ -41,10 +41,10 @@ std::shared_ptr<Item> const &Scene::add(Item *obj)
     return objs.back();
 }
 
-void Scene::load(scene::BaseScene *s)
+void Scene::load(scene::BaseScene *s, bool auto_init)
 {
     _scene = s;
-    _scene->init(*this);
+    if (auto_init) _scene->init(*this);
 }
 
 void Scene::init()
@@ -69,7 +69,7 @@ void Scene::init()
         glGenRenderbuffers(2, deferred_rbo);
     }
 
-    geo_shader->use();
+    geo_shader->activate();
     geo_shader->set("material.displace", 0);
     geo_shader->set("material.normal",   1);
     geo_shader->set("material.specular", 2);
@@ -80,8 +80,7 @@ void Scene::init()
     geo_shader->bind("GlobalAttributes", 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2*sizeof(glm::mat4)+sizeof(glm::vec3));
 
-
-    light_shader->use();
+    light_shader->activate();
     light_shader->set("gPosition", 0);
     light_shader->set("gColor",    1);
     light_shader->set("gView",     2);
@@ -107,7 +106,6 @@ void Scene::init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glClearColor(.2f, .3f, .3f, 1.f);
 }
 
 void Scene::restart()
@@ -115,6 +113,7 @@ void Scene::restart()
     if (scene() == nullptr)
         err("No scene loaded.");
 
+    glClearColor(.2f, .3f, .3f, 1.f);
     objs.clear();
 
     _scene->restart(*this);
@@ -127,6 +126,7 @@ void Scene::upload()
 
 void Scene::render()
 {
+    upload();
 //    glEnable(GL_CULL_FACE);
 //    glCullFace(GL_BACK);
 //    glFrontFace(GL_CCW);
@@ -139,8 +139,7 @@ void Scene::render()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, deferred_out[1], 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    geo_shader->use();
-    upload();
+    geo_shader->activate();
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cam.viewMat()));
@@ -164,7 +163,7 @@ void Scene::render()
     // render lighting
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    light_shader->use();
+    light_shader->activate();
     glBindVertexArray(deferred_vao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, deferred_out[0]);
@@ -181,14 +180,14 @@ void Scene::render()
     {
         if (o->lighting())
         {
-            auto & light = o->light();
+            auto light = o->light();
             light_shader->set("light[" + std::to_string(idx) + "].pos",      o->pos());
-            light_shader->set("light[" + std::to_string(idx) + "].ambient",  light.ambient);
-            light_shader->set("light[" + std::to_string(idx) + "].diffuse",  light.diffuse);
-            light_shader->set("light[" + std::to_string(idx) + "].specular", light.specular);
-            light_shader->set("light[" + std::to_string(idx) + "].coef_a0",  light.coef.x);
-            light_shader->set("light[" + std::to_string(idx) + "].coef_a1",  light.coef.y);
-            light_shader->set("light[" + std::to_string(idx) + "].coef_a2",  light.coef.z);
+            light_shader->set("light[" + std::to_string(idx) + "].ambient",  light->ambient);
+            light_shader->set("light[" + std::to_string(idx) + "].diffuse",  light->diffuse);
+            light_shader->set("light[" + std::to_string(idx) + "].specular", light->specular);
+            light_shader->set("light[" + std::to_string(idx) + "].coef_a0",  light->coef.x);
+            light_shader->set("light[" + std::to_string(idx) + "].coef_a1",  light->coef.y);
+            light_shader->set("light[" + std::to_string(idx) + "].coef_a2",  light->coef.z);
             ++idx;
             if (idx == 100)
             {
@@ -206,7 +205,7 @@ void Scene::render()
             }
         }
     }
-    light_shader->use();
+    light_shader->activate();
     light_shader->set("tot_light", idx);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, deferred_out[1]);
@@ -278,6 +277,8 @@ void Scene::resize(int w, int h)
 }
 bool Scene::run(float dt)
 {
+    upload();
+
     auto field_height = 0.f;
     glm::vec3 field_norm(0.f, 1.f, 0.f);
 
@@ -312,7 +313,7 @@ bool Scene::run(float dt)
             {
                 auto h = field_height + (*it)->hsize().y;
                 auto above_field = (*it)->pos().y >= h;
-                (*it)->move((*it)->movement());
+                (*it)->move(*(*it)->movement());
                 auto & pos = (*it)->pos();
                 if (above_field && pos.y < h)
                 {

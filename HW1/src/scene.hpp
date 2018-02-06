@@ -38,8 +38,9 @@ public:
     Scene &operator=(Scene const &) = default;
     Scene &operator=(Scene &&) = default;
 
-    void load(scene::BaseScene *scene);
+    void load(scene::BaseScene *scene, bool auto_init = true);
     inline const scene::BaseScene *scene() { return _scene; }
+
 protected:
     Shader *geo_shader;
     Shader *light_shader;

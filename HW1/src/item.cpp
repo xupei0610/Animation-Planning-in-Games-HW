@@ -3,10 +3,6 @@
 
 using namespace px;
 
-const Light Item::LIGHT_STUB{};
-const glm::vec3 Item::ZERO_VEC(0.f);
-const glm::vec3 Item::ONE_VEC(1.f);
-
 std::vector<ItemInfo> Item::_items;
 std::vector<ItemGenFn> Item::_item_gen_fn;
 
@@ -57,7 +53,8 @@ std::shared_ptr<Item> Item::gen(std::size_t const &index)
 
 Item::Item(std::size_t id)
     : attribute(Item::lookup(id)),
-      _position(ZERO_VEC), _rotation(ZERO_VEC), _scale(ONE_VEC), _half_size(ONE_VEC),
+      _position(glm::vec3(0.f)), _rotation(glm::vec3(0.f)),
+      _scale(glm::vec3(1.f)), _half_size(glm::vec3(1.f)),
       _lifetime(0)
 {
     if (id == 0)

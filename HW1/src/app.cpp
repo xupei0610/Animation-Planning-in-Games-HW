@@ -1,8 +1,9 @@
 #include "app.hpp"
 
-#include "scene/empty.hpp"
-#include "scene/bounce.hpp"
-#include "scene/particle.hpp"
+#include "scene/empty_scene.hpp"
+#include "scene/water_fountain_scene.hpp"
+#include "scene/galaxy_scene.hpp"
+#include "scene/benchmark_scene.hpp"
 
 #include <cstring>
 
@@ -21,14 +22,26 @@ App* App::instance()
 
 App::App()
         : opt(), scene(&opt), menu(),
-          window(nullptr),
-          scenes{new scene::Empty, new scene::Bounce, new scene::Particle},
+          _window(nullptr),
+          scenes{
+//#ifdef BOUNCE_BALL
+//            new scene::EmptyScene
+//#elif defined(FOUNTAIN)
+//          new scene::WaterFountainScene
+//#elif defined(GALAXY)
+          new scene::GalaxyScene
+//#else
+//          new scene::BenchmarkScene
+//#endif
+          },
+
+          text_shader(nullptr),
           _height(WIN_HEIGHT), _width(WIN_WIDTH), _title(WIN_TITLE)
 {}
 
 App::~App()
 {
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(window());
 
     for (auto &s : scenes)
         delete s;
@@ -42,7 +55,7 @@ void App::err(std::string const &msg)
 
 void App::init(bool fullscreen)
 {
-    if (window) glfwDestroyWindow(window);
+    if (window()) glfwDestroyWindow(window());
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 #ifndef DISABLE_MULTISAMPLE
@@ -51,12 +64,13 @@ void App::init(bool fullscreen)
 
     // init window
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+    _window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
     _full_screen = !fullscreen;
-    if (!window) err("Failed to initialize window.");
+    if (!window()) err("Failed to initialize window.");
 
     // init OpenGL
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window());
+    std::cout << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) err("Failed to initialize GLEW.");
     glEnable(GL_DEPTH_TEST);
@@ -64,25 +78,29 @@ void App::init(bool fullscreen)
     glEnable(GL_MULTISAMPLE);
 #endif
 
-    // setup callback fns
-    glfwSetKeyCallback(window, &App::keyCallback);
-    glfwSetMouseButtonCallback(window, &App::mouseCallback);
-    glfwSetCursorPosCallback(window, &App::cursorPosCallback);
-//    glfwSetScrollCallback(window, &App::scrollCallback);
-    glfwSetWindowSizeCallback(window, &App::windowSizeCallback);
-    glfwSetFramebufferSizeCallback(window, &App::frameBufferSizeCallback);
+    glfwSetWindowSizeCallback(window(), &App::windowSizeCallback);
+    glfwSetFramebufferSizeCallback(window(), &App::frameBufferSizeCallback);
 
     // load game resource
+    if (text_shader == nullptr)
+    {
+        text_shader = new TextShader;
+        text_shader->setFontHeight(static_cast<std::size_t>(40));
+        static const unsigned char TITLE_FONT_DATA[] = {
+#include "font/Just_My_Type.dat"
+        };
+        text_shader->addFont(TITLE_FONT_DATA, sizeof(TITLE_FONT_DATA));
+    }
     scene.init();
     for (auto s : scenes)
         s->init(scene);
-    scene.load(scenes[0]);
+    scene.load(scenes[0], false);
     menu.init();
 
     // show window
     state = State::Running;
     togglePause();
-    glfwShowWindow(window);
+    glfwShowWindow(window());
     toggleFullscreen();
 
     restart();
@@ -91,7 +109,7 @@ void App::init(bool fullscreen)
 bool App::run()
 {
     processEvents();
-    if (glfwWindowShouldClose(window))
+    if (glfwWindowShouldClose(window()))
         return false;
 
     switch (state)
@@ -107,16 +125,22 @@ bool App::run()
 
         default:
             state = State::Pausing;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             menu.render(*this);
     }
 
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(window());
     return true;
 }
 
 void App::restart()
 {
+    // setup callback fns
+    glfwSetKeyCallback(window(), &App::keyCallback);
+    glfwSetMouseButtonCallback(window(), &App::mouseCallback);
+    glfwSetCursorPosCallback(window(), &App::cursorPosCallback);
+//    glfwSetScrollCallback(window(), &App::scrollCallback);
+
     std::memset(action, 0, sizeof(action));
     scene.restart();
     if (state == State::Pausing)
@@ -125,21 +149,20 @@ void App::restart()
 
 void App::close()
 {
-    glfwSetWindowShouldClose(window, 1);
+    glfwSetWindowShouldClose(window(), 1);
 }
 
 void App::gui()
 {
-    constexpr auto scale = 0.4f;
     auto x = frameWidth() - 10;
     constexpr auto y = 10.f;
-    auto gap = menu.fontSize() * scale;
+    auto gap = 20;
 
-    menu.text_shader->render("FPS: " + std::to_string(_fps),
+    text_shader->render("FPS: " + std::to_string(_fps),
                              x, y, 0.4f,
                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                              Anchor::RightTop);
-    menu.text_shader->render(scene.character.canFloat() ? "Fly: on" : "Fly: off",
+    text_shader->render(scene.character.canFloat() ? "Fly: on" : "Fly: off",
                              x, y+gap, 0.4f,
                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                              Anchor::RightTop);
@@ -150,33 +173,33 @@ void App::togglePause()
     if (state == State::Pausing)
     {
         state = State::Running;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouse_detected = false;
         time_gap = -1;
     }
     else
     {
         state = State::Pausing;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
 
 void App::toggleFullscreen()
 {
-    auto m = glfwGetWindowMonitor(window);
+    auto m = glfwGetWindowMonitor(window());
     if (m == nullptr) m = glfwGetPrimaryMonitor();
     auto v = glfwGetVideoMode(m);
 
     if (_full_screen)
     {
-        glfwSetWindowMonitor(window, nullptr,
+        glfwSetWindowMonitor(window(), nullptr,
                              (v->width - _width)/2, (v->height - _height)/2,
                              _width, _height, GL_DONT_CARE);
-        glfwSetWindowSize(window, _width, _height);
+        glfwSetWindowSize(window(), _width, _height);
     }
     else
     {
-        glfwSetWindowMonitor(window, m, 0, 0, v->width, v->height, GL_DONT_CARE);
+        glfwSetWindowMonitor(window(), m, 0, 0, v->width, v->height, GL_DONT_CARE);
     }
 
     _full_screen = !_full_screen;
@@ -243,7 +266,7 @@ void App::cursor(float x_pos, float y_pos)
     {
         mouse_detected = true;
     }
-    glfwSetCursorPos(window, _center_x, _center_y);
+    glfwSetCursorPos(window(), _center_x, _center_y);
 }
 
 void App::click(int button, int mods, int action)
@@ -270,7 +293,7 @@ void App::input(int keycode, int mods, int action, bool mouse)
     if (keycode == opt.shortcuts[Action])                   \
         this->action[static_cast<int>(Action)] = enable;
 #define LOAD_SCENE(Idx)                                         \
-    if (scenes[Idx] != scene.scene()) { scene.load(scenes[Idx]); restart(); }
+    if (scenes.size() > Idx && scenes[Idx] != scene.scene()) { scene.load(scenes[Idx], false); restart(); }
 
     if (keycode == opt.shortcuts[System::Pause] && action == GLFW_PRESS)
     {
@@ -291,6 +314,10 @@ void App::input(int keycode, int mods, int action, bool mouse)
     {
         LOAD_SCENE(2);
     }
+    else if (keycode == GLFW_KEY_4 && action == GLFW_PRESS)
+    {
+        LOAD_SCENE(3);
+    }
     else if (keycode == GLFW_KEY_R && action == GLFW_PRESS)
     {
         restart();
@@ -308,7 +335,6 @@ void App::input(int keycode, int mods, int action, bool mouse)
     else KEY_CALLBACK(Action::Jump)
     else KEY_CALLBACK(Action::Run)
     else KEY_CALLBACK(Action::Shoot)
-
 #undef KEY_CALLBACK
 }
 
@@ -322,7 +348,7 @@ void App::setSize(int width, int height)
 
     if (!_full_screen)
     {
-        glfwSetWindowSize(window, _width, _height);
+        glfwSetWindowSize(window(), _width, _height);
         updateWindowSize();
         updateFrameBufferSize();
     }
@@ -331,15 +357,15 @@ void App::setSize(int width, int height)
 void App::setTitle(std::string const &title)
 {
     _title = title;
-    if (window)
-        glfwSetWindowTitle(window, title.data());
+    if (window())
+        glfwSetWindowTitle(window(), title.data());
 }
 
 void App::updateWindowSize()
 {
-    if (window)
+    if (window())
     {
-        glfwGetWindowSize(window, &_width, &_height);
+        glfwGetWindowSize(window(), &_width, &_height);
         _center_x = _width * 0.5f;
         _center_y = _height * 0.5f;
     }
@@ -347,10 +373,10 @@ void App::updateWindowSize()
 
 void App::updateFrameBufferSize()
 {
-    if (window)
+    if (window())
     {
         int w, h;
-        glfwGetFramebufferSize(window, &w, &h);
+        glfwGetFramebufferSize(window(), &w, &h);
         scene.resize(w, h);
         menu.resize(scene.cam.width(), scene.cam.height());
         _frame_height = scene.cam.height();
@@ -360,23 +386,22 @@ void App::updateFrameBufferSize()
 
 void App::updateTimeGap()
 {
-    static decltype(glfwGetTime()) last_time;
     static decltype(glfwGetTime()) last_count_time;
     static int frames;
 
     if (time_gap == -1)
     {
-        last_time = glfwGetTime();
+        current_time = glfwGetTime();
         time_gap = 0;
         _fps = 0;
         frames = 0;
-        last_count_time = last_time;
+        last_count_time = current_time;
     }
     else
     {
-        auto current_time = glfwGetTime();
-        time_gap = current_time - last_time;
-        last_time = current_time;
+        auto c_time = glfwGetTime();
+        time_gap = c_time - current_time;
+        current_time = c_time;
 
         if (current_time - last_count_time >= 1.0)
         {
@@ -416,4 +441,10 @@ void App::cursorPosCallback(GLFWwindow *, double x_pos, double y_pos)
 void App::mouseCallback(GLFWwindow *, int button, int action, int mods)
 {
     instance()->click(button, mods, action);
+}
+
+void App::text(std::string const &text, float x, float y, float scale,
+               glm::vec4 const &color, Anchor anchor)
+{
+    text_shader->render(text, x, y, scale, color, anchor);
 }

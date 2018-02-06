@@ -15,7 +15,7 @@ const char *RectangleShader::FS =
 RectangleShader::RectangleShader()
     : Shader(VS, FS), vao(0), vbo(0)
 {
-    glBindFragDataLocation(pid(), 0, "color");
+    output("color");
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -54,7 +54,7 @@ void RectangleShader::render(float x, float y, float width, float height,
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
 
-    use();
+    activate();
     glBindVertexArray(vao);
 
     if (width > 2.0f || width < -2.0f)
@@ -84,4 +84,8 @@ void RectangleShader::render(float x, float y, float width, float height,
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    activate(false);
 }
