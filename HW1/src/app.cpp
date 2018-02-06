@@ -1,6 +1,7 @@
 #include "app.hpp"
 
 #include "scene/empty_scene.hpp"
+#include "scene/fireworks_scene.hpp"
 #include "scene/water_fountain_scene.hpp"
 #include "scene/galaxy_scene.hpp"
 #include "scene/benchmark_scene.hpp"
@@ -29,9 +30,11 @@ App::App()
 //#elif defined(FOUNTAIN)
 //          new scene::WaterFountainScene
 //#elif defined(GALAXY)
-          new scene::GalaxyScene
+//          new scene::GalaxyScene
+//#elif defined(FIREWORKS)
+//          new scene::FireworksScene
 //#else
-//          new scene::BenchmarkScene
+          new scene::BenchmarkScene
 //#endif
           },
 
@@ -70,7 +73,7 @@ void App::init(bool fullscreen)
 
     // init OpenGL
     glfwMakeContextCurrent(window());
-    std::cout << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
+//    std::cout << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) err("Failed to initialize GLEW.");
     glEnable(GL_DEPTH_TEST);
@@ -130,6 +133,7 @@ bool App::run()
     }
 
     glfwSwapBuffers(window());
+
     return true;
 }
 
@@ -139,9 +143,10 @@ void App::restart()
     glfwSetKeyCallback(window(), &App::keyCallback);
     glfwSetMouseButtonCallback(window(), &App::mouseCallback);
     glfwSetCursorPosCallback(window(), &App::cursorPosCallback);
-//    glfwSetScrollCallback(window(), &App::scrollCallback);
+    glfwSetScrollCallback(window(), &App::scrollCallback);
 
     std::memset(action, 0, sizeof(action));
+    std::memset(detection, 1, sizeof(detection));
     scene.restart();
     if (state == State::Pausing)
         togglePause();
@@ -244,6 +249,7 @@ void App::processEvents()
 void App::scroll(float, float y_offset)
 {
     scene.cam.zoom(y_offset);
+    scene.cam.updateProj();
 }
 
 void App::cursor(float x_pos, float y_pos)
@@ -258,9 +264,16 @@ void App::cursor(float x_pos, float y_pos)
 
     if (mouse_detected)
     {
-        auto x_offset = opt.mouseSensitivity() * (x_pos - _center_x);
-        auto y_offset = opt.mouseSensitivity() * (y_pos - _center_y);
-        scene.cam.yaw(x_offset).pitch(opt.invertY() ? y_offset : -y_offset);
+        if (detection[static_cast<unsigned int>(Detection::HorizontalMouseMotion)])
+        {
+            auto x_offset = opt.mouseSensitivity() * (x_pos - _center_x);
+            scene.cam.yaw(x_offset);
+        }
+        if (detection[static_cast<unsigned int>(Detection::VerticalMouseMotion)])
+        {
+            auto y_offset = opt.mouseSensitivity() * (y_pos - _center_y);
+            scene.cam.pitch(opt.invertY() ? y_offset : -y_offset);
+        }
     }
     else
     {
@@ -447,4 +460,11 @@ void App::text(std::string const &text, float x, float y, float scale,
                glm::vec4 const &color, Anchor anchor)
 {
     text_shader->render(text, x, y, scale, color, anchor);
+}
+
+void App::activate(Detection d, bool enable)
+{
+    auto id = static_cast<unsigned int>(d);
+    if (id < N_DETECTIONS)
+        detection[id] = enable;
 }

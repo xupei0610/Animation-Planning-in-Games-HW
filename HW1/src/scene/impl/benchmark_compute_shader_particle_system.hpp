@@ -1,8 +1,6 @@
 #ifndef PX_CG_SCENE_IMPL_BENCHMARK_COMPUTE_SHADER_PARTICLE_SYSTEM
 #define PX_CG_SCENE_IMPL_BENCHMARK_COMPUTE_SHADER_PARTICLE_SYSTEM
 
-#define WORK_GROUP_SIZE 100
-
 scene::BenchmarkScene::ComputeShaderParticleSystem::ComputeShaderParticleSystem()
         : ParticleSystem(),
           vao(0), vbo{0}, ssbo(0),
@@ -23,7 +21,7 @@ void scene::BenchmarkScene::ComputeShaderParticleSystem::init(float *vertex, uns
               unsigned int tex, float *uv, bool atlas)
 {
     static const char CS[] = "#version 430 core\n"
-    "layout (local_size_x = " STR(WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
+    "layout (local_size_x = " STR(COMPUTE_SHADER_WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
             ""
             "layout(std140, binding = 0) buffer Particle_t"
             "{"
@@ -146,7 +144,6 @@ void scene::BenchmarkScene::ComputeShaderParticleSystem::init(float *vertex, uns
     glEnableVertexAttribArray(1);   // scale + rotation
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glBindBuffer(GL_ARRAY_BUFFER, ssbo);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
     glEnableVertexAttribArray(0);   // position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20*sizeof(float), (void *)(16*sizeof(float)));
     glEnableVertexAttribArray(2);   // color
@@ -200,9 +197,10 @@ void scene::BenchmarkScene::ComputeShaderParticleSystem::update(float dt, glm::v
         if (n_particles > total()) n_particles = total();
     }
 
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
     compute_shader->activate();
     compute_shader->set("dt", dt);
-    glDispatchCompute(count()/WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
     compute_shader->activate(false);
 }
 

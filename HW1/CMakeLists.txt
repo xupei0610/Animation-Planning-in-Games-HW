@@ -4,6 +4,7 @@ set(EXE_NAME hw1)
 
 option(USE_OPENMP "Use OpenMP or not." ON)
 option(USE_CUDA "Use CUDA or not" ON)
+set(USE_CUDA ON)
 
 set(MSVC_CL_EXE "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.11.25503/bin/Hostx64/x64/CL.exe")
 
@@ -54,7 +55,6 @@ set(SOURCE_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVID_LIBRARY})
 
-set(USE_CUDA ON)
 if (USE_CUDA)
     find_package(CUDA 5.0.0 REQUIRED)
     include_directories(${CUDA_INCLUDE_DIRS})

@@ -2,6 +2,7 @@
 #include "scene.hpp"
 #include "app.hpp"
 #include "global.hpp"
+#include "config.hpp"
 
 #ifdef USE_CUDA
 #include "util/cuda.hpp"
@@ -11,8 +12,6 @@
 #include "stb_image.hpp"
 
 using namespace px;
-
-#define WORK_GROUP_SIZE 256
 
 class scene::GalaxyScene::ComputeShaderParticleSystem::impl
 {
@@ -29,7 +28,7 @@ public:
 #endif
 
     const char *CS_SPAWN = "#version 430 core\n"
-            "layout (local_size_x = " STR(WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
+            "layout (local_size_x = " STR(COMPUTE_SHADER_WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
             ""
             "layout(std140, binding = 0) buffer Particle_t"
             "{"
@@ -63,7 +62,7 @@ public:
 //            "   if (gid % 3 == 1) particles[gid].position.x += 3.f;"
 //            "   else if (gid % 3 == 2) particles[gid].position.z += 3.f;"
             "   float r0 = 4.f;"
-            "   particles[gid].position.x = r0 * rnd(sd); ++sd.x;"
+            "   particles[gid].position.x = r0 * rnd(sd) + (gid % 2 == 0 ? 1.5f : -1.5f); ++sd.x;"
             "   particles[gid].position.y = r0 * rnd(sd); ++sd.x;"
             "   particles[gid].position.z = r0 * rnd(sd); ++sd.x;"
             "   particles[gid].velocity.x = 0.f;"//-.1f * particles[gid].position.x;"
@@ -76,7 +75,7 @@ public:
             "   particles[gid].d_pos.z = 0.f;"
             "}";
     const char *CS_UPDATE = "#version 430 core\n"
-            "layout (local_size_x = " STR(WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
+            "layout (local_size_x = " STR(COMPUTE_SHADER_WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
             ""
             "layout(std140, binding = 0) buffer Particle_t"
             "{"
@@ -249,9 +248,6 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::init(float *vertex, unsign
     pimpl->draw_shader->set("sprite", 0);
     glBindVertexArray(pimpl->vao);
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
-#ifndef USE_CUDA
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
-#endif
     glEnableVertexAttribArray(0);   // position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(0));
     glEnableVertexAttribArray(1);   // d_position
@@ -290,8 +286,9 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::upload()
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*12*max_particles, nullptr, GL_STATIC_DRAW);
 #ifndef USE_CUDA
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->spawn_compute_shader->activate();
-    glDispatchCompute(total()/WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(total()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
     pimpl->spawn_compute_shader->activate(false);
 #else
     if (pimpl->res != nullptr)
@@ -325,10 +322,11 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::update(float dt, glm::vec3
     }
 
 #ifndef USE_CUDA
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->update_compute_shader->activate();
     pimpl->update_compute_shader->set("dt", std::min(dt, 0.02f));
     pimpl->update_compute_shader->set("n_particles", int(count()));
-    glDispatchCompute(count()/WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
     pimpl->update_compute_shader->activate(false);
 #else
     void *buffer;
@@ -390,11 +388,14 @@ scene::GalaxyScene::GalaxyScene()
           particle_system(nullptr)
 {
     particle_system = new ComputeShaderParticleSystem;
+
+    particle_system->max_particles =
 #ifdef USE_CUDA
-    particle_system->max_particles =   20000;
+    GALAXY_MAX_PARTICLES_CUDA
 #else
-    particle_system->max_particles =   16000;
+    GALAXY_MAX_PARTICLES_COMPUTE_SHAER
 #endif
+    ;
     particle_system->birth_rate    = 6000000;
 }
 
@@ -410,11 +411,7 @@ void scene::GalaxyScene::init(Scene &scene)
 
 void scene::GalaxyScene::restart(Scene &scene)
 {
-#ifdef USE_CUDA
-    scene.character.reset(-10.f, 30.f, -10.f, 135.f, 45.f);
-#else
     scene.character.reset(-3.f, 9.f, -3.f, 135.f, 45.f);
-#endif
     scene.character.setShootable(false);
     scene.character.setFloating(true);
 
@@ -480,56 +477,40 @@ void scene::GalaxyScene::renderInfo()
 
 void scene::GalaxyScene::processInput(float dt)
 {
+    auto window = App::instance()->window();
     static auto sum_dt = 0.f;
     static auto last_key = GLFW_KEY_UNKNOWN;
     static auto key_count = 0;
 
-#define HOLD_KEY(Key)                                       \
+#define HOLD_KEY(Key)                                           \
     (last_key == Key && sum_dt > 0.01f && key_count == 10)
 
-    auto & window = App::instance()->window();
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-    {
-        if (last_key != GLFW_KEY_Z || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_Z))
-        {
-            particle_system->max_particles += 1000;
-            particle_system->birth_rate = particle_system->max_particles * 60.f;
-            sum_dt = 0;
-
-            if (key_count < 10) ++key_count;
-        }
-        else
-            sum_dt += dt;
-
-        if (last_key != GLFW_KEY_Z)
-        {
-            last_key = GLFW_KEY_Z;
-            key_count = 0;
-        }
-
+#define STICKY_KEY_CHECK(Key, Cmd)                              \
+    if (glfwGetKey(window, Key) == GLFW_PRESS)                  \
+    {                                                           \
+        if (last_key != Key || sum_dt > 0.1f || HOLD_KEY(Key))  \
+        {                                                       \
+            { Cmd }                                             \
+            sum_dt = 0; if (key_count < 10) ++key_count;        \
+        }                                                       \
+        else sum_dt += dt;                                      \
+        if (last_key != Key)                                    \
+        { last_key = Key; key_count = 0; }                      \
     }
-    else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-    {
-        if (particle_system->max_particles > 1000)
-        {
-            if (last_key != GLFW_KEY_X || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_X))
-            {
-                particle_system->max_particles -= 1000;
-                particle_system->birth_rate = particle_system->max_particles * 60.f;
-                sum_dt = 0;
 
-                if (key_count < 10) ++key_count;
-            }
-            else
-                sum_dt += dt;
-        }
-
-        if (last_key != GLFW_KEY_X)
-        {
-            last_key = GLFW_KEY_X;
-            key_count = 0;
-        }
+#define INCREASE_PARTICLES                                              \
+    particle_system->max_particles += 1000;                             \
+    particle_system->birth_rate = particle_system->max_particles * .1f;
+#define DECREASE_PARTICLES                                                  \
+    if (particle_system->max_particles > 1000)                              \
+    {                                                                       \
+        particle_system->max_particles -= 1000;                             \
+        particle_system->birth_rate = particle_system->max_particles * .1f; \
     }
+
+    STICKY_KEY_CHECK(GLFW_KEY_Z, INCREASE_PARTICLES)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_X, DECREASE_PARTICLES)
     else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         last_key = GLFW_KEY_P;
     else
@@ -538,6 +519,4 @@ void scene::GalaxyScene::processInput(float dt)
             pause = !pause;
         last_key = GLFW_KEY_UNKNOWN;
     }
-
-#undef HOLD_KEY
 }

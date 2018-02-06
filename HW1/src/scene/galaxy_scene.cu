@@ -3,6 +3,7 @@
 
 #include <curand.h>
 #include <curand_kernel.h>
+#include <math_functions.h>
 
 using namespace px;
 
@@ -34,14 +35,14 @@ __global__
 void spawnGalaxy(void *buffer, unsigned int n)
 {
     auto particles = reinterpret_cast<Buffer_t *>(buffer);
-    const float r0 = 16.f;
+    const float r0 = 4.f;
 
     curandState_t sd;
     curand_init(uintptr_t(buffer) + threadIdx.x, blockIdx.x, 0, &sd);
 
     PX_CUDA_LOOP(i, n)
     {
-        particles[i].position.x = r0 * curand_uniform(&sd) + (i % 2 == 0 ? 6.f : -6.f);
+        particles[i].position.x = r0 * curand_uniform(&sd) + (i % 2 == 0 ? 1.5f : -1.5f);
         particles[i].position.y = r0 * curand_uniform(&sd);
         particles[i].position.z = r0 * curand_uniform(&sd);
         particles[i].velocity.x = 0.f;
@@ -96,9 +97,9 @@ void updateGalaxy(void *buffer, unsigned int n, float dt)
             p = n - i > blockDim.x ? blockDim.x : n - i;
             for (unsigned int j = 0; j < p; ++j)
             {
-                r_x = sh_pos[threadIdx.x].x - x;
-                r_y = sh_pos[threadIdx.x].y - y;
-                r_z = sh_pos[threadIdx.x].z - z;
+                r_x = sh_pos[j].x - x;
+                r_y = sh_pos[j].y - y;
+                r_z = sh_pos[j].z - z;
                 dist_sqr = r_x * r_x + r_y * r_y + r_z * r_z + EPS;
                 dist_six = dist_sqr * dist_sqr * dist_sqr;
                 dist_sqr = 1.f / sqrtf(dist_six);
@@ -109,18 +110,15 @@ void updateGalaxy(void *buffer, unsigned int n, float dt)
             }
             __syncthreads();
         }
-        x = particles[gid].velocity.x * f;
-        y = particles[gid].velocity.y * f;
-        z = particles[gid].velocity.z * f;
         particles[gid].velocity.x += acc_x * f;
         particles[gid].velocity.x *= damping;
         particles[gid].velocity.y += acc_y * f;
         particles[gid].velocity.y *= damping;
         particles[gid].velocity.z += acc_z * f;
         particles[gid].velocity.z *= damping;
-        particles[gid].d_pos.x = x;
-        particles[gid].d_pos.y = y;
-        particles[gid].d_pos.z = z;
+        particles[gid].d_pos.x = particles[gid].velocity.x * f;
+        particles[gid].d_pos.y = particles[gid].velocity.y * f;
+        particles[gid].d_pos.z = particles[gid].velocity.z * f;
     }
 }
 

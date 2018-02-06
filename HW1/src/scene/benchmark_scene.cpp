@@ -2,6 +2,7 @@
 #include "scene.hpp"
 #include "util/random.hpp"
 #include "app.hpp"
+#include "config.hpp"
 
 #include <cstring>
 #include <glm/gtx/norm.hpp>
@@ -26,17 +27,17 @@ scene::BenchmarkScene::BenchmarkScene()
           particle_system(nullptr)
 {
     systems.emplace_back("compute shader", new ComputeShaderParticleSystem);
-    systems.back().second->max_particles = 300000;
-    systems.back().second->birth_rate    =  36000;
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_COMPUTE_SHADER;
+    systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
     systems.emplace_back("transform feedback with instancing", new TransformFeedbackParticleSystem);
-    systems.back().second->max_particles = 300000;
-    systems.back().second->birth_rate    =  36000;
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_TRANSFORM_FEEDBACK;
+    systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
     systems.emplace_back("instancing", new Simple2DParticleSystem);
-    systems.back().second->max_particles = 100000;
-    systems.back().second->birth_rate =     12000;
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_SIMPLE_INSTANCING;
+    systems.back().second->birth_rate =     .12f * systems.back().second->max_particles;
     systems.emplace_back("geometry shader", new GeometryParticleSystem);
-    systems.back().second->max_particles = 100000;
-    systems.back().second->birth_rate =     12000;
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_SIMPLE_GEOMETRY_SHADER;
+    systems.back().second->birth_rate =     .12f * systems.back().second->max_particles;
 
     constexpr auto PI = static_cast<float>(M_PI);
     constexpr auto double_PI = static_cast<float>(M_2_PI);
@@ -92,6 +93,8 @@ void scene::BenchmarkScene::init(Scene &scene)
 
 void scene::BenchmarkScene::restart(Scene &scene)
 {
+    pause = false;
+
     scene.character.reset(0.f, 0.f, -30.f, 180.f, 0.f);
     scene.character.setShootable(false);
     scene.character.setFloating(true);
@@ -117,7 +120,8 @@ void scene::BenchmarkScene::render(Shader &scene_shader)
 
 void scene::BenchmarkScene::update(float dt)
 {
-    particle_system->update(dt);
+    if (!pause)
+        particle_system->update(dt);
     processInput(dt);
 }
 
@@ -166,56 +170,42 @@ void scene::BenchmarkScene::renderInfo()
 
 void scene::BenchmarkScene::processInput(float dt)
 {
+    auto window = App::instance()->window();
     static auto sum_dt = 0.f;
     static auto last_key = GLFW_KEY_UNKNOWN;
     static auto key_count = 0;
 
-#define HOLD_KEY(Key)                                       \
+#define HOLD_KEY(Key)                                           \
     (last_key == Key && sum_dt > 0.01f && key_count == 10)
 
-    auto & window = App::instance()->window();
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-    {
-        if (last_key != GLFW_KEY_Z || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_Z))
-        {
-            particle_system->max_particles += 1000;
-            particle_system->birth_rate = particle_system->max_particles * .1f;
-            sum_dt = 0;
-
-            if (key_count < 10) ++key_count;
-        }
-        else
-            sum_dt += dt;
-
-        if (last_key != GLFW_KEY_Z)
-        {
-            last_key = GLFW_KEY_Z;
-            key_count = 0;
-        }
-
+#define STICKY_KEY_CHECK(Key, Cmd)                              \
+    if (glfwGetKey(window, Key) == GLFW_PRESS)                  \
+    {                                                           \
+        if (last_key != Key || sum_dt > 0.1f || HOLD_KEY(Key))  \
+        {                                                       \
+            { Cmd }                                             \
+            sum_dt = 0; if (key_count < 10) ++key_count;        \
+        }                                                       \
+        else sum_dt += dt;                                      \
+        if (last_key != Key)                                    \
+        { last_key = Key; key_count = 0; }                      \
     }
-    else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-    {
-        if (particle_system->max_particles > 1000)
-        {
-            if (last_key != GLFW_KEY_X || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_X))
-            {
-                particle_system->max_particles -= 1000;
-                particle_system->birth_rate = particle_system->max_particles * .1f;
-                sum_dt = 0;
 
-                if (key_count < 10) ++key_count;
-            }
-            else
-                sum_dt += dt;
-        }
-
-        if (last_key != GLFW_KEY_X)
-        {
-            last_key = GLFW_KEY_X;
-            key_count = 0;
-        }
+#define INCREASE_PARTICLES                                              \
+    particle_system->max_particles += 1000;                             \
+    particle_system->birth_rate = particle_system->max_particles * .1f;
+#define DECREASE_PARTICLES                                                  \
+    if (particle_system->max_particles > 1000)                              \
+    {                                                                       \
+        particle_system->max_particles -= 1000;                             \
+        particle_system->birth_rate = particle_system->max_particles * .1f; \
     }
+
+    STICKY_KEY_CHECK(GLFW_KEY_Z, INCREASE_PARTICLES)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_X, DECREASE_PARTICLES)
+    else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        last_key = GLFW_KEY_P;
     else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
         last_key = GLFW_KEY_M;
     else
@@ -234,6 +224,8 @@ void scene::BenchmarkScene::processInput(float dt)
                 }
             }
         }
+        else if (last_key == GLFW_KEY_P)
+            pause = !pause;
         last_key = GLFW_KEY_UNKNOWN;
     }
 

@@ -17,7 +17,10 @@ class px::scene::WaterFountainScene : public BaseScene
 public:
     const std::string system_name;
     const std::string rendering_mode;
+    glm::vec3 wind;
+    bool pause;
 
+public:
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
@@ -31,6 +34,7 @@ public:
     class ComputeShaderParticleSystem : public ParticleSystem
     {
     public:
+        glm::vec3 acceleration;
 
         void init(float *vertex, unsigned int v_count,
                   unsigned int tex = 0, float *uv = nullptr, bool atlas = false) override;
@@ -51,7 +55,7 @@ public:
     };
 
 protected:
-    ParticleSystem *particle_system;
+    ComputeShaderParticleSystem *particle_system;
 
 protected:
     void renderInfo();

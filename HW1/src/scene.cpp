@@ -274,6 +274,8 @@ void Scene::resize(int w, int h)
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             err("Failed to generate frame buffer");
     }
+
+    _scene->resize(w, h);
 }
 bool Scene::run(float dt)
 {

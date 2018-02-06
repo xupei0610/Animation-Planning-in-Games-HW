@@ -52,8 +52,7 @@ public:
     };
 
 protected:
-    ParticleSystem *particle_system;
-
+    std::vector<ParticleSystem *> systems;
 protected:
     void renderInfo();
     void processInput(float dt);

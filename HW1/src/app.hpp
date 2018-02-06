@@ -56,8 +56,15 @@ public:
     enum class State
     {
         Pausing,
-        Running,
+        Running
     } state;
+
+#define N_DETECTIONS 2
+    enum class Detection : unsigned int
+    {
+        HorizontalMouseMotion = 0,
+        VerticalMouseMotion = 1,
+    };
 
 public:
     static App * instance();
@@ -79,6 +86,8 @@ public:
     void cursor(float x_pos, float y_pos);
     void click(int button, int modifier, int action);
     void input(int keycode, int modifier, int action, bool mouse);
+
+    void activate(Detection, bool enable);
 
     inline const int &height() const noexcept {return _height;}
     inline const int &width() const noexcept {return _width;}
@@ -121,6 +130,7 @@ protected:
     bool mouse_detected;
 
     bool action[N_ACTIONS];
+    bool detection[N_DETECTIONS];
 
     const std::vector<scene::BaseScene *> scenes;
 

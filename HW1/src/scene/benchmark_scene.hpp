@@ -16,6 +16,9 @@ class BenchmarkScene;
 class px::scene::BenchmarkScene : public BaseScene
 {
 public:
+    bool pause;
+
+public:
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;

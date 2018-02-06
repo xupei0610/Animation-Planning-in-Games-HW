@@ -1,19 +1,58 @@
 # Particle System
 
-Check-in Video: https://youtu.be/HLgS5rHPxJU
+This is for HW1 of the course CSCI 5611 Animation and Motion Planning in Games, UMN.
 
-0:00 - 0:35 Shoot Lighting VertexParticleScene Ball (deferred rendering)
+This is bunch of programs implementing particle systems.
 
-0:36 - 1:05 2500 Lighting VertexParticleScene Balls (deferred rendering)
+**Apply one day more to write README file.**
 
-1:06 - 1:55 1,000,000 VertexParticleScene Balls implemented by Particle System (using instancing method)
+Too many features need to be documented. 
 
-## Test Environment
+## Features
 
-    Intel i7-7700K, NVIDIA GTX1080 Ti
-    Resolution: 2560 x 1080
+### Basic Features
 
-12 - 20 fps for 2500 Lighting Balls using deferred rendering; 30 fps for 640 x 480 resolution.
+Implementation of Bounce Ball, Fire, Fireworks, Water Fountain.
 
-45 - 50 fps for 1,000,000 VertexParticleScene Balls using particle system; 60 fps for 640 x 480 resolution.
+### Simulation
 
+Fire, Smoke Simulation using Curl Noise
+
+Water Simulation using the method of Smoothed Particle Hydrodynamics
+
+N-body Galaxy Simulation (10,000 particles, 30 FPS)
+
+### User Interface
+
+3D Implementation of all scenes
+
+3D User Controlled Camera
+
+Real-time User Interaction with systems (pause/resume, control acceleration, adjust the amount of particles and ...)
+
+Multiple Particle Systems in one scence
+
+### Hardcore Technology
+
+SIMD Implementation using Compute Shader and CUDA (see benchmark part)
+
+Thread-Parallel Implementation using OpenMP
+
+### Benchmark
+
+500, 1000, 10,000, 100,000, 1,000,000, 3,000,000 Particles Benchmark for methods of TransformFeedback, Compute Shader, CUDA and CPU Implementation, and for Instancing Draw and Geometry Shader.
+
+N-body Simulation Benchmark for Compute Shader and CUDA (CUDA win)
+
+
+### Trivial Tricks
+
+Textured and Translucent Particles
+
+Particle Trails
+
+Collision Detection with external obstcales (no collision detection among particles)
+
+Snow
+
+<img src="doc/demo.png" />

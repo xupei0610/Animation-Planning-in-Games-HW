@@ -164,7 +164,6 @@ void scene::BenchmarkScene::TransformFeedbackParticleSystem::init(float *vertex,
         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(float)*17, (void *)(13*sizeof(float)));
 
         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfbo[1-i]);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo[i]);
     }
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 
@@ -236,6 +235,7 @@ void scene::BenchmarkScene::TransformFeedbackParticleSystem::update(float dt, gl
 
     glBindVertexArray(vao[0]);
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfbo[0]);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo[1]);
     glBeginTransformFeedback(GL_POINTS);
     glDrawArrays(GL_POINTS, 0, count());
     glEndTransformFeedback();

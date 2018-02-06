@@ -3,15 +3,16 @@
 #include "util/random.hpp"
 #include "app.hpp"
 #include "global.hpp"
+#include "config.hpp"
 
 #include "stb_image.hpp"
 
 #include <cstring>
 #include <glm/gtx/norm.hpp>
+#include <iomanip>
+#include <sstream>
 
 using namespace px;
-
-#define WORK_GROUP_SIZE 100
 
 class scene::WaterFountainScene::ComputeShaderParticleSystem::impl
 {
@@ -25,7 +26,7 @@ public:
     Shader *draw_shader;
 
     const char *CS = "#version 430 core\n"
-            "layout (local_size_x = " STR(WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
+            "layout (local_size_x = " STR(COMPUTE_SHADER_WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
             ""
             "layout(std140, binding = 0) buffer Particle_t"
             "{"
@@ -70,7 +71,7 @@ public:
             ""
             "void update(vec2 sd)"
             "{"
-            //"   particles[gid].position.w -= dt / (particles[gid].velocity.w + 1.f);"
+            "   particles[gid].velocity.xyz += acceleration * dt;"
             "   particles[gid].velocity.y -= vertical_gravity * dt;"
             ""
             "   particles[gid].position.xyz += particles[gid].velocity.xyz * dt;"
@@ -251,7 +252,6 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::init(float *vertex,
     pimpl->draw_shader->set("sprite", 0);
     glBindVertexArray(pimpl->vao);
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     glEnableVertexAttribArray(0);   // position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)(0));
     glEnableVertexAttribArray(1);   // color alpha
@@ -303,9 +303,11 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::update(float dt, gl
         if (n_particles > total()) n_particles = total();
     }
 
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", dt);
-    glDispatchCompute(count()/WORK_GROUP_SIZE, 1, 1);
+    pimpl->compute_shader->set("acceleration", acceleration);
+    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
     pimpl->compute_shader->activate(false);
 }
 
@@ -344,8 +346,8 @@ scene::WaterFountainScene::WaterFountainScene()
           particle_system(nullptr)
 {
     particle_system = new ComputeShaderParticleSystem;
-    particle_system->max_particles = 100000;
-    particle_system->birth_rate    =6000000;
+    particle_system->max_particles = WATER_FOUNTAIN_MAX_PARTICLES;
+    particle_system->birth_rate    = particle_system->max_particles*1000;
 }
 
 scene::WaterFountainScene::~WaterFountainScene()
@@ -363,7 +365,8 @@ void scene::WaterFountainScene::restart(Scene &scene)
     scene.character.reset(0.f, 0.f, -20.f, 180.f, 0.f);
     scene.character.setShootable(false);
     scene.character.setFloating(true);
-
+    pause = false;
+    wind = glm::vec3(0.f);
     particle_system->restart();
 }
 
@@ -378,7 +381,11 @@ void scene::WaterFountainScene::render(Shader &scene_shader)
 
 void scene::WaterFountainScene::update(float dt)
 {
-    particle_system->update(dt);
+    if (!pause)
+    {
+        particle_system->acceleration = wind;
+        particle_system->update(dt);
+    }
     processInput(dt);
 }
 
@@ -403,6 +410,12 @@ void scene::WaterFountainScene::renderInfo()
                           10, 50, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::LeftTop);
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << wind.x << ", " << wind.y << std::endl;
+       App::instance()->text("Wind: " + ss.str(),
+                          10, 70, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::LeftTop);
 
     auto h = App::instance()->frameHeight() - 25;
     if (particle_system->max_particles != particle_system->total())
@@ -420,64 +433,71 @@ void scene::WaterFountainScene::renderInfo()
                           App::instance()->frameWidth() - 10, h, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::RightTop);
+    App::instance()->text("Press Left and Right Arrow to adjust wind along X-axis",
+                          App::instance()->frameWidth() - 10, h - 20, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::RightTop);
+    App::instance()->text("Press Up and Down Arrow to adjust wind along Z-axis",
+                          App::instance()->frameWidth() - 10, h - 40, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::RightTop);
 }
 
 void scene::WaterFountainScene::processInput(float dt)
 {
+    auto window = App::instance()->window();
     static auto sum_dt = 0.f;
     static auto last_key = GLFW_KEY_UNKNOWN;
     static auto key_count = 0;
 
-#define HOLD_KEY(Key)                                       \
+#define HOLD_KEY(Key)                                           \
     (last_key == Key && sum_dt > 0.01f && key_count == 10)
 
-    auto & window = App::instance()->window();
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-    {
-        if (last_key != GLFW_KEY_Z || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_Z))
-        {
-            particle_system->max_particles += 1000;
-            particle_system->birth_rate = particle_system->max_particles * .1f;
-            sum_dt = 0;
-
-            if (key_count < 10) ++key_count;
-        }
-        else
-            sum_dt += dt;
-
-        if (last_key != GLFW_KEY_Z)
-        {
-            last_key = GLFW_KEY_Z;
-            key_count = 0;
-        }
-
+#define STICKY_KEY_CHECK(Key, Cmd)                              \
+    if (glfwGetKey(window, Key) == GLFW_PRESS)                  \
+    {                                                           \
+        if (last_key != Key || sum_dt > 0.1f || HOLD_KEY(Key))  \
+        {                                                       \
+            { Cmd }                                             \
+            sum_dt = 0; if (key_count < 10) ++key_count;        \
+        }                                                       \
+        else sum_dt += dt;                                      \
+        if (last_key != Key)                                    \
+        { last_key = Key; key_count = 0; }                      \
     }
-    else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-    {
-        if (particle_system->max_particles > 1000)
-        {
-            if (last_key != GLFW_KEY_X || sum_dt > 0.1f || HOLD_KEY(GLFW_KEY_X))
-            {
-                particle_system->max_particles -= 1000;
-                particle_system->birth_rate = particle_system->max_particles * .1f;
-                sum_dt = 0;
 
-                if (key_count < 10) ++key_count;
-            }
-            else
-                sum_dt += dt;
-        }
-
-        if (last_key != GLFW_KEY_X)
-        {
-            last_key = GLFW_KEY_X;
-            key_count = 0;
-        }
+#define INCREASE_PARTICLES                                              \
+    particle_system->max_particles += 1000;                             \
+    particle_system->birth_rate = particle_system->max_particles * .1f;
+#define DECREASE_PARTICLES                                                  \
+    if (particle_system->max_particles > 1000)                              \
+    {                                                                       \
+        particle_system->max_particles -= 1000;                             \
+        particle_system->birth_rate = particle_system->max_particles * .1f; \
     }
+#define INCREASE_WIND_X wind.x -= .1f;
+#define DECREASE_WIND_X wind.x += .1f;
+#define INCREASE_WIND_Z wind.z += .1f;
+#define DECREASE_WIND_Z wind.z -= .1f;
+
+    STICKY_KEY_CHECK(GLFW_KEY_Z, INCREASE_PARTICLES)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_X, DECREASE_PARTICLES)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_RIGHT, INCREASE_WIND_X)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_LEFT, DECREASE_WIND_X)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_UP, INCREASE_WIND_Z)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_DOWN, DECREASE_WIND_Z)
+    else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        last_key = GLFW_KEY_P;
     else
     {
+        if (last_key == GLFW_KEY_P)
+            pause = !pause;
         last_key = GLFW_KEY_UNKNOWN;
     }
-
-#undef HOLD_KEY
 }
+
