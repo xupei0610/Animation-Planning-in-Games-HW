@@ -31,6 +31,8 @@ public:
     WaterFountainScene();
     ~WaterFountainScene() override;
 
+    void resetCamera();
+
     class ComputeShaderParticleSystem : public ParticleSystem
     {
     public:

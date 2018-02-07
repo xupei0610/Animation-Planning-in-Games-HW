@@ -1,6 +1,7 @@
 #ifndef PX_CG_SCENE_SMOKE_PARTICLE_SCENE_HPP
 #define PX_CG_SCENE_SMOKE_PARTICLE_SCENE_HPP
 
+#include <memory>
 #include "particle_system/simple_2d.hpp"
 #include "scene/base_scene.hpp"
 #include "shader/base_shader.hpp"
@@ -8,10 +9,10 @@
 
 namespace px { namespace scene
 {
-class SmokeParticleScene;
+class SmokeScene;
 } }
 
-class px::scene::SmokeParticleScene : public BaseScene
+class px::scene::SmokeScene : public BaseScene
 {
 public:
     void init(Scene &scene) override;
@@ -23,13 +24,12 @@ public:
 
     inline ParticleSystem * const & particleSystem() const noexcept { return particle_system; }
 
-    SmokeParticleScene();
-    ~SmokeParticleScene() override;
+    SmokeScene();
+    ~SmokeScene() override;
 
-    /**
-     * @see http://prideout.net/blog/?p=67
-     */
-    class SmokeParticleSystem : public ParticleSystem
+    void resetCamera();
+
+    class CurlNoiseParticleSystem : public ParticleSystem
     {
     public:
         void init(float *vertex, unsigned int v_count,
@@ -39,27 +39,24 @@ public:
         void update(float dt, glm::vec3 *cam_pos = nullptr) override;
         void render(GLenum gl_draw_mode = GL_POINT) override;
 
-        SmokeParticleSystem();
-        ~SmokeParticleSystem();
+        CurlNoiseParticleSystem();
+        ~CurlNoiseParticleSystem();
 
-        inline unsigned int const &count() const noexcept override { return n_particles; }
-        inline unsigned int total() const noexcept override { return _tot_particles; }
+        unsigned int const &count() const noexcept override;
+        unsigned int total() const noexcept override;
 
-    protected:
-        unsigned int vao[3], vbo[2], tfbo[2], texture[2];
-
-        Shader *compute_shader;
-        Shader *draw_shader;
-
-        bool need_upload;
     private:
-        unsigned int _tot_particles;
+        class impl;
+        std::unique_ptr<impl> pimpl;
     };
 
 protected:
-    TextShader *text;
     ParticleSystem *particle_system;
 
+    const std::string system_name;
+    const std::string rendering_mode;
+
+    bool pause;
 protected:
     void renderInfo();
     void processInput(float dt);

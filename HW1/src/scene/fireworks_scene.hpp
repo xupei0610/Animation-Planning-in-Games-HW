@@ -29,6 +29,8 @@ public:
     FireworksScene();
     ~FireworksScene() override;
 
+    void resetCamera();
+
     class ComputeShaderParticleSystem : public ParticleSystem
     {
     public:

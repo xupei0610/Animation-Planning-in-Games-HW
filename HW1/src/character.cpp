@@ -183,6 +183,7 @@ void Character::activate(Action a, bool enable)
 {
     if (isDropping() || isAscending())
     {
+        std::cout << "ok1 " << std::boolalpha << isDropping() << " " << isAscending() <<  std::endl;
         if (a == Action::MoveForward || a == Action::MoveBackward ||
             a == Action::MoveLeft || a == Action::MoveRight)
             return;

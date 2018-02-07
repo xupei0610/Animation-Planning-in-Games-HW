@@ -95,9 +95,7 @@ void scene::BenchmarkScene::restart(Scene &scene)
 {
     pause = false;
 
-    scene.character.reset(0.f, 0.f, -30.f, 180.f, 0.f);
-    scene.character.setShootable(false);
-    scene.character.setFloating(true);
+    resetCamera();
 
     particle_system->restart();
     pimpl->position.resize(particle_system->max_particles);
@@ -133,6 +131,13 @@ void scene::BenchmarkScene::render()
     glDisable(GL_BLEND);
 
     renderInfo();
+}
+
+void scene::BenchmarkScene::resetCamera()
+{
+    App::instance()->scene.character.reset(0.f, 0.f, -30.f, 180.f, 0.f);
+    App::instance()->scene.character.setShootable(false);
+    App::instance()->scene.character.setFloating(true);
 }
 
 void scene::BenchmarkScene::renderInfo()
@@ -208,9 +213,13 @@ void scene::BenchmarkScene::processInput(float dt)
         last_key = GLFW_KEY_P;
     else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
         last_key = GLFW_KEY_M;
+    else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+        last_key = GLFW_KEY_B;
     else
     {
-        if (last_key == GLFW_KEY_M)
+        if (last_key == GLFW_KEY_B)
+            resetCamera();
+        else if (last_key == GLFW_KEY_M)
         {
             for (auto i = 0, tot = static_cast<int>(systems.size()); i < tot; ++i)
             {
@@ -229,5 +238,4 @@ void scene::BenchmarkScene::processInput(float dt)
         last_key = GLFW_KEY_UNKNOWN;
     }
 
-#undef HOLD_KEY
 }

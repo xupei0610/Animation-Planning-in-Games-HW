@@ -11,7 +11,7 @@ using namespace px;
 class scene::FireworksScene::ComputeShaderParticleSystem::impl
 {
 public:
-    unsigned int vao, vertex_vbo, vbo, texture;
+    unsigned int vao, vertex_vbo, vbo;
     unsigned int n_vertices;
     unsigned int debt, tot;
     bool upload;
@@ -142,7 +142,6 @@ public:
             "}";
 
     const char *FS = "#version 330 core\n"
-            "in vec2 gTextureCoord;"
             "in float gAlpha;"
             "uniform vec3 color;"
             ""
@@ -152,7 +151,7 @@ public:
             "   gColor = vec4(color, gAlpha);"
             "}";
 
-    impl() : vao(0), vertex_vbo(0), vbo(0), texture(0),
+    impl() : vao(0), vertex_vbo(0), vbo(0),
              compute_shader(nullptr), draw_shader(nullptr)
     {}
     ~impl()
@@ -168,12 +167,10 @@ public:
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &vertex_vbo);
-        glDeleteTextures(1, &texture);
 
         vao = 0;
         vbo = 0;
         vertex_vbo = 0;
-        texture = 0;
     }
 
     void genGLObjs()
@@ -181,12 +178,10 @@ public:
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &vertex_vbo);
-        glDeleteTextures(1, &texture);
 
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &vertex_vbo);
-        glGenTextures(1, &texture);
     }
 
 };
@@ -277,7 +272,7 @@ void scene::FireworksScene::ComputeShaderParticleSystem::upload()
     n_particles = max_particles;
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", -1.f);
-    pimpl->compute_shader->set("gravity", glm::vec3(rnd_np(), 0.f, rnd_np())); // initial position
+    pimpl->compute_shader->set("gravity", glm::vec3(rnd_np()*2.f, 0.f, rnd_np()*2.f)); // initial position
     pimpl->compute_shader->set("acceleration", glm::vec3(rnd_np()*2, 7.5f + rnd(), rnd_np()*2)); // initial velocity
     glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
     pimpl->compute_shader->set("gravity", glm::vec3(0.f, -5.f, 0.f)); // restore gravity
@@ -322,8 +317,6 @@ void scene::FireworksScene::ComputeShaderParticleSystem::render(GLenum gl_draw_m
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     pimpl->draw_shader->activate();
     glBindVertexArray(pimpl->vao);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, pimpl->texture);
     glVertexAttribDivisor(5, 0); // vertex             a group for each instance
     glVertexAttribDivisor(0, 1); // position           one for each instance
     glVertexAttribDivisor(1, 1); // size
@@ -382,9 +375,7 @@ void scene::FireworksScene::init(Scene &scene)
 
 void scene::FireworksScene::restart(Scene &scene)
 {
-    scene.character.reset(-5.f, 10.f, -5.f, 135.f, 35.f);
-    scene.character.setShootable(false);
-    scene.character.setFloating(true);
+    resetCamera();
 
     for (auto s : systems)
         s->restart();
@@ -418,6 +409,13 @@ void scene::FireworksScene::render()
     for (auto s : systems)
         s->render();
     renderInfo();
+}
+
+void scene::FireworksScene::resetCamera()
+{
+    App::instance()->scene.character.reset(-5.f, 10.f, -5.f, 135.f, 35.f);
+    App::instance()->scene.character.setShootable(false);
+    App::instance()->scene.character.setFloating(true);
 }
 
 void scene::FireworksScene::renderInfo()
@@ -486,13 +484,17 @@ void scene::FireworksScene::processInput(float dt)
     STICKY_KEY_CHECK(GLFW_KEY_X, DECREASE_PARTICLES)
     else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         last_key = GLFW_KEY_P;
+    else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+        last_key = GLFW_KEY_B;
     else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         last_key = GLFW_KEY_UP;
     else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         last_key = GLFW_KEY_DOWN;
     else
     {
-        if (last_key == GLFW_KEY_P)
+        if (last_key == GLFW_KEY_B)
+            resetCamera();
+        else if (last_key == GLFW_KEY_P)
             pause = !pause;
         else if (last_key == GLFW_KEY_UP)
         {

@@ -393,7 +393,7 @@ scene::GalaxyScene::GalaxyScene()
 #ifdef USE_CUDA
     GALAXY_MAX_PARTICLES_CUDA
 #else
-    GALAXY_MAX_PARTICLES_COMPUTE_SHAER
+    GALAXY_MAX_PARTICLES_COMPUTE_SHADER
 #endif
     ;
     particle_system->birth_rate    = 6000000;
@@ -411,9 +411,7 @@ void scene::GalaxyScene::init(Scene &scene)
 
 void scene::GalaxyScene::restart(Scene &scene)
 {
-    scene.character.reset(-3.f, 9.f, -3.f, 135.f, 45.f);
-    scene.character.setShootable(false);
-    scene.character.setFloating(true);
+    resetCamera();
 
     particle_system->restart();
     pause = false;
@@ -440,6 +438,14 @@ void scene::GalaxyScene::render()
     particle_system->render();
 
     renderInfo();
+}
+
+void scene::GalaxyScene::resetCamera()
+{
+    App::instance()->scene.character.reset(-3.f, 9.f, -3.f, 135.f, 45.f);
+    App::instance()->scene.character.setShootable(false);
+    App::instance()->scene.character.setFloating(true);
+
 }
 
 void scene::GalaxyScene::renderInfo()
@@ -513,9 +519,13 @@ void scene::GalaxyScene::processInput(float dt)
     STICKY_KEY_CHECK(GLFW_KEY_X, DECREASE_PARTICLES)
     else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         last_key = GLFW_KEY_P;
+    else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+        last_key = GLFW_KEY_B;
     else
     {
-        if (last_key == GLFW_KEY_P)
+        if (last_key == GLFW_KEY_B)
+            resetCamera();
+        else if (last_key == GLFW_KEY_P)
             pause = !pause;
         last_key = GLFW_KEY_UNKNOWN;
     }

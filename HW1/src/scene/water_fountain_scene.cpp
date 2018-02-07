@@ -362,9 +362,7 @@ void scene::WaterFountainScene::init(Scene &scene)
 
 void scene::WaterFountainScene::restart(Scene &scene)
 {
-    scene.character.reset(0.f, 0.f, -20.f, 180.f, 0.f);
-    scene.character.setShootable(false);
-    scene.character.setFloating(true);
+    resetCamera();
     pause = false;
     wind = glm::vec3(0.f);
     particle_system->restart();
@@ -394,6 +392,13 @@ void scene::WaterFountainScene::render()
     particle_system->render();
 
     renderInfo();
+}
+
+void scene::WaterFountainScene::resetCamera()
+{
+    App::instance()->scene.character.reset(0.f, 0.f, -20.f, 180.f, 0.f);
+    App::instance()->scene.character.setShootable(false);
+    App::instance()->scene.character.setFloating(true);
 }
 
 void scene::WaterFountainScene::renderInfo()
@@ -493,9 +498,13 @@ void scene::WaterFountainScene::processInput(float dt)
     STICKY_KEY_CHECK(GLFW_KEY_DOWN, DECREASE_WIND_Z)
     else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         last_key = GLFW_KEY_P;
+    else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+        last_key = GLFW_KEY_B;
     else
     {
-        if (last_key == GLFW_KEY_P)
+        if (last_key == GLFW_KEY_B)
+            resetCamera();
+        else if (last_key == GLFW_KEY_P)
             pause = !pause;
         last_key = GLFW_KEY_UNKNOWN;
     }

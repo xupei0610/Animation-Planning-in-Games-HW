@@ -4,7 +4,7 @@ set(EXE_NAME hw1)
 
 option(USE_OPENMP "Use OpenMP or not." ON)
 option(USE_CUDA "Use CUDA or not" ON)
-set(USE_CUDA ON)
+set(USE_CUDA OFF)
 
 set(MSVC_CL_EXE "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.11.25503/bin/Hostx64/x64/CL.exe")
 

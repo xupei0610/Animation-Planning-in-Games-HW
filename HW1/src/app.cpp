@@ -3,6 +3,7 @@
 #include "scene/empty_scene.hpp"
 #include "scene/fireworks_scene.hpp"
 #include "scene/water_fountain_scene.hpp"
+#include "scene/smoke_scene.hpp"
 #include "scene/galaxy_scene.hpp"
 #include "scene/benchmark_scene.hpp"
 
@@ -25,16 +26,18 @@ App::App()
         : opt(), scene(&opt), menu(),
           _window(nullptr),
           scenes{
-//#ifdef BOUNCE_BALL
+//#ifdef BOUNCE_BALL_SCENE
 //            new scene::EmptyScene
-//#elif defined(FOUNTAIN)
+//#elif defined(FOUNTAIN_SCENE)
 //          new scene::WaterFountainScene
-//#elif defined(GALAXY)
+//#elif defined(GALAXY_SCENE)
 //          new scene::GalaxyScene
-//#elif defined(FIREWORKS)
+//#elif defined(FIREWORKS_SCENE)
 //          new scene::FireworksScene
+//#elif defined(SMOKE_SCENE)
+          new scene::SmokeScene
 //#else
-          new scene::BenchmarkScene
+//          new scene::BenchmarkScene
 //#endif
           },
 
@@ -348,6 +351,7 @@ void App::input(int keycode, int mods, int action, bool mouse)
     else KEY_CALLBACK(Action::Jump)
     else KEY_CALLBACK(Action::Run)
     else KEY_CALLBACK(Action::Shoot)
+
 #undef KEY_CALLBACK
 }
 

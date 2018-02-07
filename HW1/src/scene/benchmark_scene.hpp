@@ -29,6 +29,8 @@ public:
     BenchmarkScene();
     ~BenchmarkScene() override;
 
+    void resetCamera();
+
     class ComputeShaderParticleSystem : public ParticleSystem
     {
     public:

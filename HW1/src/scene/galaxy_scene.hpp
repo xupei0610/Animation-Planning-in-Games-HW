@@ -29,6 +29,8 @@ public:
     GalaxyScene();
     ~GalaxyScene() override;
 
+    void resetCamera();
+
     class ComputeShaderParticleSystem : public ParticleSystem
     {
     public:

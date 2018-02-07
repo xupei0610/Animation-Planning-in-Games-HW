@@ -1,5 +1,6 @@
 #include "util/cuda.hpp"
 #include "scene/galaxy_scene.hpp"
+#include "config.hpp"
 
 #include <curand.h>
 #include <curand_kernel.h>
@@ -95,14 +96,15 @@ void updateGalaxy(void *buffer, unsigned int n, float dt)
             __syncthreads();
 
             p = n - i > blockDim.x ? blockDim.x : n - i;
-            for (unsigned int j = 0; j < p; ++j)
+#pragma unroll 256
+            for (unsigned int j = 0; j < blockDim.x ; ++j)
             {
                 r_x = sh_pos[j].x - x;
                 r_y = sh_pos[j].y - y;
                 r_z = sh_pos[j].z - z;
                 dist_sqr = r_x * r_x + r_y * r_y + r_z * r_z + EPS;
                 dist_six = dist_sqr * dist_sqr * dist_sqr;
-                dist_sqr = 1.f / sqrtf(dist_six);
+                dist_sqr = rsqrtf(dist_six);
                 dist_six = sh_pos[threadIdx.x].w * dist_sqr;
                 acc_x += r_x * dist_six;
                 acc_y += r_y * dist_six;
