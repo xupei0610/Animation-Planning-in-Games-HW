@@ -228,6 +228,16 @@ void scene::BenchmarkScene::TransformFeedbackParticleSystem::upload()
 
 void scene::BenchmarkScene::TransformFeedbackParticleSystem::update(float dt, glm::vec3 *cam_pos)
 {
+    if (n_particles != total())
+    {
+        debt_particles += std::min(0.05f, dt) * birth_rate;
+        auto new_particles = static_cast<int>(debt_particles);
+        debt_particles -= new_particles;
+        n_particles += new_particles;
+        if (n_particles > total())
+            n_particles = total();
+    }
+
     compute_vertex_shader->activate();
     compute_vertex_shader->set("dt", dt);
 
@@ -249,16 +259,6 @@ void scene::BenchmarkScene::TransformFeedbackParticleSystem::update(float dt, gl
     std::swap(vao[0], vao[1]);
     std::swap(vbo[0], vbo[1]);
     std::swap(tfbo[0], tfbo[1]);
-
-    if (n_particles != total())
-    {
-        debt_particles += std::min(0.05f, dt) * birth_rate;
-        auto new_particles = static_cast<int>(debt_particles);
-        debt_particles -= new_particles;
-        n_particles += new_particles;
-        if (n_particles > total())
-            n_particles = total();
-    }
 }
 
 void scene::BenchmarkScene::TransformFeedbackParticleSystem::render(GLenum gl_draw_mode)

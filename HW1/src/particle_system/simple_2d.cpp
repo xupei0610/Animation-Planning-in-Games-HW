@@ -197,7 +197,7 @@ void Simple2DParticleSystem::update(float dt, glm::vec3 *cam_pos)
     valid_indices.reserve(particles.size());
 
     auto tot = static_cast<int>(particles.size());
-#pragma omp parallel for num_threads(8)
+#pragma omp parallel for
     for (auto i = 0; i < tot; ++i)
     {
         if (life[i] > 0.f)
@@ -245,7 +245,7 @@ void Simple2DParticleSystem::update(float dt, glm::vec3 *cam_pos)
     }
     n_particles = static_cast<unsigned int>(valid_indices.size());
 
-#pragma omp parallel for num_threads(8)
+#pragma omp parallel for
     for (unsigned int i = 0; i < n_particles; ++i)
     {
         auto &p = particles[valid_indices[i].first];

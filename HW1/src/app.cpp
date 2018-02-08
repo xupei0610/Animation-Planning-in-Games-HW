@@ -3,16 +3,17 @@
 #include "scene/empty_scene.hpp"
 #include "scene/fireworks_scene.hpp"
 #include "scene/water_fountain_scene.hpp"
-#include "scene/smoke_scene.hpp"
+#include "scene/fire_scene.hpp"
 #include "scene/galaxy_scene.hpp"
 #include "scene/benchmark_scene.hpp"
 
 #include <cstring>
+#include <thread>
 
 using namespace px;
 
-const int App::WIN_HEIGHT = 480;
-const int App::WIN_WIDTH  = 640;
+const int App::WIN_HEIGHT = 600;
+const int App::WIN_WIDTH  = 800;
 const char *App::WIN_TITLE = "OpenGL Particle System Demo - by Pei Xu";
 
 App* App::instance()
@@ -26,19 +27,20 @@ App::App()
         : opt(), scene(&opt), menu(),
           _window(nullptr),
           scenes{
-//#ifdef BOUNCE_BALL_SCENE
-//            new scene::EmptyScene
-//#elif defined(FOUNTAIN_SCENE)
-//          new scene::WaterFountainScene
-//#elif defined(GALAXY_SCENE)
-//          new scene::GalaxyScene
-//#elif defined(FIREWORKS_SCENE)
-//          new scene::FireworksScene
-//#elif defined(SMOKE_SCENE)
-          new scene::SmokeScene
-//#else
-//          new scene::BenchmarkScene
-//#endif
+#ifdef BOUNCE_BALL_SCENE
+          new scene::EmptyScene
+#elif defined(WATER_FOUNTAIN_SCENE)
+          new scene::WaterFountainScene
+#elif defined(FIRE_SCENE)
+          new scene::FireScene
+#elif defined(FIREWORKS_SCENE)
+          new scene::FireworksScene
+#elif defined(GALAXY_SCENE)
+          new scene::GalaxyScene
+#else
+          new scene::BenchmarkScene
+#endif
+//          new scene::VertexParticleScene
           },
 
           text_shader(nullptr),

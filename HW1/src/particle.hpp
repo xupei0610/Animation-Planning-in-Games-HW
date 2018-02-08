@@ -48,7 +48,7 @@ class px::ParticleSystem
 {
 public:
     unsigned int max_particles;
-    unsigned int birth_rate;
+    float birth_rate;
 
     ParticleSpawnFn_t spawn_fn;
     ParticleUpdateFn_t update_fn;

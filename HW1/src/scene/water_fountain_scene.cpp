@@ -3,7 +3,7 @@
 #include "util/random.hpp"
 #include "app.hpp"
 #include "global.hpp"
-#include "config.hpp"
+#include "config.h"
 
 #include "stb_image.hpp"
 
@@ -19,7 +19,8 @@ class scene::WaterFountainScene::ComputeShaderParticleSystem::impl
 public:
     unsigned int vao, vbo, texture;
 
-    unsigned int debt, tot;
+    float debt;
+    unsigned int tot;
     bool upload;
 
     Shader *compute_shader;
@@ -71,12 +72,15 @@ public:
             ""
             "void update(vec2 sd)"
             "{"
+            "   bool above_field = false;"
+            "   if (particles[gid].position.y >= field_height)"
+            "       above_field = true;"
+            ""
             "   particles[gid].velocity.xyz += acceleration * dt;"
             "   particles[gid].velocity.y -= vertical_gravity * dt;"
-            ""
             "   particles[gid].position.xyz += particles[gid].velocity.xyz * dt;"
             ""
-            "   if (particles[gid].position.y < field_height && "
+            "   if (above_field == true && particles[gid].position.y < field_height && "
             "       particles[gid].position.x > field_bound[0] && particles[gid].position.x < field_bound[1] &&"
             "       particles[gid].position.z > field_bound[2] && particles[gid].position.z < field_bound[3])"
             "   {"
@@ -291,7 +295,6 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::upload()
     pimpl->upload = false;
 }
 
-
 void scene::WaterFountainScene::ComputeShaderParticleSystem::update(float dt, glm::vec3 *cam_pos)
 {
     if (n_particles != total())
@@ -416,11 +419,11 @@ void scene::WaterFountainScene::renderInfo()
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::LeftTop);
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(2) << wind.x << ", " << wind.y << std::endl;
-       App::instance()->text("Wind: " + ss.str(),
-                          10, 70, .4f,
-                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                          Anchor::LeftTop);
+    ss << std::fixed << std::setprecision(2) << wind.x << ", " << wind.z << std::endl;
+    App::instance()->text("Wind: " + ss.str(),
+                            10, 70, .4f,
+                            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                            Anchor::LeftTop);
 
     auto h = App::instance()->frameHeight() - 25;
     if (particle_system->max_particles != particle_system->total())
@@ -500,12 +503,16 @@ void scene::WaterFountainScene::processInput(float dt)
         last_key = GLFW_KEY_P;
     else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
         last_key = GLFW_KEY_B;
+    else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+        last_key = GLFW_KEY_M;
     else
     {
         if (last_key == GLFW_KEY_B)
             resetCamera();
         else if (last_key == GLFW_KEY_P)
             pause = !pause;
+        else if (last_key == GLFW_KEY_M)
+            wind = glm::vec3(0.f);
         last_key = GLFW_KEY_UNKNOWN;
     }
 }

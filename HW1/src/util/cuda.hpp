@@ -39,15 +39,15 @@ protected:
 #   define _PX_CUDA_CHECK_STR(X) _PX_CUDA_CHECK_STR_HELPER(X)
 #   define PX_CUDA_CHECK(cmd)                                               \
     do {                                                                    \
-        auto res = (cmd);                                                   \
-        if (cudaSuccess != res)                                             \
+        auto __res = (cmd);                                                   \
+        if (cudaSuccess != __res)                                             \
             throw px::CUDAError(std::string(                                \
                                   "CUDA runtime error at " __FILE__         \
                                   " (line " _PX_CUDA_CHECK_STR(__LINE__)    \
-                                  ") code " + std::to_string(res) +         \
+                                  ") code " + std::to_string(__res) +         \
                                   " with message: \n    ") +               \
-                                  cudaGetErrorString(res),                  \
-                                  static_cast<int>(res));                   \
+                                  cudaGetErrorString(__res),                  \
+                                  static_cast<int>(__res));                   \
     }                                                                       \
     while (0);
 

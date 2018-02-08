@@ -200,7 +200,7 @@ void scene::BenchmarkScene::ComputeShaderParticleSystem::update(float dt, glm::v
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
     compute_shader->activate();
     compute_shader->set("dt", dt);
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE + 1, 1, 1);
     compute_shader->activate(false);
 }
 

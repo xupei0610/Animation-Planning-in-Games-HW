@@ -34,7 +34,7 @@ protected:
     std::vector<float> color;
     std::vector<float> uv_offset;
 
-    int debt_particles;
+    float debt_particles;
     unsigned int n_vertices;
     bool need_upload, use_atlas;
 };

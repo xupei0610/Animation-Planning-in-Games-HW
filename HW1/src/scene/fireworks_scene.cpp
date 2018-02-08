@@ -3,7 +3,7 @@
 #include "scene.hpp"
 #include "app.hpp"
 #include "global.hpp"
-#include "config.hpp"
+#include "config.h"
 #include "util/random.hpp"
 
 using namespace px;
@@ -13,7 +13,8 @@ class scene::FireworksScene::ComputeShaderParticleSystem::impl
 public:
     unsigned int vao, vertex_vbo, vbo;
     unsigned int n_vertices;
-    unsigned int debt, tot;
+    float debt;
+    unsigned int tot;
     bool upload;
     int trail, trail_rate;
     float debt_particles;
@@ -352,11 +353,11 @@ scene::FireworksScene::FireworksScene()
           system_name("Fireworks Demo"),
           rendering_mode("Multiple Particle Systems with compute shader")
 {
-    systems.reserve(FIRWORKS_AMOUNT*5);
-    for (auto i = 0; i < FIRWORKS_AMOUNT; ++i)
+    systems.reserve(FIREWORKS_AMOUNT*5);
+    for (auto i = 0; i < FIREWORKS_AMOUNT; ++i)
     {
         systems.emplace_back(new ComputeShaderParticleSystem);
-        systems.back()->max_particles = FIRWORKS_MAX_PARTICLES;
+        systems.back()->max_particles = FIREWORKS_MAX_PARTICLES;
         systems.back()->birth_rate    = systems.back()->max_particles * 1000;
     }
 }

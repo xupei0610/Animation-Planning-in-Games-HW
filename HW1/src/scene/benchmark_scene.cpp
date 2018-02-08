@@ -2,7 +2,7 @@
 #include "scene.hpp"
 #include "util/random.hpp"
 #include "app.hpp"
-#include "config.hpp"
+#include "config.h"
 
 #include <cstring>
 #include <glm/gtx/norm.hpp>
@@ -112,9 +112,7 @@ void scene::BenchmarkScene::upload(Shader &scene_shader)
 }
 
 void scene::BenchmarkScene::render(Shader &scene_shader)
-{
-
-}
+{}
 
 void scene::BenchmarkScene::update(float dt)
 {
