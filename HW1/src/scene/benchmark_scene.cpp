@@ -10,7 +10,7 @@
 using namespace px;
 
 #include "scene/impl/benchmark_transform_feedback_particle_system.hpp"
-#include "scene/impl/benchmark_compute_shader_particle_system.hpp"
+#include "scene/impl/benchmark_simd_particle_system.hpp"
 
 class scene::BenchmarkScene::impl
 {
@@ -26,6 +26,9 @@ scene::BenchmarkScene::BenchmarkScene()
         : BaseScene(),
           particle_system(nullptr)
 {
+    systems.emplace_back("CUDA", new CUDAParticleSystem);
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_CUDA;
+    systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
     systems.emplace_back("compute shader", new ComputeShaderParticleSystem);
     systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_COMPUTE_SHADER;
     systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;

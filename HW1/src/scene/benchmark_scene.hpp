@@ -8,6 +8,9 @@
 #include "scene/base_scene.hpp"
 #include "shader/base_shader.hpp"
 
+#include "util/cuda.hpp"
+#include <cuda_gl_interop.h>
+
 namespace px { namespace scene
 {
 class BenchmarkScene;
@@ -31,7 +34,7 @@ public:
 
     void resetCamera();
 
-    class ComputeShaderParticleSystem : public ParticleSystem
+    class SIMDParticleSystem : public ParticleSystem
     {
     public:
         void init(float *vertex, unsigned int v_count,
@@ -41,13 +44,14 @@ public:
         void update(float dt, glm::vec3 *cam_pos = nullptr) override;
         void render(GLenum gl_draw_mode = GL_POINT) override;
 
-        ComputeShaderParticleSystem();
-        ~ComputeShaderParticleSystem() override;
+        ~SIMDParticleSystem() override;
 
         inline unsigned int const &count() const noexcept override { return n_particles; }
         inline unsigned int total() const noexcept override { return _tot_particles; }
 
     protected:
+        SIMDParticleSystem();
+
         unsigned int vao, vbo[2], ssbo;
 
         Shader *compute_shader;
@@ -58,6 +62,36 @@ public:
         bool need_upload;
     private:
         unsigned int _tot_particles;
+    };
+
+    class ComputeShaderParticleSystem : public SIMDParticleSystem
+    {
+    public:
+        void init(float *vertex, unsigned int v_count,
+                  unsigned int tex = 0, float *uv = nullptr, bool atlas = false) override;
+        void update(float dt, glm::vec3 *cam_pos = nullptr) override;
+
+        ComputeShaderParticleSystem();
+        ~ComputeShaderParticleSystem() override;
+
+    protected:
+        Shader *compute_shader;
+    };
+    class CUDAParticleSystem : public SIMDParticleSystem
+    {
+    public:
+        void upload() override;
+        void update(float dt, glm::vec3 *cam_pos = nullptr) override;
+
+        CUDAParticleSystem();
+        ~CUDAParticleSystem() override;
+
+    protected:
+        struct cudaGraphicsResource *res;
+        void *buffer;
+        size_t buffer_size;
+    private:
+        void cudaUpdate(void *buffer, unsigned int n, float dt);
     };
     class TransformFeedbackParticleSystem : public ParticleSystem
     {
@@ -87,26 +121,7 @@ public:
     private:
         unsigned int _tot_particles;
     };
-//    // regard each particle as an object and draw them independently one by one
-//    // this is just for benchmark and is useless in practice
-//    class ObjectParticleSystem : public ParticleSystem
-//    {
-//    public:
-//        void init(float *vertex, unsigned int v_count,
-//                  unsigned int tex = 0, float *uv = nullptr, bool atlas = false) override;
-//        void restart() override;
-//        void upload() override;
-//        void update(float dt, glm::vec3 *cam_pos = nullptr) override;
-//        void render(GLenum gl_draw_mode = GL_POINT) override;
-//
-//        ObjectParticleSystem();
-//        ~ObjectParticleSystem();
-//
-//    protected:
-//        unsigned int *vao;
-//        unsigned int *vbo;
-//        unsigned int vertex_vbo;
-//    };
+
 protected:
     ParticleSystem *particle_system;
     std::string system_name;

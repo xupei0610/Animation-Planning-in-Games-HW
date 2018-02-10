@@ -39,6 +39,7 @@ public:
             "};"
             ""
             "uniform float dt;"
+            "uniform int n_particles;"
             ""
             "const float PI = 3.1415926535897932384626433832795;"
             "const float PI_8 = PI / 8;"
@@ -50,7 +51,7 @@ public:
             "uniform float horizontal_resistance = .05f;"
             "uniform vec3 acceleration = vec3(0.f, 0.f, 0.f);"
             ""
-            "uint gid = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y*gl_NumWorkGroups.x * gl_WorkGroupSize.x;"
+            "uint gid = gl_GlobalInvocationID.x;"
             ""
             "float rnd(vec2 co)"
             "{"
@@ -106,6 +107,7 @@ public:
             ""
             "void main()"
             "{"
+            "   if (gid >= n_particles) {return;}"
             "       if (dt < 0.f)"
             "       {"
             "           spawn(vec2(gid, gid));"
@@ -310,7 +312,8 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::update(float dt, gl
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", dt);
     pimpl->compute_shader->set("acceleration", acceleration);
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
+    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->compute_shader->activate(false);
 }
 

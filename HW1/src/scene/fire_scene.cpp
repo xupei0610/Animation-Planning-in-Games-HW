@@ -35,8 +35,9 @@ public:
             "};"
             "uniform float dt;"
             "uniform float current_time;"
+            "uniform int n_particles;"
             ""
-            "uint gid = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * gl_NumWorkGroups.x * gl_WorkGroupSize.x;"
+            "uint gid = gl_GlobalInvocationID.x;"
             ""
             "const float EPS = 1e-4f;"
             "const float INV_2_EPS = 1.f/ (2.f * EPS);"
@@ -144,6 +145,7 @@ public:
             "uniform vec4 final_color = vec4(1.f, 0.f, 0.f, 0.f);"
             "void main()"
             "{"
+            "   if (gid >= n_particles) {return;}"
             "   if (particles[gid].life.y < 0.f || dt < 0.f)"
             "   {"
             "       vec2 sd = vec2(current_time, (gid + dt)*1000);"
@@ -360,7 +362,8 @@ void scene::FireScene::CurlNoiseParticleSystem::upload()
     pimpl->compute_shader->set("initial_size", .015f);
     pimpl->compute_shader->set("final_size", .001f);
     pimpl->compute_shader->set("base_life", 7.5f);
-    glDispatchCompute(total()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    pimpl->compute_shader->set("n_particles", static_cast<int>(total()));
+    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->compute_shader->activate(false);
 
     pimpl->upload = false;
@@ -381,8 +384,9 @@ void scene::FireScene::CurlNoiseParticleSystem::update(float dt, glm::vec3 *cam_
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", dt);
     pimpl->compute_shader->set("current_time", static_cast<float>(glfwGetTime()));
+    pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->compute_shader->activate(false);
 }
 

@@ -37,6 +37,7 @@ public:
             "};"
             "uniform float dt;"
             "uniform int trail;"
+            "uniform int n_particles;"
             ""
             "uniform vec3 gravity;"      // initial position
             "uniform vec3 acceleration;" // initial velocity
@@ -44,7 +45,7 @@ public:
             "uniform float horizontal_resistance = .5f;"
             "const float PI = 3.1415926535897932384626433832795;"
             ""
-            "uint gid = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y*gl_NumWorkGroups.x * gl_WorkGroupSize.x;"
+            "uint gid = gl_GlobalInvocationID.x;"
             ""
             "float rnd(vec2 co)"
             "{"
@@ -107,6 +108,7 @@ public:
             ""
             "void main()"
             "{"
+            "   if (gid >= n_particles) {return;}"
             "   if (dt < 0.f)"
             "       spawn();"
             "   else if (particles[gid].flag.x == 0.f && particles[gid].velocity.y < 0.f)"
@@ -275,7 +277,8 @@ void scene::FireworksScene::ComputeShaderParticleSystem::upload()
     pimpl->compute_shader->set("dt", -1.f);
     pimpl->compute_shader->set("gravity", glm::vec3(rnd_np()*2.f, 0.f, rnd_np()*2.f)); // initial position
     pimpl->compute_shader->set("acceleration", glm::vec3(rnd_np()*2, 7.5f + rnd(), rnd_np()*2)); // initial velocity
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    pimpl->compute_shader->set("n_particles", static_cast<int>(total()));
+    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->compute_shader->set("gravity", glm::vec3(0.f, -5.f, 0.f)); // restore gravity
     pimpl->compute_shader->set("acceleration", glm::vec3(0.f));
     pimpl->compute_shader->activate(false);
@@ -303,7 +306,8 @@ void scene::FireworksScene::ComputeShaderParticleSystem::update(float dt, glm::v
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->compute_shader->set("trail", pimpl->trail);
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
+    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->compute_shader->activate(false);
 
     pimpl->time += dt;
@@ -435,6 +439,10 @@ void scene::FireworksScene::renderInfo()
                           Anchor::LeftTop);
 
     auto h = App::instance()->frameHeight() - 25;
+    App::instance()->text("Press Up and Down Arrow to change the number of fireworks",
+                          App::instance()->frameWidth() - 10, h - 20, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::RightTop);
     App::instance()->text("Press Z to increase particles; Press X to decrease particles",
                           App::instance()->frameWidth() - 10, h, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),

@@ -133,7 +133,8 @@ public:
             "const float PI = 3.1415926535897932384626433832795;"
             "const float PI_12 = PI / 12.f;"
             ""
-            "uint gid = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y*gl_NumWorkGroups.x * gl_WorkGroupSize.x;"
+            "uniform int n_particles;"
+            "uint gid = gl_GlobalInvocationID.x;"
             ""
             "float rnd(vec2 co)"
             "{"
@@ -142,6 +143,7 @@ public:
             ""
             "void main()"
             "{"
+            "   if (gid >= n_particles) {return;}"
             "   vec2 sd = vec2(gid, gid);"
 //            "   float theta = PI * rnd(sd) * 2.f;                ++sd.x;"
 //            "   float phi = acos(1.f - 2.f * rnd(sd));           ++sd.x;"
@@ -185,10 +187,11 @@ public:
             ""
             "uniform float factor = 0.002f;"
             ""
-            "uint gid = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y*gl_NumWorkGroups.x * gl_WorkGroupSize.x;"
+            "uint gid = gl_GlobalInvocationID.x;"
             ""
             "void main()"
             "{"
+            "   if (gid >= n_particles) {return;}"
             "   particles[gid].position.xyz += particles[gid].d_pos.xyz;"
             "   particles[gid].d_pos.x = 0.f;"
             "   particles[gid].d_pos.y = 0.f;"
@@ -245,6 +248,7 @@ scene::GalaxyScene::SIMDParticleSystem::~SIMDParticleSystem()
 {}
 scene::GalaxyScene::CUDAParticleSystem::~CUDAParticleSystem()
 {}
+
 scene::GalaxyScene::ComputeShaderParticleSystem::~ComputeShaderParticleSystem()
 {}
 
@@ -320,7 +324,8 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::upload()
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SIMDParticleSystem::pimpl->vbo);
     pimpl->spawn_compute_shader->activate();
-    glDispatchCompute(total()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    pimpl->spawn_compute_shader->set("n_particles", static_cast<int>(total()));
+    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->spawn_compute_shader->activate(false);
 
 }
@@ -340,9 +345,8 @@ void scene::GalaxyScene::CUDAParticleSystem::upload()
     PX_CUDA_CHECK(cudaGraphicsMapResources(1, &pimpl->res, 0));
     PX_CUDA_CHECK(cudaGraphicsResourceGetMappedPointer(&buffer, &buffer_size, pimpl->res));
     cudaSpawn(buffer, total(), GALAXY_INIT_RADIUS);
-    cudaDeviceSynchronize();
+    PX_CUDA_CHECK(cudaDeviceSynchronize());
     PX_CUDA_CHECK(cudaGraphicsUnmapResources(1, &pimpl->res, 0));
-
 }
 
 
@@ -366,7 +370,7 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::update(float dt, glm::vec3
     pimpl->update_compute_shader->activate();
     pimpl->update_compute_shader->set("dt", std::min(dt, 0.02f));
     pimpl->update_compute_shader->set("n_particles", int(count()));
-    glDispatchCompute(count()/COMPUTE_SHADER_WORK_GROUP_SIZE, 1, 1);
+    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
     pimpl->update_compute_shader->activate(false);
 }
 
@@ -379,7 +383,7 @@ void scene::GalaxyScene::CUDAParticleSystem::update(float dt, glm::vec3 *cam_pos
     PX_CUDA_CHECK(cudaGraphicsMapResources(1, &pimpl->res, 0));
     PX_CUDA_CHECK(cudaGraphicsResourceGetMappedPointer(&buffer, &buffer_size, pimpl->res));
     cudaUpdate(buffer, total(), dt);
-    cudaDeviceSynchronize();
+    PX_CUDA_CHECK(cudaDeviceSynchronize());
     PX_CUDA_CHECK(cudaGraphicsUnmapResources(1, &pimpl->res, 0));
 }
 

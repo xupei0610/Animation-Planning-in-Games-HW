@@ -159,11 +159,10 @@ In particle systems, particles usually share the same shape, or say the same ver
 
 In our test scene, each particle is a circle with 128 vertices but no texture and drawn by `GL_TRIANGLE_STRIP`. They are shown on the screen using billboard technique with transparency fading. The state update for particles run on CPU parallelly with 8 threads. Each particle has its own velocity and would rotate around a common center point. The update function running on CPU is responsible for updating the position of particles based on their velocity and rotation, and shaders are responsible for computing their positions on the screen using billboard technique.
 
-Measures: FPS
+Measures: FPS; Vertices for each particle: 128; Update on CPU with 8 threads
 
 |              Particles | 500 |1000 |2000 |5000 |10,000|50,000|100,000|500,000|1,000,000|
 |-----------------------:|:---:|:---:|:---:|:---:|:----:|:----:|:-----:|:-----:|:-------:|
-|Multiple `glDrawArrays` |     |     |     |     |      |      |       |       |         |
 |`glDrawArraysInstancing`|1100 |1090 | 980 | 878 | 832  | 350  | 190   | 38    | 20      |
 |Geometry Shader         |1060 |1020 | 933 | 853 | 707  | 340  | 177   | 36    | 17      |
 
@@ -173,28 +172,30 @@ Basically, `glDrawArraysInstancing` and Geometry Shader have very similar perfor
 
 The test scene is the exactly same with Benchmark I. In the transform feedback case, a vertex shader is used to compute the position update for each particle. Double (ping-pong) buffers are used for transform feedback. In the compute shader test case, a compute shader is used to compute the position update for each particle. In the CUDA test case, a CUDA kernel, whose code is extacly same with the core code of the compute shader, is used. Particles are drawn using `glDrawArraysInstancing`.
 
+Measures: FPS; Vertices for each particle: 128
+
 |Particles     |10,000|50,000|100,000|500,000|1,000,000|2,000,000|3,000,000|5,000,000|
 |-------------:|:----:|:----:|:-----:|:-----:|:-------:|:-------:|:-------:|:-------:|
 |1 thread      |994   | 440  | 222   | 40    | 19      |    -    |      -  | -       |
 |8 thread      |1014  | 460  | 240   | 44    | 21      |    -    |      -  | -       |
 |TF            |970   | 725  | 566   | 180   | 68      |   32    |      27 | 16      |
 |Compute Shader|1039  | 630  | 570   | 183   | 98      |   38    |      30 | 20      |
-|CUDA          |      |      |       |       |         |         |         |         |
+|CUDA          |937   | 687  | 523   | 172   | 91      |   41    |      32 | 19      |
 
 
-It is very slow to run particle update function on CPU. The first reason is that in most cases we at most only have 6 ~ 32 cores for a CPU and thus the number of threads we can employ from CPU is quite limited compared to those from GPU, which can easily reach 128 to 512 threads for a kernel runing on a single GPU. The second reason is the cost of data transportation between GPU memory and RAM on motherboard. The cost is very considerable for large amount of data. This is why in our test, the 1 thread and 8 thread have limited difference in performance. Becuase most time is occupied by data transportation.
+It is very slow to run particle update function on CPU. The first reason is that in most cases we at most only have 6 ~ 32 cores for a CPU and thus the number of threads we can employ from CPU is quite limited compared to those from GPU, which can easily reach 128 to 512 threads for a kernel runing on a single GPU. The second reason is the cost of data transportation between GPU memory and RAM on their motherboard. The cost is very considerable for large amount of data. This is why in our test, the 1-thread and 8-thread cases have limited difference in performance. Becuase most time is occupied by data transportation.
 
-Comparing to Compute Shader and CUDA, who are specializedly designed for SIMD case, Transform Feedback perform not bad. However, due to double buffers, Transform Feedback need much more space for storage. Worse, Transform Feedback has very limited function and is a little complex for implementation comparing to Compute Shader and CUDA. Use Compute Shader and CUDA as possible. 
+Comparing to Compute Shader and CUDA, who are specializedly designed for SIMD case, Transform Feedback performs not bad. However, due to double buffers, Transform Feedback need much more space for storage. Worse, Transform Feedback has very limited function and is a little complex for implementation comparing to Compute Shader and CUDA. Use Compute Shader and CUDA as possible. 
 
 #### Benchmark III: Compute Shader vs CUDA
 
 There is almost no difference between Compute Shader and CUDA in Benchmark II. However, CUDA has many powerful features that OpenGL compute shader cannot provide, for example, reliable random number generators, many mathematical functions, many special functions, like those to compute FFT and to  sort arrays, and, very important, specially designed memory format.
 
-Here we use the Galaxy Scene for testing. The Galaxy Scene is, in fact, a N-body Simulation. This kind of simulation is a computatively heavy task. We need to compute the gravitation between each pair of bodys. When using the brute-force method, in the single thread mode, for N body, we need to compute the gravitation `n(n-1)/2` times. In multi-thread or SIMD mode, in order to avoid data racing among threads, we usually have to perform computation at least `n(n-1)` times. If `n` is large, we usually directly to do computation `n^2` times for convenience, because the error is quite small for a large `n` and because `n(n-1)` times of `if` check usually is not cheaper than `n` times of computing gravitation.
+Here we use the Galaxy Scene for testing. The Galaxy Scene is, in fact, a **N-body Simulation**. This kind of simulation is a computatively heavy task. We need to compute the gravitation between each pair of bodys and 20 flops are needed to compute gravitation once. When using the brute-force method, in the single thread mode, for N body, we need to compute the gravitation `n(n-1)/2` times. In multi-thread or SIMD mode, in order to avoid data racing among threads, we usually have to perform computation at least `n(n-1)` times. If `n` is large, we usually directly to do computation `n^2` times for convenience, because the error is quite small for a large `n` and because `n(n-1)` times of `if` check usually is not cheaper than `n` times of computing gravitation.
 
 In the CUDA test case, we utilize the feature of **shared memory** to accelerate computation. On the surface, the introduction of shared memory will cause four times more of memory write, two times of thread synchronization and a few more addition operation for a batch of bodys (the batch is decided by the block dim we run the kernel). However, due to the special design of shared memory, the performance improvement is quite large. 
 
-Meaures: FPS
+Meaures: FPS; Vertices for each particle: 4
 
 |    Particles | 500 |1000 |2000 |5000 |10,000|15,000|20,000|50,000|100,000|120,000|
 |-------------:|:---:|:---:|:---:|:---:|:----:|:----:|:----:|:----:|:-----:|:-----:|
@@ -219,7 +220,7 @@ I strongly recommend CUDA if we do not care about the hardware compatibility.
 + `FIRE`
 + `FIREWORKS`
 + `GALAXY`
-+ by default, the benchmark scene
++ empty or other values: the benchmark scene
 
 The default amount of particles for each scence can be changed in `src/config.h` if your computer has problems to run with too many particles.
 
