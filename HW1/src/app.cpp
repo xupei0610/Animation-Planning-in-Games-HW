@@ -1,14 +1,15 @@
 #include "app.hpp"
 
 #include "scene/empty_scene.hpp"
-#include "scene/fireworks_scene.hpp"
 #include "scene/water_fountain_scene.hpp"
 #include "scene/fire_scene.hpp"
+#include "scene/fireworks_scene.hpp"
+#include "scene/snow_scene.hpp"
 #include "scene/galaxy_scene.hpp"
+//#include "scene/sph_scene.hpp"
 #include "scene/benchmark_scene.hpp"
 
 #include <cstring>
-#include <thread>
 
 using namespace px;
 
@@ -35,12 +36,15 @@ App::App()
           new scene::FireScene
 #elif defined(FIREWORKS_SCENE)
           new scene::FireworksScene
+#elif defined(SNOW_SCENE)
+          new scene::SnowScene
+//#elif defined(SPH_SCENE)
+//          new scene::SPHScene
 #elif defined(GALAXY_SCENE)
           new scene::GalaxyScene
 #else
           new scene::BenchmarkScene
 #endif
-//          new scene::VertexParticleScene
           },
 
           text_shader(nullptr),
@@ -183,7 +187,7 @@ void App::togglePause()
     if (state == State::Pausing)
     {
         state = State::Running;
-//        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouse_detected = false;
         time_gap = -1;
     }

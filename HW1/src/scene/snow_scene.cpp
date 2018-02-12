@@ -1,31 +1,28 @@
-#include "scene/water_fountain_scene.hpp"
-#include "scene.hpp"
-#include "util/random.hpp"
-#include "util/cuda.hpp"
-#include "app.hpp"
-#include "global.hpp"
+#include "scene/snow_scene.hpp"
 #include "config.h"
+#include "app.hpp"
+#include "util/cuda.hpp"
+#include "global.hpp"
 
 #include "stb_image.hpp"
 
-#include <cstring>
-#include <glm/gtx/norm.hpp>
-#include <iomanip>
 #include <sstream>
+#include <iomanip>
 
 using namespace px;
 
-class scene::WaterFountainScene::ComputeShaderParticleSystem::impl
+
+class scene::SnowScene::BrownianMotionParticleSystem::impl
 {
 public:
     unsigned int vao, vbo, texture;
+    unsigned int n_vertices;
 
     float debt;
     unsigned int tot;
     bool upload;
 
-    Shader *compute_shader;
-    Shader *draw_shader;
+    Shader *compute_shader, *draw_shader;
 
     const char *CS = "#version 430 core\n"
             "layout (local_size_x = " STR(COMPUTE_SHADER_WORK_GROUP_SIZE) ", local_size_y = 1, local_size_z = 1) in;"
@@ -34,24 +31,21 @@ public:
             "{"
             "   struct"
             "   {"
-            "       vec4 position;"
-            "       vec4 velocity;"
-            "       vec4 delta_position;"
-            "   } particles [];"
+            "       vec4 position;" // position,  size
+            "       vec4 delta_position;" // delta_position, alpha
+            "       vec4 brownian;" // brownian, life
+            "   } particles[];"
             "};"
-            ""
             "uniform float dt;"
             "uniform int n_particles;"
             ""
-            "const float PI = 3.1415926535897932384626433832795;"
-            "const float PI_8 = PI / 8;"
-            ""
-            "uniform float field_height = -2.f;"
+            "uniform float top_height = 7.5f;"
+            "uniform float spawn_radius = 8.f;"
             "uniform vec4 field_bound = vec4(-8.f, 8.f, -8.f, 8.f);"
-            "uniform vec3 field_norm = vec3(0.f, 1.f, 0.f);"
-            "uniform float vertical_gravity = 10.f;"
-            "uniform float horizontal_resistance = .05f;"
-            "uniform vec3 acceleration = vec3(0.f, 0.f, 0.f);"
+            "uniform float field_height = 0.f;"
+            "uniform vec3 gravity = vec3(0.f, -2.f, 0.f);"
+            "uniform float brownian_motion = .05f;"
+            "uniform vec3 acceleration;"
             ""
             "uint gid = gl_GlobalInvocationID.x;"
             ""
@@ -62,16 +56,15 @@ public:
             ""
             "void spawn(vec2 sd)"
             "{"
-            "   float theta = PI * rnd(sd) * 2.f; ++sd.x;"
-            "   float phi = PI_8 * (rnd(sd) * 2.f - 1.f);    ++sd.x;"
-            "   float r0 = pow(.02f + rnd(sd)*.1f, 1.f/3.f); ++sd.x;"
-            "   particles[gid].position.x = r0 * sin(phi) * cos(theta);"
-            "   particles[gid].position.y = r0 * cos(phi);"
-            "   particles[gid].position.z = r0 * sin(phi) * sin(theta);"
-            "   particles[gid].velocity.xyz = 5.f * normalize(vec3(particles[gid].position.x, particles[gid].position.y*.2f, particles[gid].position.z));"
-            "   particles[gid].velocity.w = 3.f + (2*rnd(sd) - 1.f);" // life
-            "   particles[gid].position.w = 1.f;" // alpha, life fraction
-            "   particles[gid].delta_position.xyz = vec3(0.f);"
+            "   particles[gid].position.x = spawn_radius * (1 - 2 * rnd(sd)); ++sd.x;"
+            "   particles[gid].position.y = top_height + rnd(sd); ++sd.x;"
+            "   particles[gid].position.z = spawn_radius * (1 - 2 * rnd(sd)); ++sd.x;"
+            "   particles[gid].position.w = 0.075 + rnd(sd) * 0.025; ++sd.x;"
+            "   particles[gid].delta_position.x = 0.f;"
+            "   particles[gid].delta_position.y = 0.f;"
+            "   particles[gid].delta_position.z = 0.f;"
+            "   particles[gid].delta_position.w = 1.f;"
+            "   particles[gid].brownian = vec4(0.f, 0.f, 0.f, 1 + rnd(sd));"
             "}"
             ""
             "void update(vec2 sd)"
@@ -80,81 +73,71 @@ public:
             "   if (particles[gid].position.y >= field_height)"
             "       above_field = true;"
             ""
-            "   particles[gid].velocity.xyz += acceleration * dt;"
-            "   particles[gid].velocity.y -= vertical_gravity * dt;"
-            "   particles[gid].delta_position.xyz = particles[gid].velocity.xyz * dt;"
+            "   particles[gid].delta_position.xyz = gravity * dt;"
             "   particles[gid].position.xyz += particles[gid].delta_position.xyz;"
             ""
-            "   if (above_field == true && particles[gid].position.y < field_height && "
-            "       particles[gid].position.x > field_bound[0] && particles[gid].position.x < field_bound[1] &&"
-            "       particles[gid].position.z > field_bound[2] && particles[gid].position.z < field_bound[3])"
+            "   if (particles[gid].position.y < field_height)"
             "   {"
-            "       particles[gid].delta_position.y += field_height - particles[gid].position.y;"
-            "       particles[gid].position.y = field_height;"
-            "       particles[gid].velocity.xyz = reflect(particles[gid].velocity.xyz, field_norm);"
-            "       particles[gid].velocity.y *= .25f * (rnd(sd) + 1);"
-            ""
-            "       "
-            "       if (particles[gid].position.x * particles[gid].position.x + "
-            "           particles[gid].position.z * particles[gid].position.z > 4f)"
+            "       particles[gid].delta_position.w -= dt / particles[gid].brownian.w;"
+            "       particles[gid].position.w += .1 * dt;"
+            "       if (particles[gid].position.x > field_bound[0] && particles[gid].position.x < field_bound[1] &&"
+            "          particles[gid].position.z > field_bound[2] && particles[gid].position.z < field_bound[3])"
             "       {"
-            "           if (particles[gid].velocity.x > 0.f)"
-            "               particles[gid].velocity.x -= horizontal_resistance * dt;"
-            "           else if (particles[gid].velocity.x < 0.f)"
-            "               particles[gid].velocity.x += horizontal_resistance * dt;"
-            "           if (particles[gid].velocity.z > 0.f)"
-            "               particles[gid].velocity.z -= horizontal_resistance * dt;"
-            "           else if (particles[gid].velocity.z < 0.f)"
-            "               particles[gid].velocity.z += horizontal_resistance * dt;"
+            "           particles[gid].delta_position.y += field_height - particles[gid].position.y;"
+            "           particles[gid].position.xyz += particles[gid].delta_position.xyz;"
+            "           return;"
             "       }"
             "   }"
+            "   particles[gid].delta_position.xyz = acceleration * dt;"
+            "   particles[gid].position.xyz += particles[gid].delta_position.xyz;"
+            ""
+//            "   particles[gid].brownian.x += (rnd(sd) - .5f) * .0004f; ++sd.x;"
+//            "   particles[gid].brownian.y += (rnd(sd) - .5f) * .0004f; ++sd.x;"
+//            "   particles[gid].brownian.z += (rnd(sd) - .5f) * .0004f; ++sd.x;"
+//            "   particles[gid].brownian.xyz = normalize(particles[gid].brownian.xyz);"
+//            "   particles[gid].brownian.xyz *= brownian_motion;"
+
+            "   particles[gid].brownian.x += (2*rnd(sd) - 1) * dt * brownian_motion;  ++sd.x;"  // should use normal random number
+            "   particles[gid].brownian.y += (2*rnd(sd) - 1) * dt * brownian_motion;  ++sd.x;"
+            "   particles[gid].brownian.z += (2*rnd(sd) - 1) * dt * brownian_motion;  ++sd.x;"
+            "   particles[gid].delta_position.xyz += particles[gid].brownian.xyz;"
+            "   particles[gid].position.xyz += particles[gid].brownian.xyz;"
             "}"
             ""
             "void main()"
             "{"
             "   if (gid >= n_particles) {return;}"
-            "       if (dt < 0.f)"
-            "       {"
-            "           spawn(vec2(gid, gid));"
-            "       }"
-            "       else"
-            "       {"
-            "           vec2 sd = particles[gid].position.xy + particles[gid].velocity.y;"
-            "           particles[gid].velocity.w -= dt;"
-            "           if (particles[gid].velocity.w > 0.f)"
-            "               update(sd);"
-            "           else"
-            "               spawn(sd);"
-            "       }"
-            "}";
-    const char *VS = "#version 420 core\n"
+            "   if (particles[gid].delta_position.w < 0.f || dt < 0.f)"
+            "   {"
+            "       spawn(vec2(gid + particles[gid].position.x, gid + particles[gid].position.y));"
+            "   }"
+            "   else"
+            "   {"
+            "       update(vec2(gid + particles[gid].position.x, gid + particles[gid].position.y));"
+            "   }"
             ""
-            "layout(location = 0) in vec3 pos;"
-            "layout(location = 1) in float life;"
-            "layout(location = 2) in vec3 delta_position;"
+            "}";
+
+    const char *VS = "#version 420 core\n"
+            "layout(location = 0) in vec4 position;"
+            "layout(location = 1) in vec3 delta_position;"
+            "layout(location = 2) in float alpha;"
             ""
             "out VS_OUT"
             "{"
-            "   float alpha;"
             "   vec3 delta_position;"
+            "   float alpha;"
             "} primitive;"
             ""
             "void main()"
             "{"
-            "	gl_Position = vec4(pos, 1.0f);"
-            ""
-            "	primitive.alpha = life;"
+            "   gl_Position = position;"
             "   primitive.delta_position = delta_position;"
+            "   primitive.alpha = alpha;"
             "}";
     const char *GS = "#version 420 core\n"
             "layout (points) in;"
             "layout (triangle_strip, max_vertices = 4) out;"
-            ""
-            "in VS_OUT"
-            "{"
-            "   float alpha;"
-            "   vec3 delta_position;"
-            "} primitive[];"
             ""
             "layout (std140, binding = 0) uniform GlobalAttributes"
             "{"
@@ -162,6 +145,12 @@ public:
             "   mat4 proj;"
             "   vec3 cam_pos;"
             "};"
+            ""
+            "in VS_OUT"
+            "{"
+            "   vec3 delta_position;"
+            "   float alpha;"
+            "} primitive[];"
             ""
             "out vec2 gTextureCoord;"
             "out float gAlpha;"
@@ -171,8 +160,8 @@ public:
             "   mat4 VP = proj * view;"
             ""
             "   vec3 u = mat3(view) * primitive[0].delta_position;" // movement in view
-            "   float w = .025f;" // half width
-            "   float h = w * 2.f;"                // half height
+            "   float w = gl_in[0].gl_Position.w;" // half width
+            "   float h = w;"                // half height
             "   float t = 0;"
             "   float nz = abs(normalize(u).z);"
             "   if (nz > 1.f - 1e-7f)"                        // the more the delta position aligns with Z axis
@@ -192,8 +181,8 @@ public:
             "   vec3 right_vec = basis * vec3(0.f, w, 0.f);"
             "   vec3 up_vec = basis * vec3(h, 0.f, 0.f);"
             ""
-//            "   vec3 up_vec = vec3(view[0][0], view[1][0], view[2][0]) * .025f;"
-//            "   vec3 right_vec = vec3(view[0][1], view[1][1], view[2][1]) * .025f;"
+//            "   vec3 up_vec = vec3(view[0][0], view[1][0], view[2][0]) * gl_in[0].gl_Position.w;"
+//            "   vec3 right_vec = vec3(view[0][1], view[1][1], view[2][1]) * gl_in[0].gl_Position.w;"
             ""
             "   gAlpha = primitive[0].alpha;"
             ""
@@ -203,30 +192,29 @@ public:
             "   EmitVertex();"
             "   gTextureCoord = vec2(1, 0);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (right_vec -  up_vec), 1.f);"
+            "	        + (right_vec - up_vec), 1.f);"
             "   EmitVertex();"
             "   gTextureCoord = vec2(0, 1);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (-right_vec +  up_vec), 1.f);"
+            "	        + (-right_vec + up_vec), 1.f);"
             "   EmitVertex();"
             "   gTextureCoord = vec2(1, 1);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (right_vec +  up_vec), 1.f);"
+            "	        + (right_vec + up_vec), 1.f);"
             "   EmitVertex();"
             ""
             "   EndPrimitive();"
             "}";
-
     const char *FS = "#version 330 core\n"
-            "in float gAlpha;"
             "in vec2 gTextureCoord;"
+            "in float gAlpha;"
             ""
             "uniform sampler2D sprite;"
             ""
             "out vec4 color;"
             ""
             "void main(){"
-            "   color = vec4(0.2588f, 0.5255f, 0.9569f, gAlpha * texture(sprite, gTextureCoord).r);"
+            "   color = vec4(1.f, 1.f, 1.f, gAlpha * texture(sprite, gTextureCoord).r);"
             "}";
 
     impl() : vao(0), vbo(0), texture(0),
@@ -264,21 +252,20 @@ public:
 
 };
 
-scene::WaterFountainScene::ComputeShaderParticleSystem::ComputeShaderParticleSystem()
+scene::SnowScene::BrownianMotionParticleSystem::BrownianMotionParticleSystem()
         : ParticleSystem()
 {
     pimpl = std::unique_ptr<impl>(new impl);
 }
 
-scene::WaterFountainScene::ComputeShaderParticleSystem::~ComputeShaderParticleSystem()
+scene::SnowScene::BrownianMotionParticleSystem::~BrownianMotionParticleSystem()
 {}
 
-void scene::WaterFountainScene::ComputeShaderParticleSystem::init(float *vertex, unsigned int v_count,
-                                                              unsigned int tex, float *uv, bool atlas)
+void scene::SnowScene::BrownianMotionParticleSystem::init(float *, unsigned int v_count,
+                                                     unsigned int tex, float *uv, bool atlas)
 {
     if (pimpl->compute_shader == nullptr)
         pimpl->compute_shader = new Shader(pimpl->CS);
-
     if (pimpl->draw_shader == nullptr)
         pimpl->draw_shader = new Shader(pimpl->VS, pimpl->FS, pimpl->GS);
 
@@ -289,48 +276,51 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::init(float *vertex,
     pimpl->draw_shader->set("sprite", 0);
     glBindVertexArray(pimpl->vao);
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
-    glEnableVertexAttribArray(0);   // position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(0));
-    glEnableVertexAttribArray(1);   // color alpha
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(3*sizeof(float)));
-    glEnableVertexAttribArray(2);   // delta position
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(8*sizeof(float)));
+    glEnableVertexAttribArray(0);   // position + size
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(0));
+    glEnableVertexAttribArray(1);   // delta_position
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(4*sizeof(float)));
+    glEnableVertexAttribArray(2);   // alpha
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(7*sizeof(float)));
     pimpl->draw_shader->activate(false);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    {
-        int w, h, ch;
-        auto ptr = stbi_load(ASSET_PATH "/texture/particle3.png", &w, &h, &ch, 3);
-        TEXTURE_LOAD_HELPER(pimpl->texture, GL_RGB, GL_REPEAT, GL_LINEAR, w, h, ptr);
-        stbi_image_free(ptr);
-    }
+    int w, h, ch;
+    auto ptr = stbi_load(ASSET_PATH "/texture/particle3.png", &w, &h, &ch, 3);
+    TEXTURE_LOAD_HELPER(pimpl->texture, GL_RGB, GL_REPEAT, GL_LINEAR, w, h, ptr);
+    stbi_image_free(ptr);
+
 }
 
-void scene::WaterFountainScene::ComputeShaderParticleSystem::restart()
+void scene::SnowScene::BrownianMotionParticleSystem::restart()
 {
     pimpl->tot = max_particles;
     pimpl->debt = 0.f;
-
+    n_particles = 0.f;
     pimpl->upload = true;
 }
 
-void scene::WaterFountainScene::ComputeShaderParticleSystem::upload()
+void scene::SnowScene::BrownianMotionParticleSystem::upload()
 {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     if (!pimpl->upload) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*12*max_particles, nullptr, GL_STATIC_DRAW);
 
-    n_particles = max_particles;
-    update(-1.f);
-    n_particles = 0;
+    pimpl->compute_shader->activate();
+    pimpl->compute_shader->set("dt", -1.f);
+    pimpl->compute_shader->set("n_particles", static_cast<int>(total()));
+    glDispatchCompute(cuda::blocks(total(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
+    pimpl->compute_shader->activate(false);
 
     pimpl->upload = false;
 }
 
-void scene::WaterFountainScene::ComputeShaderParticleSystem::update(float dt, glm::vec3 *cam_pos)
+
+void scene::SnowScene::BrownianMotionParticleSystem::update(float dt, glm::vec3 *cam_pos)
 {
     if (n_particles != total())
     {
@@ -341,20 +331,19 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::update(float dt, gl
         if (n_particles > total()) n_particles = total();
     }
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", dt);
     pimpl->compute_shader->set("acceleration", acceleration);
     pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     glDispatchCompute(cuda::blocks(count(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->compute_shader->activate(false);
 }
 
-void scene::WaterFountainScene::ComputeShaderParticleSystem::render(GLenum gl_draw_mode)
+void scene::SnowScene::BrownianMotionParticleSystem::render(GLenum gl_draw_mode)
 {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-//    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     pimpl->draw_shader->activate();
     glBindVertexArray(pimpl->vao);
@@ -368,33 +357,33 @@ void scene::WaterFountainScene::ComputeShaderParticleSystem::render(GLenum gl_dr
     glDisable(GL_BLEND);
 }
 
-unsigned int scene::WaterFountainScene::ComputeShaderParticleSystem::total() const noexcept
+unsigned int scene::SnowScene::BrownianMotionParticleSystem::total() const noexcept
 {
     return pimpl->tot;
 }
 
-scene::WaterFountainScene::WaterFountainScene()
+scene::SnowScene::SnowScene()
         : BaseScene(),
-          system_name("Water Fountain Demo"),
+          system_name("Snow Demo"),
           rendering_mode("Compute and Geometry Shader"),
           particle_system(nullptr)
 {
-    particle_system = new ComputeShaderParticleSystem;
-    particle_system->max_particles = WATER_FOUNTAIN_MAX_PARTICLES;
-    particle_system->birth_rate    = particle_system->max_particles*1000;
+    particle_system = new BrownianMotionParticleSystem;
+    particle_system->max_particles = SNOW_MAX_PARTICLES;
+    particle_system->birth_rate    = SNOW_MAX_PARTICLES*.15;
 }
 
-scene::WaterFountainScene::~WaterFountainScene()
+scene::SnowScene::~SnowScene()
 {
     delete particle_system;
 }
 
-void scene::WaterFountainScene::init(Scene &scene)
+void scene::SnowScene::init(Scene &scene)
 {
     particle_system->init(nullptr, 0);
 }
 
-void scene::WaterFountainScene::restart(Scene &scene)
+void scene::SnowScene::restart(Scene &scene)
 {
     resetCamera();
     pause = false;
@@ -402,13 +391,13 @@ void scene::WaterFountainScene::restart(Scene &scene)
     particle_system->restart();
 }
 
-void scene::WaterFountainScene::upload(Shader &scene_shader)
+void scene::SnowScene::upload(Shader &scene_shader)
 {
     glClearColor(0.f, 0.f, 0.f, 1.f);
     particle_system->upload();
 }
 
-void scene::WaterFountainScene::update(float dt)
+void scene::SnowScene::update(float dt)
 {
     if (!pause)
     {
@@ -418,21 +407,21 @@ void scene::WaterFountainScene::update(float dt)
     processInput(dt);
 }
 
-void scene::WaterFountainScene::render()
+void scene::SnowScene::render()
 {
     particle_system->render();
 
     renderInfo();
 }
 
-void scene::WaterFountainScene::resetCamera()
+void scene::SnowScene::resetCamera()
 {
-    App::instance()->scene.character.reset(0.f, 0.f, -20.f, 180.f, 0.f);
+    App::instance()->scene.character.reset(0.f, 3.f, -12.f, 180.f, 10.f);
     App::instance()->scene.character.setShootable(false);
     App::instance()->scene.character.setFloating(true);
 }
 
-void scene::WaterFountainScene::renderInfo()
+void scene::SnowScene::renderInfo()
 {
     App::instance()->text(system_name,
                           10, 10, .4f,
@@ -449,9 +438,9 @@ void scene::WaterFountainScene::renderInfo()
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << wind.x << ", " << wind.z << std::endl;
     App::instance()->text("Wind: " + ss.str(),
-                            10, 70, .4f,
-                            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                            Anchor::LeftTop);
+                          10, 70, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::LeftTop);
 
     auto h = App::instance()->frameHeight() - 25;
     if (particle_system->max_particles != particle_system->total())
@@ -483,7 +472,7 @@ void scene::WaterFountainScene::renderInfo()
                           Anchor::RightTop);
 }
 
-void scene::WaterFountainScene::processInput(float dt)
+void scene::SnowScene::processInput(float dt)
 {
     auto window = App::instance()->window();
     static auto sum_dt = 0.f;
@@ -508,12 +497,12 @@ void scene::WaterFountainScene::processInput(float dt)
 
 #define INCREASE_PARTICLES                                              \
     particle_system->max_particles += 1000;                             \
-    particle_system->birth_rate = particle_system->max_particles * .1f;
+    particle_system->birth_rate = particle_system->max_particles * .15f;
 #define DECREASE_PARTICLES                                                  \
     if (particle_system->max_particles > 1000)                              \
     {                                                                       \
         particle_system->max_particles -= 1000;                             \
-        particle_system->birth_rate = particle_system->max_particles * .1f; \
+        particle_system->birth_rate = particle_system->max_particles * .15f; \
     }
 #define INCREASE_WIND_X wind.x -= .1f;
 #define DECREASE_WIND_X wind.x += .1f;
@@ -548,4 +537,3 @@ void scene::WaterFountainScene::processInput(float dt)
         last_key = GLFW_KEY_UNKNOWN;
     }
 }
-

@@ -19,7 +19,6 @@ public:
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
     void update(float dt) override;
-    void render(Shader &scene_shader) override;
     void render() override;
 
     inline ParticleSystem * const & particleSystem() const noexcept { return particle_system; }
@@ -42,7 +41,6 @@ public:
         CurlNoiseParticleSystem();
         ~CurlNoiseParticleSystem();
 
-        unsigned int const &count() const noexcept override;
         unsigned int total() const noexcept override;
 
     private:

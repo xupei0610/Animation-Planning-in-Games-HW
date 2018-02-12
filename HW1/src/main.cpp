@@ -16,11 +16,11 @@ int main()
 
     auto app = px::App::instance();
     app->init(
-//#ifndef NFULLSCREEN
+#ifndef NFULLSCREEN
              true
-//#else
-//             false
-//#endif
+#else
+             false
+#endif
              );
 
 

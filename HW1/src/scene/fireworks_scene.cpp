@@ -5,6 +5,7 @@
 #include "global.hpp"
 #include "config.h"
 #include "util/random.hpp"
+#include "util/cuda.hpp"
 
 using namespace px;
 
@@ -278,7 +279,7 @@ void scene::FireworksScene::ComputeShaderParticleSystem::upload()
     pimpl->compute_shader->set("gravity", glm::vec3(rnd_np()*2.f, 0.f, rnd_np()*2.f)); // initial position
     pimpl->compute_shader->set("acceleration", glm::vec3(rnd_np()*2, 7.5f + rnd(), rnd_np()*2)); // initial velocity
     pimpl->compute_shader->set("n_particles", static_cast<int>(total()));
-    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(total(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->compute_shader->set("gravity", glm::vec3(0.f, -5.f, 0.f)); // restore gravity
     pimpl->compute_shader->set("acceleration", glm::vec3(0.f));
     pimpl->compute_shader->activate(false);
@@ -307,7 +308,7 @@ void scene::FireworksScene::ComputeShaderParticleSystem::update(float dt, glm::v
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
     pimpl->compute_shader->set("trail", pimpl->trail);
     pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
-    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(count(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->compute_shader->activate(false);
 
     pimpl->time += dt;
@@ -394,9 +395,6 @@ void scene::FireworksScene::upload(Shader &scene_shader)
     for (auto s : systems)
         s->upload();
 }
-
-void scene::FireworksScene::render(Shader &scene_shader)
-{}
 
 void scene::FireworksScene::update(float dt)
 {

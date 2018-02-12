@@ -241,7 +241,7 @@ void scene::BenchmarkScene::ComputeShaderParticleSystem::update(float dt, glm::v
     compute_shader->activate();
     compute_shader->set("dt", dt);
     compute_shader->set("n_particles", static_cast<int>(count()));
-    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(count(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     compute_shader->activate(false);
 }
 void scene::BenchmarkScene::CUDAParticleSystem::update(float dt,

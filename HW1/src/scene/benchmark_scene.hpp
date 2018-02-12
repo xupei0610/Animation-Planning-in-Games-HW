@@ -26,7 +26,6 @@ public:
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
     void update(float dt) override;
-    void render(Shader &scene_shader) override;
     void render() override;
 
     BenchmarkScene();

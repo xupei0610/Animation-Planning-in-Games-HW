@@ -62,12 +62,20 @@ protected:
 namespace px { namespace cuda
 {
 
-inline int blocks(const int &num)
+inline int blocks(const int num, const int thread)
+{
+    return (num + thread - 1) / thread;
+}
+
+inline int blocks(const int num)
 {
     return (num + PX_CUDA_THREADS_PER_BLOCK - 1) / PX_CUDA_THREADS_PER_BLOCK;
 }
 
-}}
+}
+
+
+}
 
 #else
 

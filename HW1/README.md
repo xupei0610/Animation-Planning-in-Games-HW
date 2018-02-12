@@ -86,12 +86,12 @@ Video Demo: [click me](https://www.youtube.com/watch?v=DFXW0sZyuig&list=PLNoGwCJ
 
 Video Demo: [click me](https://www.youtube.com/watch?v=2Q4pfzkeVqY&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=7)
 
-##### Control
+###### Control
 
 + hold `←`, `→`, `↑`, `↓`: control wind
 + `m`: reset wind speed
 
-##### Key Features
+#### Key Features
 
 + Compute Shader
 + Particles and Obstacle Interaction
@@ -111,6 +111,27 @@ Video demo: [click me](https://www.youtube.com/watch?v=-LN6R0lbDLg&list=PLNoGwCJ
 + Compute Shader
 + Color Fading
 + Textured Particles
+
+### Snow
+
+<img src="./doc/snow.gif" />
+
+Video demo: [click me](https://www.youtube.com/watch?v=2dh5rMwu-eA&index=6&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0)
+
+##### Control
+
++ hold `←`, `→`, `↑`, `↓`: control wind
++ `m`: reset wind speed
+
+##### Key Features
+
++ **Brownian Motion**-Based Snowfall Simulation
++ Particles and User Interaction
++ Particles and Obstacle Interaction
++ Compute Shader
++ Color Fading
++ Textured Particles
++ Particle Size Change
 
 ### Galaxy
 
@@ -219,6 +240,7 @@ I strongly recommend CUDA if we do not care about the hardware compatibility.
 + `WATER_FOUNTAIN`
 + `FIRE`
 + `FIREWORKS`
++ `SNOW`
 + `GALAXY`
 + empty or other values: the benchmark scene
 

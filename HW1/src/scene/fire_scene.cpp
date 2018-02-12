@@ -4,6 +4,7 @@
 #include "global.hpp"
 #include "app.hpp"
 #include "config.h"
+#include "util/cuda.hpp"
 
 #include "stb_image.hpp"
 
@@ -12,7 +13,7 @@ using namespace px;
 class scene::FireScene::CurlNoiseParticleSystem::impl
 {
 public:
-    unsigned int vao, vertex_vbo, vbo, texture;
+    unsigned int vao, vbo, texture;
     unsigned int n_vertices;
 
     float debt;
@@ -29,8 +30,9 @@ public:
             "   struct"
             "   {"
             "       vec4 position;" // position,  size
-            "       vec4 color;"   // velocity,  alpha
+            "       vec4 color;"   // alpha
             "       vec4 life;"   //  total life, remaining life
+            "       vec4 delta_position;" // velocity
             "   } particles[];"
             "};"
             "uniform float dt;"
@@ -72,11 +74,11 @@ public:
             "         + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));"
             // Gradients
             // ( N*N points uniformly over a square, mapped onto an octahedron.)
-            "       float n_ = 1.0/7.0;" // N=7
-            "       vec3  ns = n_ * D.wyz - D.xzx;"
-            "       vec4 j = p - 49.0 * floor(p * ns.z *ns.z);"  //  mod(p,N*N)
-            "       vec4 x_ = floor(j * ns.z);"
-            "       vec4 y_ = floor(j - 7.0 * x_ );"    // mod(j,N)
+            "   float n_ = 1.0/7.0;" // N=7
+            "   vec3  ns = n_ * D.wyz - D.xzx;"
+            "   vec4 j = p - 49.0 * floor(p * ns.z *ns.z);"  //  mod(p,N*N)
+            "   vec4 x_ = floor(j * ns.z);"
+            "   vec4 y_ = floor(j - 7.0 * x_ );"    // mod(j,N)
             "   vec4 x = x_ *ns.x + ns.yyyy;"
             "   vec4 y = y_ *ns.x + ns.yyyy;"
             "   vec4 h = 1.0 - abs(x) - abs(y);"
@@ -150,8 +152,8 @@ public:
             "   {"
             "       vec2 sd = vec2(current_time, (gid + dt)*1000);"
             "       float theta = PI * rnd(sd) * 2.f;         sd.x *= sd.x;"
-            "       float phi = acos(rnd(sd) * 2.f - 1.f);    sd.x *= sd.x;"
-            "       float r0 = pow(rnd(sd) * .055f, 1.f/3.f); sd.x *= sd.x;"
+            "       float phi = acos(rnd(sd) * 2.f - 1.f);    sd.x += sd.x;"
+            "       float r0 = pow(rnd(sd) * .055f, 1.f/3.f); sd.x += sd.x;"
             "       particles[gid].position = vec4(r0 * sin(phi) * cos(theta),"
             "                                      r0 * cos(phi),"
             "                                      r0 * sin(phi) * sin(theta),"
@@ -159,6 +161,7 @@ public:
             "       particles[gid].color =  initial_color;"
             "       particles[gid].life.x = base_life + rnd(sd);"
             "       particles[gid].life.y = particles[gid].life.x;"
+            "       particles[gid].delta_position.xyz = vec3(0.f);"
             "   }"
             "   else"
             "   {"
@@ -168,14 +171,15 @@ public:
             ""
             "       float alpha = turbulence;"
             "       float beta  = noise_position_scale;"
-            "       vec3 velocity = vec3(0.045 * (rnd(vec2(gid, dt*1000)) * 2.f - 1), .35f, 0.045 * (rnd(vec2(gid*1000, current_time)) * 2.f - 1));"
+            "       vec3 velocity = vec3(0.045 * (rnd(vec2(gid, current_time)) * 2.f - 1), .35f, 0.045 * (rnd(vec2(gid*1000, current_time)) * 2.f - 1));"
             "       for (int i = 0; i < n_octaves; ++i)"
             "       {"
             "           velocity += curl(beta) * alpha;"
             "           alpha *= alpha;"
             "           beta *= beta;"
             "       }"
-            "       particles[gid].position.xyz += velocity * dt;"
+            "       particles[gid].delta_position.xyz = velocity * dt;"
+            "       particles[gid].position.xyz += particles[gid].delta_position.xyz;"
             ""
             "       float scale = dt / particles[gid].life.x;"
             "       particles[gid].position.w += (final_size - initial_size) * scale;"
@@ -188,16 +192,19 @@ public:
     const char *VS = "#version 420 core\n"
             "layout(location = 0) in vec4 position;"
             "layout(location = 1) in vec4 color;"
+            "layout(location = 2) in vec3 delta_position;"
             ""
             "out VS_OUT"
             "{"
             "   vec4 color;"
+            "   vec3 delta_position;"
             "} primitive;"
             ""
             "void main()"
             "{"
             "   gl_Position = position;"
             "   primitive.color = color;"
+            "   primitive.delta_position = delta_position;"
             "}";
     const char *GS = "#version 420 core\n"
             "layout (points) in;"
@@ -213,6 +220,7 @@ public:
             "in VS_OUT"
             "{"
             "   vec4 color;"
+            "   vec3 delta_position;"
             "} primitive[];"
             ""
             "out vec2 gTextureCoord;"
@@ -222,8 +230,30 @@ public:
             "{"
             "   mat4 VP = proj * view;"
             ""
-            "   vec3 right_vec = vec3(view[0][0], view[1][0], view[2][0]) * gl_in[0].gl_Position.w;"
-            "   vec3 up_vec = vec3(view[0][1], view[1][1], view[2][1]) * gl_in[0].gl_Position.w;"
+            "   vec3 u = mat3(view) * primitive[0].delta_position;" // movement in view
+            "   float w = gl_in[0].gl_Position.w;" // half width
+            "   float h = w * 2.f;"                // half height
+            "   float t = 0;"
+            "   float nz = abs(normalize(u).z);"
+            "   if (nz > 1.f - 1e-7f)"                        // the more the delta position aligns with Z axis
+            "       t = (nz - (1.f - 1e-7f)) / 1e-7f;"        // the more t will close to 1 such that h will close to w
+            "   else if (dot(u, u) < 1e-7f)"
+            "       t = (1e-7f - dot(u,u)) / 1e-7f;"
+            "   u.z = 0.f;"
+            "   u = normalize(mix(normalize(u), vec3(1.f,0.f,0.f), t));"
+            "   h = mix(h, w, t);"
+            ""
+            "   vec3 v = vec3(-u.y, u.x, 0.f);"
+            "   vec3 a = u * mat3(view);"
+            "   vec3 b = v * mat3(view);"
+            "   vec3 c = cross(a, b);"
+            "   mat3 basis = mat3(a, b, c);"
+            ""
+            "   vec3 right_vec = basis * vec3(0.f, w, 0.f);"
+            "   vec3 up_vec = basis * vec3(h, 0.f, 0.f);"
+            ""
+//            "   vec3 up_vec = vec3(view[0][0], view[1][0], view[2][0]) * gl_in[0].gl_Position.w;"
+//            "   vec3 right_vec = vec3(view[0][1], view[1][1], view[2][1]) * gl_in[0].gl_Position.w;"
             ""
             "   gColor = primitive[0].color;"
             ""
@@ -233,15 +263,15 @@ public:
             "   EmitVertex();"
             "   gTextureCoord = vec2(1, 0);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (right_vec -  up_vec), 1.f);"
+            "	        + (right_vec - up_vec), 1.f);"
             "   EmitVertex();"
             "   gTextureCoord = vec2(0, 1);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (-right_vec +  up_vec), 1.f);"
+            "	        + (-right_vec + up_vec), 1.f);"
             "   EmitVertex();"
             "   gTextureCoord = vec2(1, 1);"
             "   gl_Position = VP * vec4(gl_in[0].gl_Position.xyz"
-            "	        + (right_vec +  up_vec), 1.f);"
+            "	        + (right_vec + up_vec), 1.f);"
             "   EmitVertex();"
             ""
             "   EndPrimitive();"
@@ -256,7 +286,7 @@ public:
             "   color = vec4(gColor.xyz, gColor.a * texture(sprite, gTextureCoord).r);"
             "}";
 
-    impl() : vao(0), vertex_vbo(0), vbo(0), texture(0),
+    impl() : vao(0), vbo(0), texture(0),
              compute_shader(nullptr), draw_shader(nullptr)
     {}
     ~impl()
@@ -271,12 +301,10 @@ public:
     {
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &vertex_vbo);
         glDeleteTextures(1, &texture);
 
         vao = 0;
         vbo = 0;
-        vertex_vbo = 0;
         texture = 0;
     }
 
@@ -284,12 +312,10 @@ public:
     {
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &vertex_vbo);
         glDeleteTextures(1, &texture);
 
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
-        glGenBuffers(1, &vertex_vbo);
         glGenTextures(1, &texture);
     }
 
@@ -320,9 +346,11 @@ void scene::FireScene::CurlNoiseParticleSystem::init(float *, unsigned int v_cou
     glBindVertexArray(pimpl->vao);
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
     glEnableVertexAttribArray(0);   // position + size
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(0));
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 16*sizeof(float), (void *)(0));
     glEnableVertexAttribArray(1);   // color
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12*sizeof(float), (void *)(4*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 16*sizeof(float), (void *)(4*sizeof(float)));
+    glEnableVertexAttribArray(2);   // delta_position
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 16*sizeof(float), (void *)(12*sizeof(float)));
     pimpl->draw_shader->activate(false);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -349,7 +377,7 @@ void scene::FireScene::CurlNoiseParticleSystem::upload()
     if (!pimpl->upload) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*12*max_particles, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*16*max_particles, nullptr, GL_STATIC_DRAW);
 
     pimpl->compute_shader->activate();
     pimpl->compute_shader->set("dt", -1.f);
@@ -363,7 +391,7 @@ void scene::FireScene::CurlNoiseParticleSystem::upload()
     pimpl->compute_shader->set("final_size", .001f);
     pimpl->compute_shader->set("base_life", 7.5f);
     pimpl->compute_shader->set("n_particles", static_cast<int>(total()));
-    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(total(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->compute_shader->activate(false);
 
     pimpl->upload = false;
@@ -386,7 +414,7 @@ void scene::FireScene::CurlNoiseParticleSystem::update(float dt, glm::vec3 *cam_
     pimpl->compute_shader->set("current_time", static_cast<float>(glfwGetTime()));
     pimpl->compute_shader->set("n_particles", static_cast<int>(count()));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, pimpl->vbo);
-    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(count(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->compute_shader->activate(false);
 }
 
@@ -407,11 +435,6 @@ void scene::FireScene::CurlNoiseParticleSystem::render(GLenum gl_draw_mode)
     glDisable(GL_BLEND);
 }
 
-
-unsigned int const &scene::FireScene::CurlNoiseParticleSystem::count() const noexcept
-{
-    return n_particles;
-}
 unsigned int scene::FireScene::CurlNoiseParticleSystem::total() const noexcept
 {
     return pimpl->tot;
@@ -425,8 +448,8 @@ scene::FireScene::FireScene()
 {
     particle_system = new CurlNoiseParticleSystem;
 
-    particle_system->max_particles = 100000;
-    particle_system->birth_rate    = 6000;
+    particle_system->max_particles = FIRE_MAX_PARTICLES;
+    particle_system->birth_rate    = FIRE_MAX_PARTICLES * .06f;
 }
 
 scene::FireScene::~FireScene()
@@ -452,9 +475,6 @@ void scene::FireScene::upload(Shader &scene_shader)
     glClearColor(0.f, 0.f, 0.f, 1.f);
     particle_system->upload();
 }
-
-void scene::FireScene::render(Shader &scene_shader)
-{}
 
 void scene::FireScene::update(float dt)
 {
@@ -536,12 +556,12 @@ void scene::FireScene::processInput(float dt)
 
 #define INCREASE_PARTICLES                                              \
     particle_system->max_particles += 1000;                             \
-    particle_system->birth_rate = particle_system->max_particles * .6f;
+    particle_system->birth_rate = particle_system->max_particles * .06f;
 #define DECREASE_PARTICLES                                                  \
     if (particle_system->max_particles > 1000)                              \
     {                                                                       \
         particle_system->max_particles -= 1000;                             \
-        particle_system->birth_rate = particle_system->max_particles * .6f; \
+        particle_system->birth_rate = particle_system->max_particles * .06f; \
     }
 
     STICKY_KEY_CHECK(GLFW_KEY_Z, INCREASE_PARTICLES)

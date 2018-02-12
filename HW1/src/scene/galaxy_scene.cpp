@@ -325,7 +325,7 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::upload()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SIMDParticleSystem::pimpl->vbo);
     pimpl->spawn_compute_shader->activate();
     pimpl->spawn_compute_shader->set("n_particles", static_cast<int>(total()));
-    glDispatchCompute(std::ceil(total()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(total(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->spawn_compute_shader->activate(false);
 
 }
@@ -370,7 +370,7 @@ void scene::GalaxyScene::ComputeShaderParticleSystem::update(float dt, glm::vec3
     pimpl->update_compute_shader->activate();
     pimpl->update_compute_shader->set("dt", std::min(dt, 0.02f));
     pimpl->update_compute_shader->set("n_particles", int(count()));
-    glDispatchCompute(std::ceil(count()/float(COMPUTE_SHADER_WORK_GROUP_SIZE)), 1, 1);
+    glDispatchCompute(cuda::blocks(count(), COMPUTE_SHADER_WORK_GROUP_SIZE), 1, 1);
     pimpl->update_compute_shader->activate(false);
 }
 
@@ -468,8 +468,6 @@ void scene::GalaxyScene::upload(Shader &scene_shader)
     particle_system->upload();
 }
 
-void scene::GalaxyScene::render(Shader &scene_shader)
-{}
 void scene::GalaxyScene::update(float dt)
 {
     if (!pause)
@@ -477,6 +475,9 @@ void scene::GalaxyScene::update(float dt)
 
     processInput(dt);
 }
+
+void scene::GalaxyScene::render(Shader &)
+{}
 
 void scene::GalaxyScene::render()
 {

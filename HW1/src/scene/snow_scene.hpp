@@ -1,42 +1,44 @@
-#ifndef PX_CG_SCENE_WATER_FOUNTAIN_SCENE_HPP
-#define PX_CG_SCENE_WATER_FOUNTAIN_SCENE_HPP
+#ifndef PX_CG_SCENE_SNOW_SCENE_HPP
+#define PX_CG_SCENE_SNOW_SCENE_HPP
 
 #include <memory>
 
-#include "particle.hpp"
-#include "scene/base_scene.hpp"
 #include "shader/base_shader.hpp"
+#include "scene/base_scene.hpp"
+#include "particle.hpp"
 
 namespace px { namespace scene
 {
-class WaterFountainScene;
-} }
+class SnowScene;
+}}
 
-class px::scene::WaterFountainScene : public BaseScene
+class px::scene::SnowScene : public BaseScene
 {
 public:
     const std::string system_name;
     const std::string rendering_mode;
-    glm::vec3 wind;
     bool pause;
+    glm::vec3 wind;
 
-public:
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
     void update(float dt) override;
     void render() override;
 
-    WaterFountainScene();
-    ~WaterFountainScene() override;
+    SnowScene();
+    ~SnowScene() override;
 
     void resetCamera();
+    void processInput(float dt);
+    void renderInfo();
 
-    class ComputeShaderParticleSystem : public ParticleSystem
+    class BrownianMotionParticleSystem : public ParticleSystem
     {
     public:
         glm::vec3 acceleration;
 
+    public:
         void init(float *vertex, unsigned int v_count,
                   unsigned int tex = 0, float *uv = nullptr, bool atlas = false) override;
         void restart() override;
@@ -44,8 +46,8 @@ public:
         void update(float dt, glm::vec3 *cam_pos = nullptr) override;
         void render(GLenum gl_draw_mode = GL_POINT) override;
 
-        ComputeShaderParticleSystem();
-        ~ComputeShaderParticleSystem();
+        BrownianMotionParticleSystem();
+        ~BrownianMotionParticleSystem();
 
         unsigned int total() const noexcept override;
 
@@ -54,12 +56,9 @@ public:
         std::unique_ptr<impl> pimpl;
     };
 
+    inline const BrownianMotionParticleSystem *particleSystem() const noexcept { return particle_system; }
 protected:
-    ComputeShaderParticleSystem *particle_system;
-
-protected:
-    void renderInfo();
-    void processInput(float dt);
+    BrownianMotionParticleSystem *particle_system;
 };
 
-#endif // PX_CG_SCENE_WATER_FOUNTAIN_SCENE_HPP
+#endif // PX_CG_SCENE_SNOW_SCENE_HPP

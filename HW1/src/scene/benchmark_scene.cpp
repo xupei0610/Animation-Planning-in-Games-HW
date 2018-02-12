@@ -26,11 +26,11 @@ scene::BenchmarkScene::BenchmarkScene()
         : BaseScene(),
           particle_system(nullptr)
 {
-    systems.emplace_back("CUDA", new CUDAParticleSystem);
-    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_CUDA;
-    systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
     systems.emplace_back("compute shader", new ComputeShaderParticleSystem);
     systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_COMPUTE_SHADER;
+    systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
+    systems.emplace_back("CUDA", new CUDAParticleSystem);
+    systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_CUDA;
     systems.back().second->birth_rate    =  .12f * systems.back().second->max_particles;
     systems.emplace_back("transform feedback with instancing", new TransformFeedbackParticleSystem);
     systems.back().second->max_particles = BENCHMARK_MAX_PARTICLES_TRANSFORM_FEEDBACK;
@@ -113,9 +113,6 @@ void scene::BenchmarkScene::upload(Shader &scene_shader)
     glClearColor(0.f, 0.f, 0.f, 1.f);
     particle_system->upload();
 }
-
-void scene::BenchmarkScene::render(Shader &scene_shader)
-{}
 
 void scene::BenchmarkScene::update(float dt)
 {
