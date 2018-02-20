@@ -1,0 +1,2016 @@
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_af1cb/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_af1cb.dir/build.make CMakeFiles/cmTC_af1cb.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_af1cb.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_af1cb.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_af1cb.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_af1cb/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_c83ad/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_c83ad.dir/build.make CMakeFiles/cmTC_c83ad.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c83ad.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_c83ad.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_c83ad.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_c83ad/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_0d4a2/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_0d4a2.dir/build.make CMakeFiles/cmTC_0d4a2.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0d4a2.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_0d4a2.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_0d4a2.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_0d4a2/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_b3d39/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_b3d39.dir/build.make CMakeFiles/cmTC_b3d39.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b3d39.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_b3d39.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_b3d39.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_b3d39/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_47694/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_47694.dir/build.make CMakeFiles/cmTC_47694.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_47694.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_47694.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_47694.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_47694/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_f3243/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_f3243.dir/build.make CMakeFiles/cmTC_f3243.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f3243.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_f3243.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_f3243.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_f3243/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_4d219/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_4d219.dir/build.make CMakeFiles/cmTC_4d219.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4d219.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_4d219.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_4d219.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_4d219/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_dcaf3/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_dcaf3.dir/build.make CMakeFiles/cmTC_dcaf3.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_dcaf3.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_dcaf3.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_dcaf3.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_dcaf3/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_8754b/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_8754b.dir/build.make CMakeFiles/cmTC_8754b.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8754b.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_8754b.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_8754b.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_8754b/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_61e13/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_61e13.dir/build.make CMakeFiles/cmTC_61e13.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_61e13.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_61e13.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_61e13.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_61e13/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_cb523/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_cb523.dir/build.make CMakeFiles/cmTC_cb523.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_cb523.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_cb523.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_cb523.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_cb523/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_e2abb/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_e2abb.dir/build.make CMakeFiles/cmTC_e2abb.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e2abb.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_e2abb.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_e2abb.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_e2abb/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_f4996/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_f4996.dir/build.make CMakeFiles/cmTC_f4996.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f4996.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_f4996.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_f4996.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_f4996/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_e04ca/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_e04ca.dir/build.make CMakeFiles/cmTC_e04ca.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e04ca.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_e04ca.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_e04ca.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_e04ca/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_0a34f/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_0a34f.dir/build.make CMakeFiles/cmTC_0a34f.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0a34f.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_0a34f.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_0a34f.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_0a34f/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_5fca4/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_5fca4.dir/build.make CMakeFiles/cmTC_5fca4.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_5fca4.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_5fca4.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_5fca4.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_5fca4/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_c656b/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_c656b.dir/build.make CMakeFiles/cmTC_c656b.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_c656b.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_c656b.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_c656b.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_c656b/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2c8a9/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2c8a9.dir/build.make CMakeFiles/cmTC_2c8a9.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2c8a9.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_2c8a9.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_2c8a9.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2c8a9/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_8db93/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_8db93.dir/build.make CMakeFiles/cmTC_8db93.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_8db93.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_8db93.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_8db93.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_8db93/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_e741f/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_e741f.dir/build.make CMakeFiles/cmTC_e741f.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e741f.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_e741f.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_e741f.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_e741f/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_bdaa1/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_bdaa1.dir/build.make CMakeFiles/cmTC_bdaa1.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_bdaa1.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_bdaa1.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[2]: *** [CMakeFiles/cmTC_bdaa1.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_bdaa1/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_55fab/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_55fab.dir/build.make CMakeFiles/cmTC_55fab.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_55fab.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_55fab.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported option '-fopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_55fab.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_55fab/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_fa184/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_fa184.dir/build.make CMakeFiles/cmTC_fa184.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fa184.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_fa184.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[2]: *** [CMakeFiles/cmTC_fa184.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_fa184/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_3fd35/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_3fd35.dir/build.make CMakeFiles/cmTC_3fd35.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3fd35.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_3fd35.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '/openmp'
+gmake[2]: *** [CMakeFiles/cmTC_3fd35.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_3fd35/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_72685/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_72685.dir/build.make CMakeFiles/cmTC_72685.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_72685.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_72685.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-Qopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_72685.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_72685/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_5fc12/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_5fc12.dir/build.make CMakeFiles/cmTC_5fc12.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5fc12.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_5fc12.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[2]: *** [CMakeFiles/cmTC_5fc12.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_5fc12/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_253b3/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_253b3.dir/build.make CMakeFiles/cmTC_253b3.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_253b3.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_253b3.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c: 'linker' input unused [-Wunused-command-line-argument]
+gmake[2]: *** [CMakeFiles/cmTC_253b3.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_253b3/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_9dea5/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_9dea5.dir/build.make CMakeFiles/cmTC_9dea5.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9dea5.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_9dea5.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '+Oopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_9dea5.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_9dea5/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_4c96f/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_4c96f.dir/build.make CMakeFiles/cmTC_4c96f.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4c96f.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_4c96f.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-qsmp'
+gmake[2]: *** [CMakeFiles/cmTC_4c96f.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_4c96f/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_240c9/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_240c9.dir/build.make CMakeFiles/cmTC_240c9.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_240c9.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_240c9.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-mp'
+gmake[2]: *** [CMakeFiles/cmTC_240c9.dir/src.c.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_240c9/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_ceff3/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_ceff3.dir/build.make CMakeFiles/cmTC_ceff3.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ceff3.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_ceff3.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[2]: *** [CMakeFiles/cmTC_ceff3.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_ceff3/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_38ab6/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_38ab6.dir/build.make CMakeFiles/cmTC_38ab6.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_38ab6.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_38ab6.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported option '-fopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_38ab6.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_38ab6/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_a23bd/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_a23bd.dir/build.make CMakeFiles/cmTC_a23bd.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a23bd.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_a23bd.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[2]: *** [CMakeFiles/cmTC_a23bd.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_a23bd/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_8e09a/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_8e09a.dir/build.make CMakeFiles/cmTC_8e09a.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_8e09a.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_8e09a.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '/openmp'
+gmake[2]: *** [CMakeFiles/cmTC_8e09a.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_8e09a/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2aeb4/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2aeb4.dir/build.make CMakeFiles/cmTC_2aeb4.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2aeb4.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_2aeb4.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-Qopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_2aeb4.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_2aeb4/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_15750/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_15750.dir/build.make CMakeFiles/cmTC_15750.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_15750.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_15750.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[2]: *** [CMakeFiles/cmTC_15750.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_15750/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_80274/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_80274.dir/build.make CMakeFiles/cmTC_80274.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_80274.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_80274.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx: 'linker' input unused [-Wunused-command-line-argument]
+gmake[2]: *** [CMakeFiles/cmTC_80274.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_80274/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_34882/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_34882.dir/build.make CMakeFiles/cmTC_34882.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_34882.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_34882.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '+Oopenmp'
+gmake[2]: *** [CMakeFiles/cmTC_34882.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_34882/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_77da2/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_77da2.dir/build.make CMakeFiles/cmTC_77da2.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_77da2.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_77da2.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-qsmp'
+gmake[2]: *** [CMakeFiles/cmTC_77da2.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_77da2/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_19391/fast"
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_19391.dir/build.make CMakeFiles/cmTC_19391.dir/build
+gmake[2]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_19391.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_19391.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-mp'
+gmake[2]: *** [CMakeFiles/cmTC_19391.dir/src.cxx.o] Error 1
+gmake[2]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTC_19391/fast] Error 2
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2cf0b/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2cf0b.dir/build.make CMakeFiles/cmTC_2cf0b.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2cf0b.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_2cf0b.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_2cf0b.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2cf0b/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_d90d1/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_d90d1.dir/build.make CMakeFiles/cmTC_d90d1.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d90d1.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_d90d1.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_d90d1.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_d90d1/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_be208/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_be208.dir/build.make CMakeFiles/cmTC_be208.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_be208.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_be208.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_be208.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_be208/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_b08b3/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_b08b3.dir/build.make CMakeFiles/cmTC_b08b3.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b08b3.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_b08b3.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_b08b3.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_b08b3/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_c6848/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_c6848.dir/build.make CMakeFiles/cmTC_c6848.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c6848.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_c6848.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_c6848.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_c6848/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_f7260/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_f7260.dir/build.make CMakeFiles/cmTC_f7260.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f7260.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_f7260.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_f7260.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_f7260/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_5b30a/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_5b30a.dir/build.make CMakeFiles/cmTC_5b30a.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5b30a.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_5b30a.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_5b30a.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_5b30a/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2e955/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2e955.dir/build.make CMakeFiles/cmTC_2e955.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2e955.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_2e955.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_2e955.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2e955/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_e93ef/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_e93ef.dir/build.make CMakeFiles/cmTC_e93ef.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e93ef.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_e93ef.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_e93ef.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_e93ef/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2f5e4/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2f5e4.dir/build.make CMakeFiles/cmTC_2f5e4.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2f5e4.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_2f5e4.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_2f5e4.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2f5e4/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_db94e/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_db94e.dir/build.make CMakeFiles/cmTC_db94e.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_db94e.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_db94e.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_db94e.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_db94e/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_a4aad/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_a4aad.dir/build.make CMakeFiles/cmTC_a4aad.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a4aad.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_a4aad.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_a4aad.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_a4aad/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_1f114/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_1f114.dir/build.make CMakeFiles/cmTC_1f114.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_1f114.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_1f114.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_1f114.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_1f114/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_7adec/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_7adec.dir/build.make CMakeFiles/cmTC_7adec.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7adec.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_7adec.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_7adec.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_7adec/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_b98b6/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_b98b6.dir/build.make CMakeFiles/cmTC_b98b6.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b98b6.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_b98b6.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_b98b6.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_b98b6/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_ed671/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_ed671.dir/build.make CMakeFiles/cmTC_ed671.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ed671.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_ed671.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_ed671.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_ed671/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_aa3ec/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_aa3ec.dir/build.make CMakeFiles/cmTC_aa3ec.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_aa3ec.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_aa3ec.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_aa3ec.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_aa3ec/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_6c4dc/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_6c4dc.dir/build.make CMakeFiles/cmTC_6c4dc.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6c4dc.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_6c4dc.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_6c4dc.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_6c4dc/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_913a7/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_913a7.dir/build.make CMakeFiles/cmTC_913a7.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_913a7.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_913a7.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_913a7.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_913a7/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_0af2b/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_0af2b.dir/build.make CMakeFiles/cmTC_0af2b.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0af2b.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_0af2b.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_0af2b.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_0af2b/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_3f44c/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_3f44c.dir/build.make CMakeFiles/cmTC_3f44c.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3f44c.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_3f44c.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_3f44c.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_3f44c/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_34cb5/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_34cb5.dir/build.make CMakeFiles/cmTC_34cb5.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_34cb5.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_34cb5.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_34cb5.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_34cb5/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_f62e8/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_f62e8.dir/build.make CMakeFiles/cmTC_f62e8.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f62e8.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_f62e8.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_f62e8.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_f62e8/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_e79d8/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_e79d8.dir/build.make CMakeFiles/cmTC_e79d8.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e79d8.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_e79d8.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_e79d8.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_e79d8/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_2ea3b/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_2ea3b.dir/build.make CMakeFiles/cmTC_2ea3b.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2ea3b.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_2ea3b.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_2ea3b.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2ea3b/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_7134c/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_7134c.dir/build.make CMakeFiles/cmTC_7134c.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7134c.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_7134c.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_7134c.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_7134c/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_6d5ea/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_6d5ea.dir/build.make CMakeFiles/cmTC_6d5ea.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6d5ea.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_6d5ea.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_6d5ea.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_6d5ea/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_137c4/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_137c4.dir/build.make CMakeFiles/cmTC_137c4.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_137c4.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_137c4.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_137c4.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_137c4/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_d95de/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_d95de.dir/build.make CMakeFiles/cmTC_d95de.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d95de.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_d95de.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_d95de.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_d95de/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_f8e09/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_f8e09.dir/build.make CMakeFiles/cmTC_f8e09.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f8e09.dir/src.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc   -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_f8e09.dir/src.c.o   -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.c
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_f8e09.dir/src.c.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_f8e09/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_60f59/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_60f59.dir/build.make CMakeFiles/cmTC_60f59.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_60f59.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTC_60f59.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_60f59.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_60f59/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_13201/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_13201.dir/build.make CMakeFiles/cmTC_13201.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_13201.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_13201.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported option '-fopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_13201.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_13201/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_d7458/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_d7458.dir/build.make CMakeFiles/cmTC_d7458.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d7458.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -fopenmp=libomp   -o CMakeFiles/cmTC_d7458.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unsupported argument 'libomp' to option 'fopenmp='
+gmake[1]: *** [CMakeFiles/cmTC_d7458.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_d7458/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_a92f5/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_a92f5.dir/build.make CMakeFiles/cmTC_a92f5.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a92f5.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTC_a92f5.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '/openmp'
+gmake[1]: *** [CMakeFiles/cmTC_a92f5.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_a92f5/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_26ee6/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_26ee6.dir/build.make CMakeFiles/cmTC_26ee6.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_26ee6.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTC_26ee6.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-Qopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_26ee6.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_26ee6/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_488a7/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_488a7.dir/build.make CMakeFiles/cmTC_488a7.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_488a7.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTC_488a7.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_488a7.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_488a7/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_fa186/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_fa186.dir/build.make CMakeFiles/cmTC_fa186.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_fa186.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTC_fa186.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx: 'linker' input unused [-Wunused-command-line-argument]
+gmake[1]: *** [CMakeFiles/cmTC_fa186.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_fa186/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_22bfb/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_22bfb.dir/build.make CMakeFiles/cmTC_22bfb.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_22bfb.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTC_22bfb.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '+Oopenmp'
+gmake[1]: *** [CMakeFiles/cmTC_22bfb.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_22bfb/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_20365/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_20365.dir/build.make CMakeFiles/cmTC_20365.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_20365.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTC_20365.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-qsmp'
+gmake[1]: *** [CMakeFiles/cmTC_20365.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_20365/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/Applications/MATLAB_R2015b.app/bin/maci64/gmake" "cmTC_d3fff/fast"
+/Applications/MATLAB_R2015b.app/bin/maci64/gmake -f CMakeFiles/cmTC_d3fff.dir/build.make CMakeFiles/cmTC_d3fff.dir/build
+gmake[1]: Entering directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d3fff.dir/src.cxx.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -Wall -O3 -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTC_d3fff.dir/src.cxx.o -c /Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: unknown argument: '-mp'
+gmake[1]: *** [CMakeFiles/cmTC_d3fff.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/Users/XP/Documents/Src/Animation-Planning-in-Games-HW/HW2-checkin/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_d3fff/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
