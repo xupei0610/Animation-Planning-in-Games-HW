@@ -51,6 +51,17 @@ protected:
     }                                                                       \
     while (0);
 
+#else
+
+#define __device__
+#define __host__
+#define __global__
+#define __restrict__
+
+#define curandState_t int
+
+#endif
+
 
 #define PX_CUDA_THREADS_PER_BLOCK    256
 #define PX_CUDA_MAX_STREAMS    8
@@ -72,22 +83,6 @@ inline int blocks(const int num)
     return (num + PX_CUDA_THREADS_PER_BLOCK - 1) / PX_CUDA_THREADS_PER_BLOCK;
 }
 
-}
-
-
-}
-
-#else
-
-#define __device__
-#define __host__
-#define __global__
-#define __restrict__
-
-#define curandState_t int
-
-#endif
-
-#define PX_CUDA_CALLABLE __device__ __host__
+} }
 
 #endif // PX_CG_CUDA_HPP

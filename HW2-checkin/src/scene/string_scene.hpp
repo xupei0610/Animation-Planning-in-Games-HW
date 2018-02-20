@@ -1,8 +1,11 @@
 #ifndef PX_CG_SCENE_STRING_SCENE_HPP
 #define PX_CG_SCENE_STRING_SCENE_HPP
 
+#include <memory>
+
 #include "scene/base_scene.hpp"
 #include "shader/base_shader.hpp"
+#include "particle.hpp"
 
 namespace px { namespace scene
 {
@@ -12,19 +15,23 @@ class StringScene;
 class px::scene::StringScene : public BaseScene
 {
 public:
+    const std::string system_name;
+    bool pause;
+
     void init(Scene &scene) override;
     void restart(Scene &scene) override;
     void upload(Shader &scene_shader) override;
     void update(float dt) override;
-    void render(Shader &scene_shader) override;
     void render() override;
 
     StringScene();
     ~StringScene() override;
 
+    void resetCamera();
+
 protected:
-    unsigned int vao[1], vbo[2];
-    Shader *shader;
+    void renderInfo();
+    void processInput(float dt);
 
 private:
     class impl;
