@@ -1,0 +1,3 @@
+/home/xupei0610/Src/CSCI5611/HW2-checkin/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/xupei0610/Src/CSCI5611/HW2-checkin/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/xupei0610/Src/CSCI5611/HW2-checkin/cmake-build-debug/CMakeFiles/hw2.dir

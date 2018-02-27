@@ -1,0 +1,15 @@
+/home/clion-2017.3.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G "CodeBlocks - Unix Makefiles" /home/xupei0610/Src/CSCI5611/HW2-checkin
+-- GLM_INCLUDE_DIR = /usr/include
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Looking for pthread_create
+-- Looking for pthread_create - not found
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Found CUDA: /usr/local/cuda (found suitable version "9.0", minimum required is "5.0.0") 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/xupei0610/Src/CSCI5611/HW2-checkin/cmake-build-debug
