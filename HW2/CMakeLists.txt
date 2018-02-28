@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
 project(hw2)
-set(EXE_NAME hw2)
 
 option(NFULLSCREEN "not open program in fullscreen mode" ON)
 
@@ -48,6 +47,11 @@ endif()
         message (STATUS "No OpenMP support found.")
     endif()
 #endif()
+
+find_package(BLAS REQUIRED)
+message(STATUS ${BLAS_LIBRARIES})
+include_directories(${BLAS_INCLUDE_DIRS})
+
 include_directories(${CMAKE_SOURCE_DIR}/lib/stb)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 set(SOURCE_LIBRARIES
@@ -76,7 +80,7 @@ file(GLOB SOURCE_FILES
 file(GLOB CUDA_SOURCE_FILES
      ${SOURCE_DIR}/scene/*.cu)
 
-if (USE_CUDA)
+#if (USE_CUDA)
     if (MSVC)
         set(CUDA_HOST_COMPILER MSVC_CL_EXE)
     endif()
@@ -90,17 +94,30 @@ if (USE_CUDA)
         #        --ptxas-options=-v
         #        -res-usage
         )
-    cuda_add_executable(${EXE_NAME}
+    cuda_add_executable(cloth
                         ${SOURCE_FILES}
                         ${CUDA_SOURCE_FILES}
                         ${SOURCE_DIR}/main.cpp)
-else ()
-   add_executable(${EXE_NAME}
-                  ${SOURCE_FILES}
-                  ${SOURCE_DIR}/main.cpp)
-endif ()
-target_link_libraries(${EXE_NAME}
+    cuda_add_executable(shallow_water
+                    ${SOURCE_FILES}
+                    ${CUDA_SOURCE_FILES}
+                    ${SOURCE_DIR}/main.cpp)
+    target_compile_definitions(shallow_water PRIVATE
+                               SHALLOW_WATER_SCENE)
+#else ()
+#   add_executable(${EXE_NAME}
+#                  ${SOURCE_FILES}
+#                  ${SOURCE_DIR}/main.cpp)
+#endif ()
+target_link_libraries(cloth
                       ${SOURCE_LIBRARIES}
-                      ${CUDA_CUDART_LIBRARY})
+                      ${CUDA_CUDART_LIBRARY}
+                      ${CUDA_CUBLAS_LIBRARIES}
+                      ${BLAS_LIBRARIES})
+target_link_libraries(shallow_water
+                      ${SOURCE_LIBRARIES}
+                      ${CUDA_CUDART_LIBRARY}
+                      ${CUDA_CUBLAS_LIBRARIES}
+                      ${BLAS_LIBRARIES})
 
 #set(CMAKE_BUILD_TYPE "Release")

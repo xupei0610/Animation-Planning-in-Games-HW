@@ -1,6 +1,7 @@
 #include "app.hpp"
 
 #include "scene/string_scene.hpp"
+#include "scene/shallow_water_scene.hpp"
 
 #include <cstring>
 
@@ -21,7 +22,11 @@ App::App()
         : opt(), scene(&opt), menu(),
           _window(nullptr),
           scenes{
-              new scene::StringScene
+#ifdef SHALLOW_WATER_SCENE
+              new scene::ShallowWaterScene
+#else
+                new scene::StringScene
+#endif
           },
 
           text_shader(nullptr),
@@ -164,7 +169,7 @@ void App::togglePause()
     if (state == State::Pausing)
     {
         state = State::Running;
-//        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouse_detected = false;
         time_gap = -1;
     }
@@ -291,8 +296,6 @@ void App::input(int keycode, int mods, int action, bool mouse)
 #define KEY_CALLBACK(Action)                                \
     if (keycode == opt.shortcuts[Action])                   \
         this->action[static_cast<int>(Action)] = enable;
-#define LOAD_SCENE(Idx)                                         \
-    if (scenes.size() > Idx && scenes[Idx] != scene.scene()) { scene.load(scenes[Idx], false); restart(); }
 
     if (keycode == opt.shortcuts[System::Pause] && action == GLFW_PRESS)
     {
@@ -300,22 +303,6 @@ void App::input(int keycode, int mods, int action, bool mouse)
             menu.page = Menu::Page::Pause;
         else
             togglePause();
-    }
-    else if (keycode == GLFW_KEY_1 && action == GLFW_PRESS)
-    {
-        LOAD_SCENE(0);
-    }
-    else if (keycode == GLFW_KEY_2 && action == GLFW_PRESS)
-    {
-        LOAD_SCENE(1);
-    }
-    else if (keycode == GLFW_KEY_3 && action == GLFW_PRESS)
-    {
-        LOAD_SCENE(2);
-    }
-    else if (keycode == GLFW_KEY_4 && action == GLFW_PRESS)
-    {
-        LOAD_SCENE(3);
     }
     else if (keycode == GLFW_KEY_R && action == GLFW_PRESS)
     {

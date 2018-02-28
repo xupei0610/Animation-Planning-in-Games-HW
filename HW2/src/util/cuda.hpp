@@ -13,6 +13,33 @@
 namespace px
 {
 class CUDAError;
+
+__device__
+inline float3 operator+(const float3 &lhs, const float3 &rhs)
+{
+    return make_float3(lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z);
+}
+__device__
+inline float3 operator-(const float3 &lhs, const float3 &rhs)
+{
+    return make_float3(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z);
+}
+__device__
+inline float3 operator*(float lhs, const float3 &rhs)
+{
+    return make_float3(lhs*rhs.x, lhs*rhs.y, lhs*rhs.z);
+}
+__device__
+inline float3 operator*(const float3 &lhs, float rhs)
+{
+    return make_float3(lhs.x*rhs, lhs.y*rhs, lhs.z*rhs);
+}
+__device__
+inline float3 operator/(const float3 &lhs, float rhs)
+{
+    return make_float3(lhs.x/rhs, lhs.y/rhs, lhs.z/rhs);
+}
+
 }
 
 class px::CUDAError : public std::exception
