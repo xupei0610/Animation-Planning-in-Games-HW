@@ -142,6 +142,9 @@ public:
         delete skybox;
         delete floor;
         delete sphere;
+
+        if (res != nullptr)
+            PX_CUDA_CHECK(cudaGraphicsUnregisterResource(res));
     }
 
     void clearGLObjs()

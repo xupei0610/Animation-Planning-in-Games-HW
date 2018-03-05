@@ -82,7 +82,7 @@ CPU vs GPU: [click me](https://www.youtube.com/watch?v=gQZSnbV6_MY&list=PLNoGwCJ
 
 <img src="./doc/water.gif" />
 
-Video demo: [click me](https://www.youtube.com/watch?v=k3QOb02JP5E&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=13)
+Video demo: [click me](https://www.youtube.com/watch?v=uCJPIle3jkc&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=14)
 
 ##### Control
 
@@ -108,7 +108,7 @@ Video Demo: [click me](https://www.youtube.com/watch?v=bpruAYZ57aI&index=11&list
 
 <img src="./doc/cloth_gpu.gif" />
 
-200x200 with RK4 and 10 iterations at ~270 FPS using CUDA v.s. ~70 FPS on CPU
+200x200 with RK4 and 10 iterations at ~270 FPS using CUDA v.s. 50x50 at ~70 FPS on CPU
 
 Video Demo: [click me](https://www.youtube.com/watch?v=gQZSnbV6_MY&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=12)
 

@@ -31,12 +31,14 @@ public:
     struct CudaParam_t
     {
         int grid_x, grid_y;
+        float gap_x, gap_y;
         float inv_gap_x, inv_gap_y;
         float half_g;
-        float height_eps;
+        float damping;
+        float height_min, height_max;
     } cuda_param;
-    void cudaInit(void *buffer);
-    void cudaUpdate(void *buffer, float dt, unsigned int n_iter, float drop_seed);
+    void cudaInit();
+    void cudaUpdate(void *h_buffer, void *n_buffer, float dt, unsigned int n_iter, float drop_seed);
     void cudaBufferFree();
 
 protected:

@@ -2,6 +2,7 @@
 
 #include "scene/string_scene.hpp"
 #include "scene/shallow_water_scene.hpp"
+//#include "scene/eulerian_fluid_scene.hpp"
 
 #include <cstring>
 
@@ -27,6 +28,7 @@ App::App()
 #else
                 new scene::StringScene
 #endif
+//          new scene::EulerianFluidScene
           },
 
           text_shader(nullptr),
