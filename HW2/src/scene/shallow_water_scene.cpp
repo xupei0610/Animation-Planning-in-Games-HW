@@ -22,7 +22,7 @@ class scene::ShallowWaterScene::impl
 {
 public:
     bool need_upload;
-    unsigned int vao[6], vbo[7];
+    unsigned int vao[4], vbo[8];
 
     Shader *water_shader, *bound_shader, *mesh_shader;
     SkyBox *skybox;
@@ -152,7 +152,7 @@ public:
             "   gNorm = (transpose(inverse(MV)) * vec4(normalize(norm), 0.0)).xyz;"
             ""
             "   gColor = vec4(0.1f, 0.1f, 0.44f, 1.f);"
-            "   vec4 pos4 = MV * vec4(primitive[0].pos1.x, field_height, primitive[0].pos1.y, 1.f);"
+            "   vec4 pos4 = MV * vec4(primitive[0].pos1.x, 0.f, primitive[0].pos1.y, 1.f);"
             "   gPos = pos4.xyz/pos4.w;"
             "   gl_Position = proj * pos4;"
             "   EmitVertex();"
@@ -162,7 +162,7 @@ public:
             "   gl_Position = proj * pos4;"
             "   EmitVertex();"
             "   gColor = vec4(0.1f, 0.1f, 0.44f, 1.f);"
-            "   pos4 = MV * vec4(primitive[0].pos2.x, field_height, primitive[0].pos2.y, 1.f);"
+            "   pos4 = MV * vec4(primitive[0].pos2.x, 0.f, primitive[0].pos2.y, 1.f);"
             "   gPos = pos4.xyz/pos4.w;"
             "   gl_Position = proj * pos4;"
             "   EmitVertex();"
@@ -261,21 +261,21 @@ public:
 
     void clearGLObjs()
     {
-        glDeleteVertexArrays(6, vao);
-        glDeleteBuffers(7, vbo);
+        glDeleteVertexArrays(4, vao);
+        glDeleteBuffers(8, vbo);
 
-        vao[0] = 0; vao[1] = 0; vao[2] = 0; vao[3] = 0; vao[4] = 0; vao[5] = 0;
+        vao[0] = 0; vao[1] = 0; vao[2] = 0; vao[3] = 0;
         vbo[0] = 0; vbo[1] = 0; vbo[2] = 0; vbo[3] = 0;
-        vbo[4] = 0; vbo[5] = 0; vbo[6] = 0;
+        vbo[4] = 0; vbo[5] = 0; vbo[6] = 0; vbo[7] = 0;
     }
 
     void genGLObjs()
     {
-        glDeleteVertexArrays(6, vao);
-        glDeleteBuffers(7, vbo);
+        glDeleteVertexArrays(4, vao);
+        glDeleteBuffers(8, vbo);
 
-        glGenVertexArrays(6, vao);
-        glGenBuffers(7, vbo);
+        glGenVertexArrays(4, vao);
+        glGenBuffers(8, vbo);
     }
 
     void drop()
@@ -386,9 +386,9 @@ public:
                 }
             }
 #pragma omp for
-            for (auto i = 1; i < grid_y - 2; ++i)
+            for (auto i = 1; i < grid_y - 1; ++i)
             {
-                for (auto j = 1; j < grid_x - 2; ++j)
+                for (auto j = 1; j < grid_x - 1; ++j)
                 {
                     auto tar = i * grid_x + j;
                     auto tar0_1 = tar - 1;
@@ -470,14 +470,26 @@ public:
     void updateNorm()
     {
 #pragma omp parallel for
-        for (auto i = 1; i < grid_y-1; ++i)
+        for (auto i = 0; i < grid_y-1; ++i)
         {
-            for (auto j = 1; j < grid_x-1; ++j)
+            for (auto j = 0; j < grid_x-1; ++j)
             {
                 auto tar = i * grid_x + j;
                 n[tar] =  glm::cross(glm::vec3(gap_x, h[tar+1]-h[tar], 0.f),
-                                    glm::vec3(0.f, h[tar+grid_x]-h[tar], gap_y));
+                                     glm::vec3(0.f, h[tar+grid_x]-h[tar], gap_y));
             }
+        }
+        auto tar = grid_x - 1;
+        for (auto i = 0; i < grid_y-1; ++i)
+        {
+            n[tar] =  n[tar-1];
+            tar += grid_x;
+        }
+        tar = grid_x*(grid_y-1);
+        for (auto j = 0; j < grid_x; ++j)
+        {
+            n[tar] =  n[tar-grid_x];
+            ++tar;
         }
     }
 };
@@ -523,14 +535,6 @@ void scene::ShallowWaterScene::init(Scene &scene)
     pimpl->bound_shader->bind("GlobalAttributes", 0);
     pimpl->mesh_shader->activate();
     pimpl->mesh_shader->bind("GlobalAttributes", 0);
-    glBindVertexArray(pimpl->vao[1]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
-    glEnableVertexAttribArray(0);   // horizontal position
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void *)(0));
-    glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-    glEnableVertexAttribArray(1);   // height
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 1*sizeof(float), (void *)(0));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -560,14 +564,14 @@ void scene::ShallowWaterScene::restart(Scene &scene)
     pause = false;
     pimpl->need_upload = true;
 
-    pimpl->step_size = 0.001f;
+    pimpl->step_size = 0.002f;
     pimpl->max_steps = 10;
     pimpl->height_min = .01f;
     pimpl->height_max = 2.5f;
 
     if (pimpl->render_cpu)
     {
-        pimpl->grid_x = 300; pimpl->grid_y = 300;
+        pimpl->grid_x = 500; pimpl->grid_y = 500;
     }
     else
     {
@@ -623,31 +627,27 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
             {
                 for (auto j = 0; j < pimpl->grid_x; ++j)
                 {
-                    pimpl->h[tar] = .5f + std::sqrt((i == 0 ? 1 : (i == pimpl->grid_y-1 ? (pimpl->grid_y-2)*(pimpl->grid_y-2) : i*i))
+                    pimpl->h[tar++] = .5f + std::sqrt((i == 0 ? 1 : (i == pimpl->grid_y-1 ? (pimpl->grid_y-2)*(pimpl->grid_y-2) : i*i))
                                                    +(j == 0 ? 1 : (j == pimpl->grid_x-1 ? (pimpl->grid_x-2)*(pimpl->grid_x-2) : j*j)))/len;
-                    tar += 1;
                 }
             }
         }
         else
         {
-
-            auto tar = 0; auto len = std::sqrt(pimpl->grid_x*pimpl->grid_x+pimpl->grid_y*pimpl->grid_y)/2;
+            auto len = std::sqrt(pimpl->grid_x*pimpl->grid_x+pimpl->grid_y*pimpl->grid_y)/2;
+            auto tar = 0;
             for (auto i = 0; i < pimpl->grid_y; ++i)
             {
                 for (auto j = 0; j < pimpl->grid_x; ++j)
                 {
                     auto d_y = (i==0?1:(i == pimpl->grid_y-1?pimpl->grid_y-2:i))-pimpl->grid_y*.5f;
                     auto d_x = (j==0?1:(j == pimpl->grid_x-1?pimpl->grid_x-2:j))-pimpl->grid_x*.5f;
-                    pimpl->h[tar] = .5f + std::sqrt(d_x*d_x + d_y*d_y)/len;
-                    tar += 1;
+                    pimpl->h[tar++] = .5f + std::sqrt(d_x*d_x + d_y*d_y)/len;
                 }
             }
         }
 
         std::vector<float> position;
-        std::vector<float> left_side; left_side.reserve(pimpl->grid_y*2);
-        std::vector<float> right_side; right_side.reserve(pimpl->grid_y*2);
         position.reserve(2*dim);
         auto y = -.5f * pimpl->grid_y * pimpl->gap_y;
         for (auto i = 0; i < pimpl->grid_y; ++i)
@@ -655,16 +655,6 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
             auto x = -.5f * pimpl->grid_x * pimpl->gap_x;
             for (auto j = 0; j < pimpl->grid_x; ++j)
             {
-                if (j == 0)
-                {
-                    left_side.push_back(x);
-                    left_side.push_back(y);
-                }
-                else if (j == pimpl->grid_x-1)
-                {
-                    right_side.push_back(x);
-                    right_side.push_back(y);
-                }
                 position.push_back(x);
                 position.push_back(y);
                 x += pimpl->gap_x;
@@ -700,7 +690,9 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
         glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*dim, position.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * dim, pimpl->h, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*dim, pimpl->h, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[3]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*dim, nullptr, GL_DYNAMIC_DRAW);
 
         if (pimpl->render_cpu)
         {
@@ -723,27 +715,9 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
             std::memset(pimpl->h_y, 0, s);
             std::memset(pimpl->u_y, 0, s);
             std::memset(pimpl->v_y, 0, s);
-
-            auto idx = 0; auto last = pimpl->grid_x*(pimpl->grid_y-1);
-            for (auto j = 0; j < pimpl->grid_x; ++j)
-            {
-                pimpl->n[idx++] = glm::vec3(0.f, 1.f, 0.f);
-                pimpl->n[last + idx] = glm::vec3(0.f, 1.f, 0.f);
-            }
-            idx = pimpl->grid_x;
-            for (auto i = 1; i < pimpl->grid_y; ++i)
-            {
-                pimpl->n[idx] = glm::vec3(0.f, 1.f, 0.f);
-                idx += pimpl->grid_x;
-                pimpl->n[idx-1] = glm::vec3(0.f, 1.f, 0.f);
-            }
-            glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[3]);
-            glBufferData(GL_ARRAY_BUFFER, 3*sizeof(float)*dim, pimpl->n, GL_DYNAMIC_DRAW);
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[3]);
-            glBufferData(GL_ARRAY_BUFFER, 3*sizeof(float)*dim, nullptr, GL_DYNAMIC_DRAW);
 
             if (pimpl->res[0] != nullptr)
                 PX_CUDA_CHECK(cudaGraphicsUnregisterResource(pimpl->res[0]));
@@ -764,67 +738,49 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
 
             cudaInit();
         }
+
+        std::vector<unsigned int> side; side.resize(std::max(pimpl->grid_y, pimpl->grid_x)-1);
+        for (auto j = 0; j < pimpl->grid_x-1; ++j) side[j] = j;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[4]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float)*(pimpl->grid_x-1), side.data(), GL_STATIC_DRAW);
+        auto gap = dim - pimpl->grid_x;
+        for (auto j = 0; j < pimpl->grid_x-1; ++j) side[j] += gap;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[6]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float)*(pimpl->grid_x-1), side.data(), GL_STATIC_DRAW);
+        for (auto j = 0; j < pimpl->grid_y-1; ++j) side[j] = j*pimpl->grid_x;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[5]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float)*(pimpl->grid_y-1), side.data(), GL_STATIC_DRAW);
+        gap = pimpl->grid_x-1;
+        for (auto j = 0; j < pimpl->grid_y-1; ++j) side[j] += gap;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[7]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float)*(pimpl->grid_y-1), side.data(), GL_STATIC_DRAW);
+
         glBindVertexArray(pimpl->vao[2]);
-//        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
-//        glEnableVertexAttribArray(0);   // horizontal position
-//        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2*pimpl->grid_x, (void *)(0));
-//        glEnableVertexAttribArray(1);   // horizontal position
-//        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2*pimpl->grid_x, (void *)(sizeof(float)*2*pimpl->grid_x));
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[4]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*pimpl->grid_y, left_side.data(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);   // horizontal position
+        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
+        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)(0));
-        glEnableVertexAttribArray(1);   // horizontal position
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(float)*2));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(2*sizeof(float)));
         glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-        glEnableVertexAttribArray(2);   // height
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float)*pimpl->grid_x, (void *)(0));
-        glEnableVertexAttribArray(3);   // height
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float)*pimpl->grid_x, (void *)(sizeof(float)*pimpl->grid_x));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, (void *)(0));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(float)));
 
         glBindVertexArray(pimpl->vao[3]);
-//        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
-//        glEnableVertexAttribArray(0);   // horizontal position
-//        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float)*pimpl->grid_x, (void *)(2*sizeof(float)*(pimpl->grid_x-1)));
-//        glEnableVertexAttribArray(1);   // horizontal position
-//        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float)*pimpl->grid_x, (void *)(2*sizeof(float)*(pimpl->grid_x*2-1)));
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[5]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*pimpl->grid_y, right_side.data(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);   // horizontal position
+        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
+        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)(0));
-        glEnableVertexAttribArray(1);   // horizontal position
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(float)*2));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(2*sizeof(float)*pimpl->grid_x));
         glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-        glEnableVertexAttribArray(2);   // height
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float)*pimpl->grid_x, (void *)(sizeof(float)*(pimpl->grid_x-1)));
-        glEnableVertexAttribArray(3);   // height
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float)*pimpl->grid_x, (void *)(sizeof(float)*(pimpl->grid_x*2-1)));
-
-        glBindVertexArray(pimpl->vao[4]);
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
-        glEnableVertexAttribArray(0);   // horizontal position
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void *)(0));
-        glEnableVertexAttribArray(1);   // horizontal position
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void *)(2*sizeof(float)));
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-        glEnableVertexAttribArray(2);   // height
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void *)(0));
-        glEnableVertexAttribArray(3);   // height
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void *)(sizeof(float)));
-
-        glBindVertexArray(pimpl->vao[5]);
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
-        glEnableVertexAttribArray(0);   // horizontal position
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void *)(2*sizeof(float)*(pimpl->grid_x*(pimpl->grid_y-1))));
-        glEnableVertexAttribArray(1);   // horizontal position
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void *)(2*sizeof(float)*(pimpl->grid_x*(pimpl->grid_y-1)+1)));
-        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[2]);
-        glEnableVertexAttribArray(2);   // height
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void *)(sizeof(float)*(pimpl->grid_x*(pimpl->grid_y-1))));
-        glEnableVertexAttribArray(3);   // height
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void *)(sizeof(float)*(pimpl->grid_x*(pimpl->grid_y-1)+1)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, (void *)(0));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(float)*pimpl->grid_x));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
         pimpl->need_upload = false;
@@ -835,6 +791,8 @@ void scene::ShallowWaterScene::upload(Shader &scene_shader)
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*dim, pimpl->h);
         glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[3]);
         glBufferSubData(GL_ARRAY_BUFFER, 0, 3*sizeof(float)*dim, pimpl->n);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
@@ -871,26 +829,31 @@ void scene::ShallowWaterScene::update(float dt)
 
 void scene::ShallowWaterScene::render()
 {
-    glm::vec3 norm(1.f, 0.f, 0.f);
-    pimpl->bound_shader->activate();
     glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    glm::vec3 norm(0.f, 0.f, -1.f);
+    pimpl->bound_shader->activate();
     pimpl->bound_shader->set("norm", norm);
     glBindVertexArray(pimpl->vao[2]);
-    glDrawArrays(GL_POINTS, 0, pimpl->grid_y-1);
-    norm.x = 0.f; norm.z = 1.f;
-    pimpl->bound_shader->set("norm", norm);
-    glBindVertexArray(pimpl->vao[4]);
-    glDrawArrays(GL_POINTS, 0, pimpl->grid_x-1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[4]);
+    glDrawElements(GL_POINTS, pimpl->grid_x-1, GL_UNSIGNED_INT, 0);
     norm.x = -1.f; norm.z = 0.f;
     pimpl->bound_shader->set("norm", norm);
     glBindVertexArray(pimpl->vao[3]);
-    glDrawArrays(GL_POINTS, 0, pimpl->grid_y-1);
-    norm.x = 0.f; norm.z = -1.f;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[5]);
+    glDrawElements(GL_POINTS, pimpl->grid_y-1, GL_UNSIGNED_INT, 0);
+    norm.x = 0.f; norm.z = 1.f;
     pimpl->bound_shader->set("norm", norm);
-    glBindVertexArray(pimpl->vao[5]);
-    glDrawArrays(GL_POINTS, 0, pimpl->grid_x-1);
+    glBindVertexArray(pimpl->vao[2]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[6]);
+    glDrawElements(GL_POINTS, pimpl->grid_x-1, GL_UNSIGNED_INT, 0);
+    norm.x = 1.f; norm.z = 0.f;
+    pimpl->bound_shader->set("norm", norm);
+    glBindVertexArray(pimpl->vao[3]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pimpl->vbo[7]);
+    glDrawElements(GL_POINTS, pimpl->grid_y-1, GL_UNSIGNED_INT, 0);
 
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     pimpl->water_shader->activate();
     glBindVertexArray(pimpl->vao[0]);
     glDrawElements(GL_TRIANGLE_STRIP, pimpl->n_triangles, GL_UNSIGNED_INT, 0);
@@ -899,7 +862,7 @@ void scene::ShallowWaterScene::render()
     if (pimpl->render_mesh)
     {
         glLineWidth(.05f);
-        glBindVertexArray(pimpl->vao[1]);
+        glBindVertexArray(pimpl->vao[0]);
         glDrawElements(GL_LINE_STRIP, pimpl->n_triangles, GL_UNSIGNED_INT, 0);
     }
     pimpl->mesh_shader->activate(false);

@@ -12,8 +12,8 @@ This is the program for HW2 of the course CSCI 5611, UMN.
 ##### Cloth Simulation
 
 + CUDA Implementation
-+ 200x200 with 10 iterations at ~270 FPS using RK4 and CUDA
-+ 50x50 with 10 iterations at ~70 FPS using RK4 on CPU, ~370 FPS using Semi-implicit Euler
++ 200x200 with 10 iterations at 205 FPS using RK4 and CUDA
++ 50x50 with 10 iterations at 72 FPS using RK4 on CPU, ~370 FPS using Semi-implicit Euler
 + 1st-Order Integrator: Euler, Semi-implicit Euler
 + Higher-Order Integrator: Verlet, Velocity Verlet, Midpoint, RK4
 + Textured Cloth
@@ -25,8 +25,8 @@ This is the program for HW2 of the course CSCI 5611, UMN.
 
 + Thread-parallel Implementaion
 + CUDA Implementation
-+ 1000x1000 with 10 iterations at ~500 FPS using CUDA
-+ 500x500 with 10 iterations at ~38 FPS on CPU with OpenMP
++ 1000x1000 with 10 iterations at 303 FPS using CUDA
++ 500x500 with 10 iterations at 35 FPS on CPU with OpenMP
 + User Interaction
 
 ##### User  Interface
@@ -82,7 +82,7 @@ CPU vs GPU: [click me](https://www.youtube.com/watch?v=gQZSnbV6_MY&list=PLNoGwCJ
 
 <img src="./doc/water.gif" />
 
-Video demo: [click me](https://www.youtube.com/watch?v=uCJPIle3jkc&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=14)
+Video demo: [click me](https://www.youtube.com/watch?v=Z7B2WFcbmLA&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=15)
 
 ##### Control
 
@@ -108,15 +108,45 @@ Video Demo: [click me](https://www.youtube.com/watch?v=bpruAYZ57aI&index=11&list
 
 <img src="./doc/cloth_gpu.gif" />
 
-200x200 with RK4 and 10 iterations at ~270 FPS using CUDA v.s. 50x50 at ~70 FPS on CPU
+200x200 with RK4 and 10 iterations at 205 FPS using CUDA v.s. 50x50 at 702 FPS on CPU
 
 Video Demo: [click me](https://www.youtube.com/watch?v=gQZSnbV6_MY&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=12)
 
+##### Cloth Simulation Benchmark
+
+Measures: FPS
+
+Workload:
++ structural + shear + bending springs;
++ drag-effect aerodynamics;
++ 2 way collision with a sphere for CPU, 1 Way for GPU;
++ RK4 and 10 iterations each frame with resolution 1920x1080
+
+The 2 way collision largely reduces the performance of multi-threading due to synchronization.
+
+|Nodes| 15x15 | 20x20 | 30x30 | 50x50 | 60x60 | 200x200 | 300x300 | 500x500 | 700x700 |
+|----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-------:|:-------:|:-------:|:-------:|
+|CPU  |  543  |  536  |  284  |  72   |    20 |         |         |         |         |
+|CUDA |       |       |       |  388  |   318 |   206   |    130  |   67    |    38   |
+
 <img src="./doc/water_gpu.gif" />
 
-1000x1000 with 10 iterations at ~500 FPS using CUDA
+1000x1000 with 10 iterations at 303 FPS using CUDA
 
-Video Demo: [click me](https://www.youtube.com/watch?v=uCJPIle3jkc&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=14)
+Video Demo: [click me](https://www.youtube.com/watch?v=Z7B2WFcbmLA&list=PLNoGwCJv2USFR9DVIukjJIZ5yAyFjtEF0&index=15)
+
+##### Shallow Water Benchmark
+
+Measures: FPS; Workload: 10 iterations each frame with resolution 1920x1080
+
+| Cells   | 50x50 | 100x100 | 300x300 | 500x500 | 700x700 | 1000x1000 |1500x1500|2000x2000|2500x2500|
+|--------:|:-----:|:-------:|:-------:|:-------:|:-------:|:---------:|:-------:|:-------:|:-------:|
+|1 Thread | 730   |   725   |    66   |    18   |         |           |         |         |         |
+|4 Threads| 610   |   590   |   140   |    24   |         |           |         |         |         |
+|6 Threads| 620   |   587   |   290   |    31   |   15    |           |         |         |         |
+|8 Threads| 708   |   683   |   353   |    35   |   18    |           |         |         |         |
+|CUDA     |       |         |         |         |         |     303   |   195   |    92   |   39    |
+
 
 
 ## Usage
@@ -138,6 +168,6 @@ Video Demo: [click me](https://www.youtube.com/watch?v=uCJPIle3jkc&list=PLNoGwCJ
   + OpenGL 4.3+
   + CUDA
   + OpenMP
-  + CBlas (any)
+  + CBlas
 
 

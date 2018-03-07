@@ -184,6 +184,8 @@ void App::togglePause()
 
 void App::toggleFullscreen()
 {
+    static int pre_w = _width, pre_h = _height;
+
     auto m = glfwGetWindowMonitor(window());
     if (m == nullptr) m = glfwGetPrimaryMonitor();
     auto v = glfwGetVideoMode(m);
@@ -191,12 +193,14 @@ void App::toggleFullscreen()
     if (_full_screen)
     {
         glfwSetWindowMonitor(window(), nullptr,
-                             (v->width - _width)/2, (v->height - _height)/2,
-                             _width, _height, GL_DONT_CARE);
-        glfwSetWindowSize(window(), _width, _height);
+                             (v->width - pre_w)/2, (v->height - pre_h)/2,
+                             pre_w, pre_h, GL_DONT_CARE);
+        glfwSetWindowSize(window(), pre_w, pre_h);
     }
     else
     {
+        pre_w = _width;
+        pre_h = _height;
         glfwSetWindowMonitor(window(), m, 0, 0, v->width, v->height, GL_DONT_CARE);
     }
 

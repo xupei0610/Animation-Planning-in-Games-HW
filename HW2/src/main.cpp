@@ -17,9 +17,9 @@ int main()
     auto app = px::App::instance();
     app->init(
 //#ifndef NFULLSCREEN
-//             true
+             true
 //#else
-             false
+//             false
 //#endif
              );
 

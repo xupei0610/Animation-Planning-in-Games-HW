@@ -133,8 +133,8 @@ void shallowWaterCompose(unsigned int n, float dt,
         auto row = tar / shallow_water_param->grid_x;
         auto col = tar % shallow_water_param->grid_x;
 
-        if (row > 0 && row < shallow_water_param->grid_y - 2 &&
-            col > 0 && col < shallow_water_param->grid_x - 2)
+        if (row > 0 && row < shallow_water_param->grid_y - 1 &&
+            col > 0 && col < shallow_water_param->grid_x - 1)
         {
             auto tar0_1 = tar - 1;
             auto tar_1_1 = tar0_1 - shallow_water_param->grid_x;
