@@ -57,7 +57,7 @@ public:
             "   vec3 cam_pos;"
             "};"
             ""
-            "const vec3 light = normalize(vec3(5,5,5));"
+            "const vec3 light = normalize(vec3(1));"
             ""
             "out vec3 gLight;"
             "out vec3 gPos;"
@@ -83,13 +83,13 @@ public:
             ""
             "void main(){"
             ""
-            "   vec3 L = normalize(gPos-gLight);"
+            "   vec3 L = normalize(gLight);"
             "   vec3 V = normalize(-gPos);"
             "   vec3 H = normalize(L + V);"
             ""
             "   float ambient = .25f;"
             "   float diffuse = .05f * max(0.f, dot(gNorm, L));"
-            "   float spec = pow(max(0.f, dot(gNorm, H)), 6);"
+            "   float spec = pow(max(0.f, dot(gNorm, H)), 4);"
             ""
             "   fragColor = vec4(vec3(0.2588f, 0.5255f, 0.9569f) * (ambient + diffuse + vec3(.05f) * spec), 0.75f);"
             "}";
@@ -190,7 +190,7 @@ public:
             ""
             "   float ambient = .25f;"
             "   float diffuse = .05f * max(0.f, dot(gNorm, L));"
-            "   float spec = pow(max(0.f, dot(gNorm, H)), 6);"
+            "   float spec = pow(max(0.f, dot(gNorm, H)), 4);"
             ""
             "   fragColor = vec4(gColor.rgb * (ambient + diffuse + vec3(1.f) * spec), gColor.a);"
             "}";
@@ -475,8 +475,8 @@ public:
             for (auto j = 0; j < grid_x-1; ++j)
             {
                 auto tar = i * grid_x + j;
-                n[tar] =  glm::cross(glm::vec3(gap_x, h[tar+1]-h[tar], 0.f),
-                                     glm::vec3(0.f, h[tar+grid_x]-h[tar], gap_y));
+                n[tar] =  glm::cross(glm::vec3(0.f, h[tar+grid_x]-h[tar], gap_y),
+                                     glm::vec3(gap_x, h[tar+1]-h[tar], 0.f));
             }
         }
         auto tar = grid_x - 1;
@@ -875,7 +875,7 @@ void scene::ShallowWaterScene::render()
 
 void scene::ShallowWaterScene::resetCamera()
 {
-    App::instance()->scene.character.reset(-3.f, 1.5f, 0.f, 90.f, 35.f);
+    App::instance()->scene.character.reset(1.75f, 1.5f, -1.75f, 225.f, 35.f);
     App::instance()->scene.character.setShootable(false);
     App::instance()->scene.character.setFloating(true);
 }

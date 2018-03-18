@@ -187,8 +187,8 @@ void shallowWaterNorm(float3 *norm, const float *h, unsigned int n)
         auto row = tar / shallow_water_param->grid_x;
         auto col = tar % shallow_water_param->grid_x;
         if (row > 0 && row < shallow_water_param->grid_y-1 && col > 0 && col < shallow_water_param->grid_x-1)
-            norm[tar] = cross(make_float3(shallow_water_param->gap_x, h[tar+1]-h[tar], 0.f),
-                              make_float3(0.f, h[tar+shallow_water_param->grid_x]-h[tar], shallow_water_param->gap_y));
+            norm[tar] = cross(make_float3(0.f, h[tar+shallow_water_param->grid_x]-h[tar], shallow_water_param->gap_y),
+                              make_float3(shallow_water_param->gap_x, h[tar+1]-h[tar], 0.f));
         else
             norm[tar] = make_float3(0.f, 1.f, 0.f);
     }
