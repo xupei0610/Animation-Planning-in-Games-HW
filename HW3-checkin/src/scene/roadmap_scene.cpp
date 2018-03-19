@@ -1,8 +1,9 @@
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 #include <thread>
-#include <chrono>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "scene/roadmap_scene.hpp"
 #include "scene.hpp"
@@ -19,129 +20,169 @@ class scene::RoadmapScene::impl
 {
 public:
     bool need_upload;
-    bool is_planning, planning_success;
+    bool is_planning, planning_success, sampling_complete, sampling_upload;
 
-    int n_sampling;
+    int n_sampling; int k;
     glm::vec2 upper_bound, lower_bound;
     glm::vec3 agent_pos;
     glm::vec2 goal_pos;
     std::vector<glm::vec2> path;
     std::vector<glm::vec3> obstacle_pos;
+    std::vector<glm::vec2> sampling_coord;
 
     std::thread *worker_thread;
 
-    SkyBox *skybox;
+    SkyBox *skybox; Shader *mark_shader;
     item::Floor *floor;
     item::Pillar *agent;
+    unsigned int vao[1], vbo[2];
+
+    const char *MARK_VS = "#version 420 core\n"
+            "layout (location = 0) in vec2 vert;"
+            "layout (location = 1) in vec2 pos;"
+            ""
+            "layout (std140, binding = 0) uniform GlobalAttributes"
+            "{"
+            "   mat4 view;"
+            "   mat4 proj;"
+            "   vec3 cam_pos;"
+            "};"
+            ""
+            "const vec3 light_dir = normalize(vec3(1));"
+            ""
+            "out vec3 gLight;"
+            "out vec3 gPos;"
+            "out vec3 gNorm;"
+            ""
+            "void main(){"
+            "   vec4 pos4 = view * vec4(vert.x+pos.x, 0.02f, vert.y+pos.y, 1.f);"
+            ""
+            "   gLight = (view * vec4(light_dir, 0.f)).xyz;"
+            "   gPos = pos4.xyz/pos4.w;"
+            "   gNorm = (transpose(inverse(view)) * vec4(0.f, 1.f, 0.f, 0.f)).xyz;"
+            "   gl_Position = proj * pos4;"
+            "}";
 
     impl() : worker_thread(nullptr),
-             skybox(nullptr), floor(nullptr),
-             agent(nullptr)
+             skybox(nullptr), mark_shader(nullptr),
+             floor(nullptr), agent(nullptr),
+             vao{0}, vbo{0}
     {}
     ~impl()
     {
         if (worker_thread && worker_thread->joinable())
             worker_thread->join();
         delete skybox;
+        delete mark_shader;
         delete floor;
         delete agent;
     }
 
     void plan()
     {
-        planning_success = false;
-        while (planning_success == false)
+        // sampling uniformly
+        for (auto i = 0; i < n_sampling; ++i)
         {
-            // sampling uniformly
-            std::vector<glm::vec2> coord;
-            for (auto i = 0; i < n_sampling; ++i)
+            glm::vec2 tar(rnd()*(upper_bound.x - lower_bound.x) + lower_bound.x,
+                          rnd()*(upper_bound.y - lower_bound.y) + lower_bound.y);
+            if (!collide(tar)) sampling_coord.push_back(tar);
+        }
+
+        // Dijkstra
+        sampling_coord.push_back(glm::vec2(goal_pos.x, goal_pos.y));
+        sampling_coord.push_back(glm::vec2(agent_pos.x, agent_pos.y));
+        sampling_complete = true;
+        auto n_v = static_cast<int>(sampling_coord.size());
+        std::vector<bool> visited(n_v, false);
+        std::vector<float> dist(n_v, std::numeric_limits<float>::infinity());
+        dist.back() = 0.f;
+
+        std::vector<float*> len(n_v, nullptr);
+        std::vector<int> prev(n_v, -1);
+        for (auto i = 0; i < n_v; ++i)
+            len[i] = new float[n_v];
+        for (auto i = 0; i < n_v; ++i)
+        {
+            len[i][i] = 0.f;
+            for (auto j = i+1; j < n_v; ++j)
             {
-                glm::vec2 tar(rnd()*(upper_bound.x - lower_bound.x) + lower_bound.x,
-                              rnd()*(upper_bound.y - lower_bound.y) + lower_bound.y);
-                if (!collide(tar)) coord.push_back(tar);
+                if (collide(sampling_coord[i], sampling_coord[j]))
+                    len[i][j] = std::numeric_limits<float>::infinity();
+                else
+                    len[i][j] = glm::distance(sampling_coord[i], sampling_coord[j]);
+                len[j][i] = len[i][j];
             }
+        }
 
-            // Dijkstra
-            coord.push_back(glm::vec2(goal_pos.x, goal_pos.y));
-            coord.push_back(glm::vec2(agent_pos.x, agent_pos.y));
-            auto n_v = static_cast<int>(coord.size());
-            std::vector<bool> visited(n_v, false);
-            std::vector<float> dist(n_v, std::numeric_limits<float>::infinity());
-            dist.back() = 0.f;
 
-            std::vector<float*> len(n_v, nullptr);
-            std::vector<int> prev(n_v, -1);
-            for (auto i = 0; i < n_v; ++i)
-                len[i] = new float[n_v];
-            for (auto i = 0; i < n_v; ++i)
+        int u = n_v-1; float min_dist;
+        auto k = std::min(n_v, std::max(1, this->k));
+        std::vector<float> knn_tmp;
+        for (auto i = 0; i < n_v-1; ++i)
+        {
+            min_dist = std::numeric_limits<float>::max();
+            for (auto j = 0; j < n_v; ++j)
             {
-                len[i][i] = 0.f;
-                for (auto j = i+1; j < n_v; ++j)
+                if (visited[j] == false && dist[j] <= min_dist)
                 {
-                    if (collide(coord[i], coord[j]))
-                        len[i][j] = std::numeric_limits<float>::infinity();
-                    else
-                        len[i][j] = glm::distance(coord[i], coord[j]);
-                    len[j][i] = len[i][j];
+                    min_dist = dist[j];
+                    u = j;
                 }
             }
 
-            int u = n_v-1; float min_dist;
-            for (auto i = 0; i < n_v-1; ++i)
+            visited[u] = true;
+
+            auto knn_shortest = std::numeric_limits<float>::infinity();
+            knn_tmp.clear();
+            for (auto v = 0; v < n_v; ++v)
             {
-                min_dist = std::numeric_limits<float>::max();
-                for (auto j = 0; j < n_v; ++j)
+                if (visited[v] == false && len[u][v] <= knn_shortest
+                    && dist[u] != std::numeric_limits<float>::infinity()
+                    && dist[u] + len[u][v] < dist[v])
                 {
-                    if (visited[j] == false && dist[j] <= min_dist)
-                    {
-                        min_dist = dist[j];
-                        u = j;
-                    }
-                }
+                    dist[v] = dist[u] + len[u][v];
+                    prev[v] = u;
 
-                visited[u] = true;
-
-                for (auto v = 0; v < n_v; ++v)
-                {
-                    if (visited[v] == false)
+                    if (k == 1)
+                        knn_shortest = len[u][v];
+                    else if (k < n_v)
                     {
-                        if (len[u][v] != std::numeric_limits<float>::infinity()
-                            && dist[u] != std::numeric_limits<float>::infinity()
-                            && dist[u] + len[u][v] < dist[v])
+                        knn_tmp.push_back(len[u][v]);
+                        if (static_cast<int>(knn_tmp.size()) > k)
                         {
-                            dist[v] = dist[u] + len[u][v];
-                            prev[v] = u;
+                            std::nth_element(knn_tmp.begin(), knn_tmp.begin()+k-1, knn_tmp.end());
+                            knn_shortest = knn_tmp[k-1];
                         }
                     }
                 }
             }
-            for (auto &p : len)
-                delete [] p;
+        }
+        for (auto &p : len)
+            delete [] p;
 
-            std::cout << "Path Solution:\n" << "  Node\tPrevious\n";
-            for (auto i = 0; i < n_v-2; ++i)
-                std::cout << std::setw(6) << i << "\t" << std::setw(6) << prev[i] << "\n";
-            std::cout << std::setw(6) << n_v-2 << "\t" << std::setw(6) << prev[n_v-2] << "(goal)\n"
-                      << std::setw(6) << n_v-1 << "\t" << std::setw(6) << prev[n_v-1] << "(start)\n"
-                      << std::endl;
+        std::cout << "Path Solution:\n" << "  Node\tPrevious\n";
+        for (auto i = 0; i < n_v-2; ++i)
+            std::cout << std::setw(6) << i << "\t" << std::setw(6) << prev[i] << "\n";
+        std::cout << std::setw(6) << n_v-2 << "\t" << std::setw(6) << prev[n_v-2] << "(goal)\n"
+                  << std::setw(6) << n_v-1 << "\t" << std::setw(6) << prev[n_v-1] << "(start)\n"
+                  << std::endl;
 
-            path.clear();
-            u = n_v-2;
-            path.push_back(coord[u]);
-            planning_success = true;
-            while (true)
+        path.clear();
+        u = n_v-2;
+        path.push_back(sampling_coord[u]);
+        planning_success = true;
+        while (true)
+        {
+            if (prev[u] == -1)    // current node has no previous node
             {
-                if (prev[u] == -1)    // current node has no previous node
-                {
-                    if (u != n_v-1)  // current node is not the start node, path planning failed
-                        planning_success = false;
-                    break;
-                }
-                else
-                {
-                    u = prev[u];
-                    path.push_back(coord[u]);
-                }
+                if (u != n_v-1)  // current node is not the start node, path planning failed
+                    planning_success = false;
+                break;
+            }
+            else
+            {
+                u = prev[u];
+                path.push_back(sampling_coord[u]);
             }
         }
 
@@ -163,8 +204,8 @@ public:
         auto intercept = p1.y - slope*p1.x;
         for (auto const &o : obstacle_pos)
         {
-            if (std::isnan(std::abs(slope*o.x-o.y+intercept)/std::sqrt(slope*slope+1))
-                || this->agent_pos.z + o.z > std::abs(slope*o.x-o.y+intercept)/std::sqrt(slope*slope+1))
+            auto dist = std::abs(slope*o.x-o.y+intercept)/std::sqrt(slope*slope+1);
+            if (std::isnan(dist) || this->agent_pos.z + o.z > dist)
                 return true;
         }
         return false;
@@ -194,6 +235,46 @@ void scene::RoadmapScene::init(Scene &scene)
         pimpl->floor = new item::Floor;
     if (pimpl->agent == nullptr)
         pimpl->agent = new item::Pillar;
+    if (pimpl->mark_shader == nullptr)
+    {
+        pimpl->mark_shader = new Shader(pimpl->MARK_VS,
+#include "shader/glsl/simple_phong.fs"
+                                       );
+
+        glGenVertexArrays(1, pimpl->vao);
+        glGenBuffers(2, pimpl->vbo);
+    }
+
+    std::vector<float> vertex;
+    constexpr auto grid = 32;
+    constexpr auto gap = static_cast<float>(2*M_PI / grid);
+    vertex.reserve(2*(grid+2));
+    vertex.push_back(0.f);
+    vertex.push_back(0.f);
+    for (auto i = 0; i < grid+1; ++i)
+    {
+        vertex.push_back(.1f * std::cos(i*gap));
+        vertex.push_back(.1f * std::sin(i*gap));
+    }
+    glBindVertexArray(pimpl->vao[0]);
+    glVertexAttribDivisor(1, 1);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, vertex.size()*sizeof(float), vertex.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)(0));
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(0));
+
+    pimpl->mark_shader->activate();
+    pimpl->mark_shader->set("material.alpha", 1.f);
+    pimpl->mark_shader->set("material.diffuse", glm::vec3(0.1961f, 0.8039f, 0.1961f));
+    pimpl->mark_shader->set("material.specular", glm::vec3(0.5f));
+    pimpl->mark_shader->set("material.shininess", 4.f);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    pimpl->mark_shader->activate(false);
 }
 
 void scene::RoadmapScene::restart(Scene &scene)
@@ -205,7 +286,9 @@ void scene::RoadmapScene::restart(Scene &scene)
         first_run = false;
     }
 
-    pimpl->n_sampling = 1000;
+    pimpl->n_sampling = 10;
+    pimpl->k = pimpl->n_sampling;
+    pimpl->sampling_coord.clear();
     pimpl->upper_bound = glm::vec2(10.f, 10.f);
     pimpl->lower_bound = glm::vec2(-10.f, -10.f);
     pimpl->agent_pos = glm::vec3(-9.f, -9.f, .5f);
@@ -218,18 +301,22 @@ void scene::RoadmapScene::restart(Scene &scene)
     pimpl->floor->setGrid(pimpl->upper_bound.x-pimpl->lower_bound.x, pimpl->upper_bound.y-pimpl->lower_bound.y);
     scene.add(pimpl->floor);
 
-    pimpl->agent->scale(glm::vec3(pimpl->agent_pos.z, 1.f, pimpl->agent_pos.z));
-    pimpl->agent->place(glm::vec3(pimpl->agent_pos.x, 1.02f, pimpl->agent_pos.y));
+    pimpl->agent->scale(glm::vec3(pimpl->agent_pos.z, .5f, pimpl->agent_pos.z));
+    pimpl->agent->place(glm::vec3(pimpl->agent_pos.x, .52f, pimpl->agent_pos.y));
+    pimpl->agent->color.ambient = glm::vec3(0.0588f, 0.2824f, .5f);
+    pimpl->agent->color.diffuse = glm::vec3(0.1176f, 0.5647f, 1.f);
+    pimpl->agent->color.specular = glm::vec3(0.1f);
     scene.add(pimpl->agent);
 
     for (auto const &o : pimpl->obstacle_pos)
     {
-        scene.add(new item::Pillar(glm::vec3(o.x, 2.02f, o.y), o.z, 2.02f));
+        scene.add(new item::Pillar(glm::vec3(o.x, 1.02f, o.y), o.z, 1.f));
     }
 
     if (pimpl->worker_thread && pimpl->worker_thread->joinable())
         pimpl->worker_thread->join();
     pimpl->need_upload = true;
+    pimpl->sampling_upload = false;
 }
 
 void scene::RoadmapScene::upload(Shader &scene_shader)
@@ -245,15 +332,25 @@ void scene::RoadmapScene::upload(Shader &scene_shader)
         scene_shader.set("headlight.coef_a2", 0.f);
 
         pimpl->is_planning = true;
+        pimpl->sampling_complete = false;
         pimpl->worker_thread = new std::thread(&impl::plan, pimpl.get());
         pimpl->need_upload = false;
+
     }
+
+    if (!pimpl->sampling_upload && pimpl->sampling_complete)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[1]);
+        glBufferData(GL_ARRAY_BUFFER, pimpl->sampling_coord.size()*sizeof(float)*2, pimpl->sampling_coord.data(), GL_STATIC_DRAW);
+        pimpl->sampling_upload = true;
+    }
+
 }
 
 void scene::RoadmapScene::update(float dt)
 {
     processInput(dt);
-    if (pimpl->is_planning || pause || pimpl->path.empty()) return;
+    if (pause || pimpl->is_planning || !pimpl->planning_success || pimpl->path.empty()) return;
 
     float movement = .1f;
     auto pos = pimpl->agent->pos();
@@ -273,14 +370,20 @@ void scene::RoadmapScene::update(float dt)
 
 void scene::RoadmapScene::render()
 {
-    pimpl->skybox->render();
+    if (pimpl->sampling_upload)
+    {
+        pimpl->mark_shader->activate();
+        glBindVertexArray(pimpl->vao[0]);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 34, pimpl->sampling_coord.size());
+    }
 
+    pimpl->skybox->render();
     renderInfo();
 }
 
 void scene::RoadmapScene::resetCamera()
 {
-    App::instance()->scene.character.reset(0.f, 25.f, 0.f, 90.f, 90.f);
+    App::instance()->scene.character.reset(-14.f, 20.f, 0.f, 90.f, 60.f);
     App::instance()->scene.character.setShootable(false);
     App::instance()->scene.character.setFloating(true);
 }
@@ -291,13 +394,18 @@ void scene::RoadmapScene::renderInfo()
                           10, 10, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::LeftTop);
-    auto h = App::instance()->frameHeight() - 25;
-    auto w = App::instance()->frameWidth() - 10;
+    auto h = App::instance()->frameHeight();
+    auto w = App::instance()->frameWidth();
     if (pimpl->is_planning)
         App::instance()->text("Planning...",
-                              w/2-10, h/2, .4f,
+                              w/2, h/2, .4f,
                               glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                              Anchor::LeftTop);
+                              Anchor::Center);
+    else if (!pimpl->planning_success)
+        App::instance()->text("Planning Failed",
+                              w/2, h/2, .4f,
+                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                              Anchor::Center);
 }
 
 void scene::RoadmapScene::processInput(float dt)
