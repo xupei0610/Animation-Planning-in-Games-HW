@@ -13,7 +13,7 @@ item::Pillar::Pillar(glm::vec3 const &pos, float radius, float height)
         : Item(regItem()), vao{0}, vbo{0}
 {
     place(pos);
-    scale(glm::vec3(radius, height, radius));
+    scale(glm::vec3(radius, height*.5f, radius));
 
     color.ambient = glm::vec3(0.3f, 0.f, 0.f);
     color.diffuse = glm::vec3(0.5f, 0.f, 0.f);
