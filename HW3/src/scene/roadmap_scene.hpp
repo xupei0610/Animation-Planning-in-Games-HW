@@ -16,22 +16,28 @@ class px::scene::RoadmapScene : public BaseScene
 {
 public:
     float v_max;
+    float rrt_step_min; // for RRT and RRT*
+    float rrt_step_max; // for RRT and RRT*
+    float rewire_radius; // for RRT*
+    float neighbor_radius; // for VO, RVO, HRVO, ORCA
     float t_h;  // for TTC
     float tau; // for ROCA
 
-    float n_obstacles;
+    int n_obstacles;
     bool keep_obstacles; // keep current obstacles or not when restart
-    bool keep_samples;
+    bool keep_milestones;   // keep current milestone samples or not when restart
     bool pause;
     enum class PlanningMethod
     {
-        VelocityObstacles,
-        OptimalReciprocalCollisionAvoidance,
-        TimeToCollision,
-        ProbabilityRoadMap,
-        LazyProbabilityRoadMap,
-        RapidlyExploringRandomTrees,
-        OptimalRapidlyExploringRandomTrees
+        VO,         // Velocity Obstacles
+        // RVO,     // Reciprocal Velocity Obstacles       // this scene only has only static obstacles such that
+        // HRVO,    // Hybrid Reciprocal Velocity Obstacles // these two methods perform in the same way with Velocity Obstacles method.
+        ORCA,       // Optimal Reciprocal Collision Avoidance,
+        TTC,        // Time-to-Collision
+        PRM,        // Probability Road Map
+        LazyPRM,    // Lazy Probability Road Map
+        RRT,        // Rapidly-Exploring Random Trees
+        RRTStar     // Optimal Rapidly-Exploring Random Trees
     } planning_method;
     enum class PathFinder
     {

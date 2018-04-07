@@ -2,6 +2,8 @@
 
 #ifdef ROADMAP_SCENE
 #include "scene/roadmap_scene.hpp"
+#elif defined(MULTIAGENT_SCENE)
+#include "scene/multi_agent_scene.hpp"
 #else
 #include "scene/boids_scene.hpp"
 #endif
@@ -27,6 +29,8 @@ App::App()
           scenes{
 #ifdef ROADMAP_SCENE
                 new scene::RoadmapScene
+#elif defined(MULTIAGENT_SCENE)
+        new scene::MultiAgentScene
 #else
           new scene::BoidsScene
 #endif
@@ -172,7 +176,7 @@ void App::togglePause()
     if (state == State::Pausing)
     {
         state = State::Running;
-//        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouse_detected = false;
         time_gap = -1;
     }

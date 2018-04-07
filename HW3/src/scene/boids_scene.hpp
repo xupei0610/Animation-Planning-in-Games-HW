@@ -30,11 +30,11 @@ public:
         float visual_r;
         float visual_ang;
         float agent_size;
+        float v_max;
+        float a_max;
         float visual_r_predator;
         float visual_ang_predator;
         float predator_size;
-        float v_max;
-        float a_max;
         float v_max_predator;
         float a_max_predator;
         float f_alpha; // separation weight

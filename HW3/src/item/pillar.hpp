@@ -15,8 +15,11 @@ private:
 
 public:
     static Shader *shader;
-    static void initShader();
+    static int initShader();
     static void destroyShader();
+protected:
+    static unsigned int vao[3];
+    static unsigned int vbo[6];
 
 public:
     struct
@@ -39,8 +42,6 @@ public:
            float radius = 1.f, float height = 2.f);
     ~Pillar() override;
 
-protected:
-    unsigned int vao[3], vbo[6];
 private:
     int _n_indices;
 };

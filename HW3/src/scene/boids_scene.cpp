@@ -52,26 +52,28 @@ public:
             return pos[k];
         }
     };
-    KdTree<impl::Obstacle, float> ob_tree;
-    KdTree<impl::Agent, float> agent_tree;
-    class DistHelper
+    struct DistHelper
     {
-    public:
-        unsigned int k;
-        DistHelper(unsigned int k) : k(k) {}
-        inline float operator()(glm::vec2 const &p, impl::Obstacle const &o) const
-        {
-            return glm::distance2(p, o.pos);
-        }
         inline float operator()(glm::vec2 const &p, glm::vec2 const &o) const
         {
             return glm::distance2(p, o);
+        }
+        inline float operator()(impl::Agent const &a, impl::Agent const &o) const
+        {
+            return glm::distance2(a.pos, o.pos);
+        }
+        inline float operator()(glm::vec2 const &p, impl::Obstacle const &o) const
+        {
+            return glm::distance2(p, o.pos);
         }
         inline float operator()(glm::vec3 const &p, impl::Agent const &a) const
         {
             return glm::distance2(p, a.pos);
         }
     };
+    DistHelper dist_fn;
+    KdTree<impl::Obstacle, float, DistHelper> ob_tree;
+    KdTree<impl::Agent, float, DistHelper> agent_tree;
 
     std::vector<Agent> agents;
     std::vector<Agent> predators;
@@ -91,7 +93,7 @@ public:
     impl(const scene::BoidsScene::SceneParameter &scene,
          const scene::BoidsScene::BoidParameter &param)
             : scene(scene), param(param),
-              ob_tree(2), agent_tree(3),
+              ob_tree(dist_fn, 2), agent_tree(dist_fn, 3),
               vao{0}, vbo{0},
               agent_body_shader(nullptr), agent_border_shader(nullptr),
               predator_body_shader(nullptr), predator_border_shader(nullptr),
@@ -133,7 +135,10 @@ public:
             "       primitive.dir = vec3(0.f, 0.f, 1.f);"
             "   else"
             "       primitive.dir = normalize(vel);"
-            "   primitive.pos = pos;"
+            "   primitive.dir.z = -primitive.dir.z;"
+            "   primitive.pos.x = pos.x;"
+            "   primitive.pos.y = pos.y;"
+            "   primitive.pos.z = -pos.z;"
             "   primitive.alive = alive == 1.f;"
             "}";
     const char *AGENT_GS2 = "#version 430 core\n"
@@ -365,9 +370,9 @@ public:
             BOUNDARY_COLLISION_CHECK(z)
         }
         {   // avoid pillars
-            glm::vec2 a_pos(a.pos.x, -a.pos.z); // pillar is infinite high
-            glm::vec2 a_vel(a.vel.x, -a.vel.z); // such that only consider horizontal velocity
-            auto nn = ob_tree.around<glm::vec2, DistHelper>(
+            glm::vec2 a_pos(a.pos.x, a.pos.z); // pillar is infinite high
+            glm::vec2 a_vel(a.vel.x, a.vel.z); // such that only consider horizontal velocity
+            auto nn = ob_tree.around<glm::vec2>(
                     a_pos, obstacles, (visual_r+max_obstacle_radius)*(visual_r+max_obstacle_radius));
             for (const auto &i : nn)
             {   const auto &o = obstacles[i.first]; auto &d2 = i.second;
@@ -403,7 +408,7 @@ public:
                         auto mag = 1.f / (t*t+0.01f);
 
                         s.x += mag * dir.x;
-                        s.z -= mag * dir.y;
+                        s.z += mag * dir.y;
                     }
                 }
             }
@@ -448,7 +453,7 @@ public:
     }
     std::tuple<glm::vec3, glm::vec3, glm::vec3>
     boids(const Agent &a, float visual_r2, float visual_ang,
-          const std::vector<Agent> &agents, const KdTree<Agent, float> &kd_tree)
+          const std::vector<Agent> &agents, const decltype(agent_tree) &kd_tree)
     {
         glm::vec3 f(0.f), v(0.f), p(0.f);
         auto count  = 0;
@@ -530,7 +535,7 @@ public:
         return c;
     }
     glm::vec3 chase(const Agent &a, float agent_r, float visual_r, float visual_ang,
-                    std::vector<Agent> &agents, const KdTree<Agent, float> &kd_tree)
+                    std::vector<Agent> &agents, const decltype(agent_tree) &kd_tree)
     {
         glm::vec3 c(0.f);
         visual_ang *= glm::length(a.vel);
@@ -542,10 +547,10 @@ public:
 //        for (auto &b: agents)
 //        {
             if (!b.alive) continue;
-            auto dp = b.pos - a.pos;
 //            auto d2 = glm::length2(dp);
             if (i.second < visual_r)
             {
+                auto dp = b.pos - a.pos;
                 c = dp - (a.vel - b.vel);
                 if (c.x != 0.f || c.y != 0.f || c.z != 0.f)
                     c = glm::normalize(c);
@@ -577,7 +582,7 @@ public:
         auto tot_pred = static_cast<int>(predators.size());
 
         cam.pos = App::instance()->scene.cam.pos();
-        cam.radius = App::instance()->scene.character.characterHalfSize()*15.f;
+        cam.radius = App::instance()->scene.character.characterHalfSize()*30.f;
         cam.vel = cam.pos - cam_last_pos;
 
 #pragma omp parallel num_threads(6)
@@ -620,8 +625,8 @@ public:
                 // chase prey
                 if (hungry[i] < 0.f)
                 push_pred[i] = param.c_alpha *
-                        chase(a, param.predator_size, param.visual_r_predator, param.visual_ang_predator, agents);
-//                          chase(a, param.predator_size, param.visual_r_predator, param.visual_ang_predator, agents, agent_tree);
+                               chase(a, param.predator_size, param.visual_r_predator, param.visual_ang_predator, agents);
+//                               chase(a, param.predator_size, param.visual_r_predator, param.visual_ang_predator, agents, agent_tree);
 
                 acc_pred[i] = param.f_alpha * f + param.v_alpha * v + /*param.p_alpha * p*/ + param.s_alpha * s;
                 auto mag = glm::length(acc_pred[i]);
@@ -705,17 +710,15 @@ public:
 
 scene::BoidsScene::BoidsScene()
         : BaseScene(), pause(false),
-          scene_param { 5000, 2, 10,
+          scene_param { 5000, 5, 10,
                         {30.f, 30.f, 30.f},
                         {-30.f, 0.f, -30.f}
           },
-          boids{ 5.f,  std::cos(static_cast<float>(M_PI)*.75f), .2f,
-                 10.f, std::cos(static_cast<float>(M_PI)*.25f), .5f,
-                 .15f, .9f,
-                 .3f, .9f,
+          boids{ 2.5f,  std::cos(static_cast<float>(M_PI)*.75f), .1f, .15f, .9f,
+                 10.f, std::cos(static_cast<float>(M_PI)*.25f), .5f, .3f, .9f,
                  1.5f, // separation weight
                  1.f,  // alignment weight
-                 .105f,  // cohesion weight
+                 .4f,  // cohesion weight
                  150.f,  // obstacle avoidance weight
                  10.f,   // escape force weight
                  2.f,   // chase force weight
@@ -798,7 +801,6 @@ void scene::BoidsScene::restart(Scene &scene)
         resetCamera();
         first_run = false;
     }
-    App::instance()->scene.character.setAscSpeed(Character::FORWARD_SP * 2.f);
     App::instance()->scene.character.setForwardSpeed(Character::FORWARD_SP * 2.f);
     App::instance()->scene.character.setBackwardSpeed(Character::FORWARD_SP * 2.f);
     App::instance()->scene.character.setSidestepSpeed(Character::FORWARD_SP * 2.f);
@@ -961,7 +963,7 @@ void scene::BoidsScene::render()
 
 void scene::BoidsScene::resetCamera()
 {
-    App::instance()->scene.character.reset(0.f, 30.f, 50.f, 0.f, 30.f);
+    App::instance()->scene.character.reset(0.f, 50.f, 65.f, 0.f, 33.f);
     App::instance()->scene.character.setShootable(false);
     App::instance()->scene.character.setFloating(true);
 }
@@ -1019,6 +1021,11 @@ void scene::BoidsScene::renderInfo()
                           w, h, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::RightTop);
+    h -= 20;
+    App::instance()->text("Hold H, J, K, L, U, M to move goal marker",
+                          w, h, .4f,
+                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                          Anchor::RightTop);
 }
 
 void scene::BoidsScene::processInput(float dt)
@@ -1049,6 +1056,12 @@ void scene::BoidsScene::processInput(float dt)
 #define DECREASE_N_PREDATORS if (scene_param.n_predators>0) --scene_param.n_predators;
 #define INCREASE_N_OBSTACLES ++scene_param.n_obstacles;
 #define DECREASE_N_OBSTACLES if (scene_param.n_obstacles>0) --scene_param.n_obstacles;
+#define LEFT_GOAL_MARKER  boids.goal.x -= .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
+#define RIGHT_GOAL_MARKER boids.goal.x += .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
+#define FORWARD_GOAL_MARKER  boids.goal.z -= .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
+#define BACKWARD_GOAL_MARKER boids.goal.z += .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
+#define UP_GOAL_MARKER boids.goal.y += .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
+#define DOWN_GOAL_MARKER boids.goal.y -= .5f; pimpl->goal_marker->place(glm::vec3(boids.goal.x, boids.goal.y, -boids.goal.z));
 
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         last_key = GLFW_KEY_P;
@@ -1071,6 +1084,18 @@ void scene::BoidsScene::processInput(float dt)
     else
     STICKY_KEY_CHECK(GLFW_KEY_PERIOD, INCREASE_N_OBSTACLES)
     else
+    STICKY_KEY_CHECK(GLFW_KEY_H, LEFT_GOAL_MARKER)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_J, FORWARD_GOAL_MARKER)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_K, BACKWARD_GOAL_MARKER)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_L, RIGHT_GOAL_MARKER)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_U, UP_GOAL_MARKER)
+    else
+    STICKY_KEY_CHECK(GLFW_KEY_M, DOWN_GOAL_MARKER)
+    else
     {
         if (last_key == GLFW_KEY_B)
             resetCamera();
@@ -1081,6 +1106,7 @@ void scene::BoidsScene::processInput(float dt)
             boids.has_goal = true;
             boids.goal = App::instance()->scene.cam.pos() + App::instance()->scene.cam.direction()*1.f;
             pimpl->goal_marker->place(boids.goal);
+            boids.goal.z = -boids.goal.z;
             pimpl->goal_marker->scale(glm::vec3(.25f));
         }
         else if (last_key == GLFW_KEY_C)

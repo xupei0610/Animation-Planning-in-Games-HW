@@ -25,7 +25,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(Freetype REQUIRED)
 include_directories(${FREETYPE_INCLUDE_DIRS})
-find_package(CGAL REQUIRED)
+# find_package(CGAL REQUIRED)
 find_package(GLM REQUIRED)
 find_package(glfw3 3.2 REQUIRED)
 find_package(GLEW REQUIRED)
@@ -49,7 +49,7 @@ include_directories(${CMAKE_SOURCE_DIR}/lib/stb)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 set(SOURCE_LIBRARIES
     ${CMAKE_THREAD_LIBS_INIT}
-    CGAL
+    # CGAL
     ${FREETYPE_LIBRARIES}
     glfw
     ${GLEW_LIBRARIES}
@@ -72,10 +72,7 @@ file(GLOB CUDA_SOURCE_FILES
 add_executable(roadmap
                ${SOURCE_FILES}
                ${SOURCE_DIR}/main.cpp)
-add_executable(vo
-               ${SOURCE_FILES}
-               ${SOURCE_DIR}/main.cpp)
-add_executable(ttc
+add_executable(multi_agent
                ${SOURCE_FILES}
                ${SOURCE_DIR}/main.cpp)
 add_executable(boids
@@ -84,20 +81,14 @@ add_executable(boids
 
 target_compile_definitions(roadmap PRIVATE
                            ROADMAP_SCENE)
-target_compile_definitions(vo PRIVATE
-                           VO_SCENE)
-target_compile_definitions(ttc PRIVATE
-                           TTC_SCENE)
+target_compile_definitions(multi_agent PRIVATE
+                           MULTIAGENT_SCENE)
 target_compile_definitions(boids PRIVATE
                            BOIDS_SCENE)
 
 target_link_libraries(roadmap
                       ${SOURCE_LIBRARIES})
-target_link_libraries(vo
-                      ${SOURCE_LIBRARIES})
-target_link_libraries(vo
-                      ${SOURCE_LIBRARIES})
-target_link_libraries(ttc
+target_link_libraries(multi_agent
                       ${SOURCE_LIBRARIES})
 target_link_libraries(boids
                       ${SOURCE_LIBRARIES})

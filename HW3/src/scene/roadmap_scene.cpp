@@ -24,7 +24,7 @@ public:
     bool need_upload;
     bool is_planning, planning_success, sampling_complete, sampling_upload, road_upload;
 
-    float &v_max, &t_h, &tau;
+    float &v_max, &rrt_step_min, &rrt_step_max, &rewire_radius, &neighbor_radius, &t_h, &tau;
     int n_sampling; int k; int n_road; int solution_size;
     bool resampling;
     glm::vec2 upper_bound, lower_bound;
@@ -32,6 +32,7 @@ public:
     glm::vec2 goal_pos;
     std::vector<glm::vec2> path;
     std::vector<glm::vec3> obstacle_pos;
+    std::vector<glm::vec2> obstacle_vel;
     std::vector<std::shared_ptr<Item> > obstacles;
     std::vector<glm::vec2> milestones;
     std::vector<std::vector<float> > roadmap;
@@ -108,7 +109,12 @@ public:
             "}";
 
     impl(scene::RoadmapScene *parent)
-            : v_max(parent->v_max), t_h(parent->t_h), tau(parent->tau),
+            : v_max(parent->v_max),
+              rrt_step_min(parent->rrt_step_min),
+              rrt_step_max(parent->rrt_step_max),
+              rewire_radius(parent->rewire_radius),
+              neighbor_radius(parent->neighbor_radius),
+              t_h(parent->t_h), tau(parent->tau),
               worker_thread(nullptr),
               skybox(nullptr),
               mark_shader(nullptr), edge_shader(nullptr), road_shader(nullptr),
@@ -144,7 +150,7 @@ public:
 
         sampling_complete = false;
         std::list<std::size_t> path;
-        if (planning_method == scene::RoadmapScene::PlanningMethod::ProbabilityRoadMap)
+        if (planning_method == scene::RoadmapScene::PlanningMethod::PRM)
         {
             if (milestones.empty())
             {
@@ -180,7 +186,7 @@ public:
                         k);
             }
         }
-        else if (planning_method == scene::RoadmapScene::PlanningMethod::LazyProbabilityRoadMap)
+        else if (planning_method == scene::RoadmapScene::PlanningMethod::LazyPRM)
         {
             if (milestones.empty())
             {
@@ -216,7 +222,7 @@ public:
                         );
             }
         }
-        else if (planning_method == scene::RoadmapScene::PlanningMethod::RapidlyExploringRandomTrees)
+        else if (planning_method == scene::RoadmapScene::PlanningMethod::RRT)
         {
             if (milestones.empty())
             {
@@ -236,7 +242,7 @@ public:
                               std::placeholders::_1, std::placeholders::_2),
                     std::bind(&impl::collideFromTo, this,
                               std::placeholders::_1, std::placeholders::_2),
-                    .1f, 20.f,
+                    rrt_step_min, rrt_step_max,
                     std::function<void(glm::vec2 &)>([&](glm::vec2 &s)
                     {
                         for (;;)
@@ -252,7 +258,7 @@ public:
                         }
                     }));
         }
-        else if (planning_method == scene::RoadmapScene::PlanningMethod::OptimalRapidlyExploringRandomTrees)
+        else if (planning_method == scene::RoadmapScene::PlanningMethod::RRTStar)
         {
             if (milestones.empty())
             {
@@ -267,12 +273,12 @@ public:
 
             roadmap = planning::RRTStar<float>(
                     milestones, 0, 1, path,
-                    glm::distance2<float, glm::highp, glm::tvec2>,
+                    glm::distance<float, glm::highp, glm::tvec2>,
                     std::bind(&impl::collide, this,
                               std::placeholders::_1, std::placeholders::_2),
                     std::bind(&impl::collideFromTo, this,
                               std::placeholders::_1, std::placeholders::_2),
-                    .1f, 20.f, 5.f,
+                    rrt_step_min, rrt_step_max, rewire_radius,
                     std::function<void(glm::vec2 &)>([&](glm::vec2 &s)
                     {
                         for (;;)
@@ -446,18 +452,19 @@ public:
 
     glm::vec2 ttc(const glm::vec2 &v_pref, const glm::vec2 &pos, float dt)
     {
-        auto v = planning::TTC(t_h, v_max, dt,
-                               0, obstacle_pos,
+        auto v = planning::TTC(2.f, t_h, v_max, dt,
+                               0, obstacle_pos, obstacle_vel,
                                std::vector<glm::vec3>{glm::vec3(pos, agent_pos.z)},
+                               std::vector<glm::vec2>{agent_vel},
                                std::vector<glm::vec2>{v_pref});
-        return v + steerBoundary(v_pref, pos) * dt;
+        return v;// + steerBoundary(v_pref, pos) * dt;
     }
 
     glm::vec2 vo(const glm::vec2 &v_pref, const glm::vec2 &pos, const float dt)
     {
         auto vos = planning::VO2D< planning::VelocityObstacleMethod::VO>(
-                dt,
-                0, obstacle_pos,
+                neighbor_radius, dt,
+                0, obstacle_pos, obstacle_vel,
                 std::vector<glm::vec3>{glm::vec3(pos, agent_pos.z)},
                 std::vector<glm::vec2>{agent_vel},
                 std::vector<glm::vec2>{v_pref});
@@ -487,14 +494,14 @@ public:
                                    }));
     }
 
-    glm::vec2 roca(const glm::vec2 &v_pref, const glm::vec2 &pos, float dt)
+    glm::vec2 orca(const glm::vec2 &v_pref, const glm::vec2 &pos, float dt)
     {
         auto max_positive_v_x = std::min( v_max, (upper_bound.x - agent_pos.z - pos.x)/dt);
         auto max_negative_v_x = std::max(-v_max, (lower_bound.x + agent_pos.z - pos.x)/dt);
         auto max_positive_v_y = std::min( v_max, (upper_bound.y - agent_pos.z - pos.y)/dt);
         auto max_negative_v_y = std::max(-v_max, (lower_bound.y + agent_pos.z - pos.y)/dt);
-        return planning::ORCA(tau, v_max, dt,
-                              0, obstacle_pos,
+        return planning::ORCA(tau, v_max, neighbor_radius, dt,
+                              0, obstacle_pos, obstacle_vel,
                               std::vector<glm::vec3>{glm::vec3(pos, agent_pos.z)},
                               std::vector<glm::vec2>{agent_vel},
                               std::vector<glm::vec2>{v_pref},
@@ -564,9 +571,12 @@ public:
 
 scene::RoadmapScene::RoadmapScene()
         : BaseScene(),
-          v_max(7.5f), t_h(1.f), tau(2.f),
+          v_max(10.f),
+          rrt_step_min(.2f), rrt_step_max(1.f), rewire_radius(5.f),
+          neighbor_radius(5.f),
+          t_h(1.5f), tau(2.f),
           n_obstacles(10),
-          planning_method(PlanningMethod::ProbabilityRoadMap),
+          planning_method(PlanningMethod::TTC),
           pathfinder(PathFinder::AStar)
 {
     pimpl = std::make_unique<impl>(this);
@@ -612,7 +622,7 @@ void scene::RoadmapScene::init(Scene &scene)
         vertex.push_back(.1f * std::cos(i*gap));
         vertex.push_back(.1f * std::sin(i*gap));
     }
-    glBindVertexArray(pimpl->vao[0]);  // milestone
+    glBindVertexArray(pimpl->vao[0]);  // milestone marker
     glVertexAttribDivisor(1, 1);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, pimpl->vbo[0]);
@@ -656,7 +666,7 @@ void scene::RoadmapScene::restart(Scene &scene)
     {
         pause = false;
         keep_obstacles = false;
-        keep_samples = false;
+        keep_milestones = false;
         resetCamera();
         first_run = false;
     }
@@ -672,7 +682,7 @@ void scene::RoadmapScene::restart(Scene &scene)
     if (!keep_obstacles)
     {
         pimpl->obstacle_pos.clear();
-        pimpl->obstacle_pos.emplace_back(0.f, 0.f, 2.f);
+        pimpl->obstacle_pos.emplace_back(-4.f, -3.f, 2.f);
         auto s_x = pimpl->upper_bound.x - pimpl->lower_bound.x - 4.f;
         auto s_y = pimpl->upper_bound.y - pimpl->lower_bound.y - 4.f;
         for (auto i = 0; i < n_obstacles; ++i)
@@ -697,6 +707,7 @@ void scene::RoadmapScene::restart(Scene &scene)
             }
             if (!collide) pimpl->obstacle_pos.emplace_back(x, y, r);
         }
+        pimpl->obstacle_vel.resize(pimpl->obstacle_pos.size(), glm::vec2(0.f));
         pimpl->obstacles.clear();
         for (auto const &o : pimpl->obstacle_pos)
             pimpl->obstacles.emplace_back(new item::Pillar(glm::vec3(o.x, .52f, -o.y), o.z, 1.f));
@@ -717,7 +728,7 @@ void scene::RoadmapScene::restart(Scene &scene)
 
     if (pimpl->worker_thread && pimpl->worker_thread->joinable())
         pimpl->worker_thread->join();
-    if (!keep_samples) pimpl->milestones.clear();
+    if (!keep_milestones) pimpl->milestones.clear();
     pimpl->need_upload = true;
     pimpl->sampling_upload = false;
     pimpl->road_upload = false;
@@ -796,50 +807,42 @@ void scene::RoadmapScene::upload(Shader &scene_shader)
 void scene::RoadmapScene::update(float dt)
 {
     processInput(dt);
-    if (pause || pimpl->is_planning || !pimpl->planning_success || pimpl->path.empty()) return;
+    if (dt == 0.f || pause || pimpl->is_planning || !pimpl->planning_success || pimpl->path.empty()) return;
 
     constexpr auto pos_eps  = 1e-6f;  // eps to check if the agent reaches the marker
+    auto v_pref_max = v_max *.5f; // prefer velocity
 
     auto agent_pos = pimpl->agent->pos();
     glm::vec2 pos(agent_pos.x, -agent_pos.z);
 
     auto tar = pimpl->path.back();
-    auto dist = glm::distance(tar, glm::vec2(pos.x, pos.y));
-    glm::vec2 v_pref;
-    bool goal_reachable = false;
-    if ((v_max * dt) >= dist)
-    {
-        goal_reachable = true;
-        v_pref.x = (tar.x - pos.x) / dt;
-        v_pref.y = (tar.y - pos.y) / dt;
-    }
-    else
-    {
-        v_pref.x = v_max * (tar.x - pos.x) / dist;
-        v_pref.y = v_max * (tar.y - pos.y) / dist;
-    }
+
+    glm::vec2 v_pref = (tar - pos)/dt;
+    auto d = glm::length(v_pref);
+    if (d > v_pref_max)
+        v_pref *= v_pref_max/ d;
 
     switch (planning_method)
     {
-        case PlanningMethod::VelocityObstacles:
+        case PlanningMethod::VO:
             pimpl->agent_vel = pimpl->vo(v_pref, pos, dt);
             break;
-        case PlanningMethod::OptimalReciprocalCollisionAvoidance:
-            pimpl->agent_vel = pimpl->roca(v_pref, pos, dt);
+        case PlanningMethod::ORCA:
+            pimpl->agent_vel = pimpl->orca(v_pref, pos, dt);
             break;
-        case PlanningMethod::TimeToCollision:
+        case PlanningMethod::TTC:
+//            std::cout << tar.x << " " << tar.y << " " << pos.x << " " << pos.y << " " << v_pref.x << " " << v_pref.y << std::endl;
             pimpl->agent_vel = pimpl->ttc(v_pref, pos, dt);
             break;
         default:
             pimpl->agent_vel = v_pref;
     }
 
-    agent_pos.x += pimpl->agent_vel.x*dt;
-    agent_pos.z -= pimpl->agent_vel.y*dt;
-    if (goal_reachable && glm::distance2(pimpl->agent_vel, pimpl->agent_vel)*dt < pos_eps)
+    pos += pimpl->agent_vel*dt;
+    if (glm::distance2(tar, pos) < pos_eps)
         pimpl->path.pop_back();
 
-    pimpl->agent->place(agent_pos);
+    pimpl->agent->place(glm::vec3(pos.x, agent_pos.y, -pos.y));
 }
 
 void scene::RoadmapScene::render()
@@ -879,26 +882,26 @@ void scene::RoadmapScene::renderInfo()
 {
     auto h = 10;
     App::instance()->text("Planning Method: " + std::string(
-            planning_method == PlanningMethod::RapidlyExploringRandomTrees ?
+            planning_method == PlanningMethod::RRT ?
                           "Rapidly-Exploring Random Trees" :
-            (planning_method == PlanningMethod::OptimalRapidlyExploringRandomTrees ?
+            (planning_method == PlanningMethod::RRTStar ?
                           "Optimal Rapidly-Exploring Random Trees" :
-            (planning_method == PlanningMethod::ProbabilityRoadMap ?
+            (planning_method == PlanningMethod::PRM ?
                           "Probability Road Map" :
-            (planning_method == PlanningMethod::VelocityObstacles ?
+            (planning_method == PlanningMethod::VO ?
                           "Velocity Obstacles" :
-            (planning_method == PlanningMethod::OptimalReciprocalCollisionAvoidance ?
+            (planning_method == PlanningMethod::ORCA ?
                           "Optimal Reciprocal Collision Avoidance" :
-            (planning_method == PlanningMethod::LazyProbabilityRoadMap ?
+            (planning_method == PlanningMethod::LazyPRM ?
                           "Lazy Probability Road Map" :
                           "Time-to-Collision")))))),
                           10, h, .4f,
                           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                           Anchor::LeftTop);
-    if (planning_method == PlanningMethod::RapidlyExploringRandomTrees
-        || planning_method == PlanningMethod::OptimalRapidlyExploringRandomTrees
-        || planning_method == PlanningMethod::ProbabilityRoadMap
-        || planning_method == PlanningMethod::LazyProbabilityRoadMap)
+    if (planning_method == PlanningMethod::RRT
+        || planning_method == PlanningMethod::RRTStar
+        || planning_method == PlanningMethod::PRM
+        || planning_method == PlanningMethod::LazyPRM)
     {
         h += 20;
         App::instance()->text("Samples: " + std::to_string(pimpl->n_sampling),
@@ -906,7 +909,7 @@ void scene::RoadmapScene::renderInfo()
                               glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                               Anchor::LeftTop);
     }
-    if (planning_method == PlanningMethod::ProbabilityRoadMap)
+    if (planning_method == PlanningMethod::PRM)
     {
         h += 20;
         App::instance()->text("Neighbor Check: " + std::to_string(pimpl->k),
@@ -914,8 +917,8 @@ void scene::RoadmapScene::renderInfo()
                               glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                               Anchor::LeftTop);
     }
-    if (planning_method == PlanningMethod::ProbabilityRoadMap
-            || planning_method == PlanningMethod::LazyProbabilityRoadMap)
+    if (planning_method == PlanningMethod::PRM
+            || planning_method == PlanningMethod::LazyPRM)
     {
         h += 20;
         App::instance()->text("Path Finder Algorithm: " + std::string(
@@ -937,8 +940,8 @@ void scene::RoadmapScene::renderInfo()
                               w/2, h/2, .4f,
                               glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                               Anchor::Center);
-    if (planning_method == PlanningMethod::ProbabilityRoadMap
-        || planning_method == PlanningMethod::LazyProbabilityRoadMap)
+    if (planning_method == PlanningMethod::PRM
+        || planning_method == PlanningMethod::LazyPRM)
     {
         h -= 25;
         App::instance()->text("Press N to switch path finder algorithm",
@@ -970,20 +973,20 @@ void scene::RoadmapScene::processInput(float dt)
             pause = !pause;
         else if (last_key == GLFW_KEY_M)
         {
-            if (planning_method == PlanningMethod::ProbabilityRoadMap)
-                planning_method = PlanningMethod::RapidlyExploringRandomTrees;
-            else if (planning_method == PlanningMethod::RapidlyExploringRandomTrees)
-                planning_method = PlanningMethod::OptimalRapidlyExploringRandomTrees;
-            else if (planning_method == PlanningMethod::OptimalRapidlyExploringRandomTrees)
-                planning_method = PlanningMethod::LazyProbabilityRoadMap;
-            else if (planning_method == PlanningMethod::LazyProbabilityRoadMap)
-                planning_method = PlanningMethod::VelocityObstacles;
-            else if (planning_method == PlanningMethod::VelocityObstacles)
-                planning_method = PlanningMethod::OptimalReciprocalCollisionAvoidance;
-            else if (planning_method == PlanningMethod::OptimalReciprocalCollisionAvoidance)
-                planning_method = PlanningMethod::TimeToCollision;
-            else // if (planning_method = PlanningMethod::TimeToCollision)
-                planning_method = PlanningMethod::ProbabilityRoadMap;
+            if (planning_method == PlanningMethod::PRM)
+                planning_method = PlanningMethod::RRT;
+            else if (planning_method == PlanningMethod::RRT)
+                planning_method = PlanningMethod::RRTStar;
+            else if (planning_method == PlanningMethod::RRTStar)
+                planning_method = PlanningMethod::LazyPRM;
+            else if (planning_method == PlanningMethod::LazyPRM)
+                planning_method = PlanningMethod::VO;
+            else if (planning_method == PlanningMethod::VO)
+                planning_method = PlanningMethod::ORCA;
+            else if (planning_method == PlanningMethod::ORCA)
+                planning_method = PlanningMethod::TTC;
+            else // if (planning_method = PlanningMethod::TTC)
+                planning_method = PlanningMethod::PRM;
 
             auto tmp = keep_obstacles;
             keep_obstacles = true;
@@ -991,20 +994,20 @@ void scene::RoadmapScene::processInput(float dt)
             keep_obstacles = tmp;
         }
         else if (last_key == GLFW_KEY_N &&
-                (planning_method == PlanningMethod::ProbabilityRoadMap
-                 || planning_method == PlanningMethod::LazyProbabilityRoadMap))
+                (planning_method == PlanningMethod::PRM
+                 || planning_method == PlanningMethod::LazyPRM))
         {
             if (pathfinder == PathFinder::UniformCost)
                 pathfinder = PathFinder::AStar;
             else // if (pathfinder == PathFinder::AStar)
                 pathfinder = PathFinder::UniformCost;
             auto tmp1 = keep_obstacles;
-            auto tmp2 = keep_samples;
+            auto tmp2 = keep_milestones;
             keep_obstacles = true;
-            keep_samples = true;
+            keep_milestones = true;
             App::instance()->scene.restart();
             keep_obstacles = tmp1;
-            keep_samples = tmp2;
+            keep_milestones = tmp2;
         }
         last_key = GLFW_KEY_UNKNOWN;
     }

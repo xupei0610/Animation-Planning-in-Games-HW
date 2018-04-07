@@ -1,11 +1,11 @@
 #ifndef PX_CG_PATH_FINDER_HPP
 #define PX_CG_PATH_FINDER_HPP
 
-// for quadratic programming used in ORCA
-#include <CGAL/basic.h>
-#include <CGAL/QP_models.h>
-#include <CGAL/QP_functions.h>
-#include <CGAL/MP_Float.h>
+//// for quadratic programming used in ORCA
+//#include <CGAL/basic.h>
+//#include <CGAL/QP_models.h>
+//#include <CGAL/QP_functions.h>
+//#include <CGAL/MP_Float.h>
 
 #include <list>
 #include <vector>
@@ -68,8 +68,8 @@ void AStar(const std::vector<std::vector<T> > &roadmap,
 {
     auto n_v = roadmap.size();
 
-    std::vector<bool> visited(n_v, false); // has been popped out from the open set
-    std::vector<bool> waited(n_v, false);  // has been pushed into the open set
+    std::vector<bool> visited(n_v, false); // close set
+    std::vector<bool> waited(n_v, false);  // open set + close set
 
     std::vector<T> g_val(n_v, std::numeric_limits<float>::infinity());
     std::vector<T> f_val(n_v, std::numeric_limits<float>::infinity());
@@ -257,15 +257,14 @@ void uniformCost(const std::vector<std::vector<T> > &roadmap,
 
 /**
  * smoothe tries to smoothe the path on place
- *
- * TODO try all possible combinations exhaustively if # of tries is large enough
- *
  * @tparam CollisionCheck collision check function
  * @param path indices of path nodes from goal to start
  * @param collide collision check function,
  *                which returns true if the link between two nodes on
  *                the path would cause any collision
  * @param tries # of max tries
+ * TODO try all possible combinations exhaustively if # of tries is large enough
+ *
  */
 template <class CollisionChecker>
 void smoothe(int tries,
@@ -613,12 +612,12 @@ std::vector<std::vector<T> > RRTStar(std::vector<T_milestone> &milestones,
                             {
                                 roadmap[node.first][parent[node.first]] = std::numeric_limits<T>::infinity(); // remove the link between
                                 roadmap[parent[node.first]][node.first] = std::numeric_limits<T>::infinity(); // the node of its current parent node
+                                child[parent[node.first]] = std::size_t(-1); // remove child node for the original parent node
                                 roadmap[node.first][i] = node.second; // link the node to
                                 roadmap[i][node.first] = node.second; // the new node
+                                parent[node.first] = i; // update the parent node
                                 auto d_cost = c - cost[node.first];
                                 cost[node.first] = c; // update cost
-                                child[parent[node.first]] = std::size_t(-1); // remove child node for the original parent node
-                                parent[node.first] = i; // update the parent node
                                 // update the cost of descendant nodes
                                 auto u = node.first;
                                 while (child[u] != std::size_t(-1))
@@ -681,98 +680,105 @@ std::vector<std::vector<T> > RRTStar(std::vector<T_milestone> &milestones,
 }
 
 
-template <typename Vec3_pos, typename Vec2_vel, typename T_time, typename T_dist>
-Vec2_vel TTC(const T_time t_h,
+template <typename Vec3_pos, typename Vec2_vel, typename T_float, typename T_time, typename T_dist>
+Vec2_vel TTC(const T_float force_factor, const T_time t_h,
              const T_dist v_max,
              const T_time dt,
              const std::size_t agent_id,
              const std::vector<Vec3_pos> &ob_pos,
+             const std::vector<Vec2_vel> &ob_vel,
              const std::vector<Vec3_pos> &agent_pos,
-             const std::vector<Vec2_vel> &agent_vel)
+             const std::vector<Vec2_vel> &agent_vel,
+             const std::vector<Vec2_vel> &v_pref)
 {
     assert(agent_pos.size() == agent_vel.size() && agent_id < agent_pos.size());
+    assert(ob_pos.size() == ob_vel.size());
 
     constexpr T_time t_eps = T_time(1e-6);
 
-    Vec2_vel acc; acc.x = 0; acc.y = 0;
-
-    Vec2_vel w;
-    auto ttc = [&](const Vec3_pos &b_pos, const Vec2_vel &dv,
-                   const decltype(ob_pos.front().x) a)
+    auto ttc = [&](const Vec2_vel &v,
+                   const Vec3_pos &b_pos, const Vec2_vel &b_vel,
+                   Vec2_vel &acc)
     {
         // solve || (pos_b + v_b * t) - (pos_a + v_a *t) || = r_a + r_b
         // to get the time-to-collision
+        Vec2_vel dp;
+        dp.x = b_pos.x - agent_pos[agent_id].x;
+        dp.y = b_pos.y - agent_pos[agent_id].y;
         auto r = b_pos.z + agent_pos[agent_id].z;
-        w.x = b_pos.x - agent_pos[agent_id].x;
-        w.y = b_pos.y - agent_pos[agent_id].y;
 
-        auto w2 = w.x*w.x + w.y*w.y;
-        auto c = w2 - r*r;
-        if (c < 0) // collision already, push the agent away
+        auto dp2 = dp.x*dp.x + dp.y*dp.y;
+        auto c = dp2 - r*r;
+
+        auto dv = v - b_vel;
+        auto a = dv.x * dv.x + dv.y * dv.y;
+
+
+        auto t = T_time(0);
+        if (c < 0)
+    {
+        // push away by shrinking the radius
+        t = 0;
+    }
+        if (dv.x != 0 || dv.y != 0)
         {
-            r *= T_dist(1.05);
-            if (w2 == 0)
-            {
-                if (dv.x == 0 && dv.y == 0)
-                {
-                    auto x = rnd_np();
-                    auto y = rnd_np();
-                    auto d = x*x + y*y;
-                    r /= std::sqrt(d) * dt;
-                    acc.x += x * r;
-                    acc.y += y * r;
-                }
-                else
-                {
-                    acc += dv * (r / (std::sqrt(a)*dt));
-                }
-            }
-            else
-            {
-                w2 = std::sqrt(w2);
-                c = (r - w2) / (w2*dt);
-                acc.x -= w.x * c;
-                acc.y -= w.y * c;
-            }
-            return;
+            auto b = dp.x*dv.x + dp.y*dv.y;
+            auto discriminant = b*b - a*c;
+            if (discriminant < 0.f) return false;
+
+            t = (b - std::sqrt(discriminant)) / a;
+            if (t < 0 && t > t_h) return false;
         }
-        if (dv.x == 0 && dv.y == 0) return; // no collision if the agent does not move
-
-        auto b = w.x*dv.x + w.y*dv.y;
-        auto discriminant = b*b - a*c;
-        if (discriminant < 0.f) return;
-
-        auto t = (b - std::sqrt(discriminant)) / a;
-        if (t < 0 && t > t_h) return;
-
         // avoidance direction (pos_a + v_a * t) - (pos_b + v_b * t)
-        auto dir = dv * t - w;
-        if (dir.x == 0 && dir.y == 0) return;
-        dir /= dir.x*dir.x + dir.y*dir.y;
-        if (dir.x * dv.y == dir.y * dv.x) // if avoidance force could make the agent stop,
-        {                                 // then move along the tangent line a little randomly
-            w.x = -dir.y; w.y = dir.x;
-            dir = rnd_np() * w;
-        }
-
+        auto dir = dv * t - dp;
+        if (dir.x == 0 && dir.y == 0) return false;
+        dir /= std::sqrt(dir.x*dir.x + dir.y*dir.y);
+//        if (dir.x * dv.y == dir.y * dv.x) // if avoidance force could make the agent stop,
+//        {                                 // then move along the tangent line a little randomly
+//            dp.x = -dir.y; dp.y = dir.x;
+//            dir = dp;
+//            if (rnd_np() > 0) dir *= -1;
+//        }
         auto mag = (t_h - t) / (t + t_eps);
 
         acc.x += mag * dir.x;
         acc.y += mag * dir.y;
+        return true;
     };
 
-    auto a = agent_vel[agent_id].x*agent_vel[agent_id].x
-             + agent_vel[agent_id].y*agent_vel[agent_id].y;
-    for (const auto &o : ob_pos)
-        ttc(o, agent_vel[agent_id], a);
-    for (std::size_t i = 0, n = agent_pos.size(); i < n; ++i)
+    auto n = agent_pos.size();
+    Vec2_vel v;
+    Vec2_vel acc;
+    acc.x = decltype(agent_vel.front().x)(0);
+    acc.y = decltype(agent_vel.front().x)(0);
+    auto avoidance = false;
+    if (n > 1)
     {
-        if (i == agent_id) continue;
-        auto dv = agent_vel[agent_id] - agent_vel[i];
-        ttc(agent_pos[i], dv, dv.x*dv.x + dv.y*dv.y);
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            if (i == agent_id) continue;
+            avoidance |= ttc(agent_vel[agent_id], agent_pos[i], agent_vel[i], acc);
+        }
     }
+    if (avoidance) // collision avoidance mode
+    {
+        v = (1-force_factor)*agent_vel[agent_id] + force_factor * v_pref[agent_id]
+          + acc * T_time(.5);
+        acc.x = decltype(agent_vel.front().x)(0);
+        acc.y = decltype(agent_vel.front().y)(0);
 
-    auto v = agent_vel[agent_id] + acc;
+        for (std::size_t n = ob_pos.size(), i = 0; i < n; ++i)
+            ttc(v, ob_pos[i], ob_vel[i], acc);
+    }
+    else // navigation mode
+    {
+        v = v_pref[agent_id];
+
+        for (std::size_t n = ob_pos.size(), i = 0; i < n; ++i)
+            ttc(v, ob_pos[i], ob_vel[i], acc);
+    }
+    v += acc;
+
     auto d2 = v.x*v.x + v.y*v.y;
     if (d2 > v_max*v_max)
         v *= v_max / std::sqrt(d2);
@@ -785,21 +791,25 @@ enum class VelocityObstacleMethod
 };
 template<VelocityObstacleMethod VOMethod,
          typename Vec3_pos,  typename Vec2_vel,
+         typename T_dist,
          typename T_time,
          typename T_pos = Vec2_vel, typename T_dir = Vec2_vel>
 std::vector<VelocityObstacle<T_pos, T_dir> >
-VO2D(const T_time dt,
+VO2D(const T_dist neighbor_radius,
+     const T_time dt,
      const std::size_t agent_id,
      const std::vector<Vec3_pos> &ob_pos,
+     const std::vector<Vec2_vel> &ob_vel,
      const std::vector<Vec3_pos> &agent_pos,
      const std::vector<Vec2_vel> &agent_vel,
-     const std::vector<Vec2_vel> &vel_pref = {}) // vel_pref needed for HRVO only
+     const std::vector<Vec2_vel> &vel_pref,
+     const T_time apex_eps = 0)
 {
     assert(agent_id < agent_pos.size()
            && agent_pos.size() == agent_vel.size()
            && vel_pref.size() == agent_vel.size());
-
-    constexpr auto apex_eps = 1e-6f; // move the apex of VO backward a little to avoid computation error
+    assert(ob_pos.size() == ob_vel.size());
+    assert(dt > 0);
 
     std::vector<VelocityObstacle<T_pos, T_dir> > vo;
     vo.reserve(ob_pos.size() + agent_pos.size());
@@ -811,21 +821,30 @@ VO2D(const T_time dt,
         auto r  = ob_pos[i].z + agent_pos[agent_id].z;
         dp.x = ob_pos[i].x - agent_pos[agent_id].x;
         dp.y = ob_pos[i].y - agent_pos[agent_id].y;
-        auto d = std::sqrt(dp.x*dp.x + dp.y*dp.y);
+        auto d2 = dp.x*dp.x + dp.y*dp.y;
+        if (d2 > (neighbor_radius+r)*(neighbor_radius+r))
+            continue;
+
+        apex = ob_vel[i];
+        auto d = std::sqrt(d2);
         if (d > r)
         {
-            apex.x = 0; apex.y = 0;
+//            apex.x = 0; apex.y = 0;
             auto angle = std::atan2(dp.y, dp.x);
             auto theta = std::asin(r/d);
             left_leg.x  = std::cos(angle+theta);
             left_leg.y  = std::sin(angle+theta);
             right_leg.x = std::cos(angle-theta);
             right_leg.y = std::sin(angle-theta);
-
         }
         else // collision
         {
-            apex = dp * ((d-r)/(dt*d));
+            if (d == 0)
+            {
+                dp = vel_pref[agent_id];
+                d = std::sqrt(vel_pref[agent_id].x*vel_pref[agent_id].x + vel_pref[agent_id].y*vel_pref[agent_id].y);
+            }
+            apex += dp * ((d-r)/(dt*d));
             left_leg.x = -dp.y/d;
             left_leg.y = dp.x/d;
             right_leg.x = -left_leg.x;
@@ -842,12 +861,16 @@ VO2D(const T_time dt,
     {
         if (i == agent_id) continue;
 
+        auto r = agent_pos[i].z + agent_pos[agent_id].z;
+        dp.x = agent_pos[i].x - agent_pos[agent_id].x;
+        dp.y = agent_pos[i].y - agent_pos[agent_id].y;
+        auto d2 = dp.x*dp.x + dp.y*dp.y;
+        if (d2 > (neighbor_radius+r)*(neighbor_radius+r))
+            continue;
+
         apex = agent_vel[i];
 
-        auto r = agent_pos[i].z + agent_pos[agent_id].z;
-        dp.x = ob_pos[i].x - agent_pos[agent_id].x;
-        dp.y = ob_pos[i].y - agent_pos[agent_id].y;
-        auto d = std::sqrt(dp.x*dp.x + dp.y*dp.y);
+        auto d = std::sqrt(d2);
 
         if (d > r)
         {
@@ -892,7 +915,7 @@ VO2D(const T_time dt,
         }
 
         apex_true = apex;
-        apex -= dp * (apex_eps/d); // move the apex backward a little
+        apex -= dp * (apex_eps/d);  // move the apex backward a little
 
         vo.emplace_back(apex, left_leg, right_leg, apex_true);
     }
@@ -925,8 +948,8 @@ Vec2_vel clearPath(const T v_max,
         return v.x*v.x + v.y*v.y;
     };
 
-    auto d = v_pref.x*v_pref.x + v_pref.y*v_pref.y;
-    v_samples.push_back(d > v_max2 ? v_pref * (v_max/std::sqrt(d)) : v_pref);
+    auto d2 = v_pref.x*v_pref.x + v_pref.y*v_pref.y;
+    v_samples.push_back(d2 > v_max2 ? v_pref * (v_max/std::sqrt(d2)) : v_pref);
     for (auto const &vo : vos)
     {
         auto dv = v_pref - vo.apex;
@@ -978,7 +1001,7 @@ Vec2_vel clearPath(const T v_max,
                      vos[i].I_LEG);                                         \
         if (a >= 0 && (b == 0 || (b<0&&area<0) || (b>0&&area>0))) {         \
             auto sample = vos[i].apex + a * vos[i].I_LEG;                   \
-            if (len2(sample) <= v_max2)                                 \
+            if (len2(sample) <= v_max2)                                     \
                 v_samples.push_back(sample);                                \
         }                                                                   \
     }
@@ -1043,12 +1066,14 @@ Vec2_vel clearPath(const T v_max,
 };
 
 
-template<typename Vec2_vel, typename Vec3_pos, typename T_time, typename T_dist>
-Vec2_vel ORCA(const T_time tau,
+template<typename Vec2_vel, typename Vec3_pos, typename T_dist>
+Vec2_vel ORCA(const T_dist tau,
               const T_dist v_max,
-              const T_time dt,
+              const T_dist neighbor_radius,
+              const T_dist dt,
               const std::size_t agent_id,
               const std::vector<Vec3_pos> &ob_pos,
+              const std::vector<Vec2_vel> &ob_vel,
               const std::vector<Vec3_pos> &agent_pos,
               const std::vector<Vec2_vel> &agent_vel,
               const std::vector<Vec2_vel> &vel_pref,
@@ -1057,85 +1082,175 @@ Vec2_vel ORCA(const T_time tau,
               const Vec2_vel &v_lower_bound = {std::numeric_limits<T_dist>::max(),
                                                std::numeric_limits<T_dist>::max()})
 {
+    // Assume that all agents and obstacles are circle.
+    // For agent A,
+    // VO w.r.t agent B is the a cone region with apex v_b
+    // and whose left and right legs are two tangent lines
+    // of the circle (p_b - p_a, r_a + r_b)
+    // From the view of agent A,
+    // collision would not happen as long as
+    // the velocity choice is not in the circle
+    //
+    // By giving a scale tau > 1,
+    // the circle ((p_b-p_a)/tau, (r_a+r_b)/tau) is obtained
+    // by move and scale the original circle to the apex.
+    // We assume it is safe to choose those velocity
+    // that cannot reach the smaller circle.
+
     assert(agent_id < agent_pos.size()
            && agent_pos.size() == agent_vel.size()
-           && vel_pref.size() == agent_vel.size());
+           && agent_vel.size() == vel_pref.size());
+    assert(ob_pos.size() == ob_vel.size());
     assert(dt > 0);
-//    assert(tau >= 1);
+    assert(tau >= 1);
+
+    struct Line
+    {
+        Vec2_vel dir, p;
+        Line() {}
+        Line(Vec2_vel const &dir, Vec2_vel const &p) : dir(dir), p(p) {}
+        Line(Vec2_vel &&dir, Vec2_vel &&p) : dir(std::move(dir)), p(std::move(p)) {}
+    };
+
+    auto len2 = [](Vec2_vel const &a)
+    {
+        return a.x*a.x + a.y*a.y;
+    };
+    auto dot = [](Vec2_vel const &a, Vec2_vel const &b)
+    {
+        return a.x*b.x + a.y*b.y;
+    };
+    auto det = [](Vec2_vel const &a, Vec2_vel const &b)
+    {
+        return a.x*b.y - a.y*b.x;
+    };
 
     auto &vel_opt = agent_vel;
+//    struct
+//    {
+//        Vec2_vel zero_vel;
+//        inline const Vec2_vel &operator[](std::size_t const &i)
+//        {
+//            return zero_vel;
+//        }
+//    } vel_opt; vel_opt.zero_vel.x = 0; vel_opt.zero_vel.y = 0;
+//    auto &vel_opt = vel_pref;
 
-    const auto inv_dt = 1 / dt;
+
+    const auto inv_dt  = T_dist(1) / dt;
     const auto inv_tau = T_dist(1) / tau;
-    Vec2_vel u, dir;
-    auto gen_orca_line = [&](Vec2_vel &dp, Vec2_vel &dv,
-                             T_dist r)
+
+    // the feasible region defined by an ORCA line
+    // is the left half plane of the line
+    //
+    // the line goes through
+    // the point v_a + u for avoiding obstacles or
+    // v_a + u/2 for avoiding another agent
+    //
+    // u is the vector from dv to the nearest point of the boundary
+    // defined by the left and right legs of VO and the scaled circle (dp/tau, r/tau)
+    auto gen_orca_line = // dp = pos_b - pos_a; dv = vel_a - vel_b; sum_radius = r_a + r_b
+            [&] (Vec2_vel const &dp, Vec2_vel const &dv, T_dist const &sum_radius,
+                 Vec2_vel &dir, Vec2_vel &u)
     {
-        auto r2 = r*r;
-        auto d2 = dp.x*dp.x + dp.y*dp.y;
+        auto d2 = len2(dp);
+        auto r2 = sum_radius * sum_radius;
+
+        // target obstacle/agent is out of neighbors
+        if (d2 > (neighbor_radius+sum_radius)*(neighbor_radius+sum_radius))
+            return false;
 
         if (d2 > r2)
         {
             auto w = dv - dp * inv_tau;
-            auto w_len2 = w.x*w.x + w.y*w.y;
-            auto cos = w.x*dp.x + w.y*dp.y;
+            auto w2 = len2(w);
+            auto r2 = sum_radius*sum_radius;
 
-            if (cos < 0 && cos*cos > r2 * w_len2)    // delta_v in the bottom circle, (dp/t, r/t)
-            {                                        // u is from dv to the boundary of the circle
-                auto w_len = std::sqrt(w_len2);      // along the radius direction
+            auto cos_r_norm_w_norm = dot(w, dp);
+            if (cos_r_norm_w_norm < 0 && cos_r_norm_w_norm*cos_r_norm_w_norm > r2 * w2)
+            {
+                // dv is in the bottom half part of the cirlce (dp/tau, r/tau)
+                // towards to the original point
+                //
+                // it is same with the collision case
+                auto w_len = std::sqrt(w2);
                 w.x /= w_len; w.y /= w_len;
-                u = w * (r*inv_tau - w_len);
-                dir.x =  w.y;
-                dir.y = -w.x;
+
+                u = (sum_radius*inv_tau - w_len) * w;
+                dir.x = w.y; dir.y = -w.x;
             }
             else
             {
-                auto s = std::sqrt(d2 - r2);
-                if (dp.x*w.y - dp.y*w.x > 0) // delta_v at the left half region of the VO
-                {                            // project to the left leg
+                // u is the vector from the point dv
+                // to the nearest point on left or right legs
+                //
+                // dir is the left or right leg
+                // towards the opposite direction to the apex for the left leg
+                // or towards to the apx for the right leg
 
-                    dir.x = dp.x * s + r * (-dp.y);  // this move the apex along the backward of dp
-                    dir.y = dp.y * s + r * dp.x;     // with distance ||dp|| - sqrt(||dp||^2 - r^2)
+                if (det(dp, w) > 0)
+                {
+                    // dv is on the left side of dp
+                    // project it to the left leg
+                    // line dir should be the left leg towards to the opposite directin of apex
+                    auto leg_len = std::sqrt(d2 - r2);
+                    dir.x = (dp.x * leg_len - dp.y * sum_radius)/d2; // this is not accurate
+                    dir.y = (dp.y * leg_len + dp.x * sum_radius)/d2; // it rotates the line a little outside
                 }
                 else
-                {
-                    dir.x = -dp.x * s + r * (-dp.y);
-                    dir.y = -dp.y * s + r * dp.x;
+                {   // project to the right leg
+                    // line dir should be the right leg towards to the apex
+                    auto leg_len = std::sqrt(d2 - r2);
+                    dir.x = (dp.x * leg_len - dp.y * sum_radius)/d2; // this is not accurate
+                    dir.y = (dp.y * leg_len + dp.x * sum_radius)/d2; // it rotates the line a little outside
                 }
-                dir.x /= d2;
-                dir.y /= d2;
-                u = dir * (dv.x*dir.x + dv.y*dir.y) - dv;
+
+                auto proj_of_dv_on_dir = dot(dv, dir);
+                u = proj_of_dv_on_dir * dir - dv;
             }
         }
         else // collision
-        {                                               // u is from dv to the boundary of the circle
-            auto w = dv - dp * inv_dt;                  // along the radius direction
-            auto w_len = std::sqrt(w.x*w.x + w.y*w.y);
+        {
+            // u is the nearest point on the circle of (dp/dt, sum_radius/dt)
+            // from the point dv
+            //
+            // the direction of the ORCA line is
+            // the tangent line of the circle ont the point u
+            // and towards the right side of wu
+            // such that the left side of the ORCA line is feasible velocity
+
+            // the agent is expected to move -dp in time dt
+            auto w = dv - dp * inv_dt;
+            auto w_len = std::sqrt(len2(w));
             w.x /= w_len; w.y /= w_len;
-            u = w * (r*inv_dt - w_len);
-            dir.x =  w.y;
-            dir.y = -w.x;
+
+            u = (sum_radius*inv_dt - w_len) * w;
+
+            dir.x = w.y; dir.y = -w.x;
         }
+
+        return true;
     };
 
-    Vec2_vel dp, dv, p;
-    std::vector<std::pair<Vec2_vel, Vec2_vel> > lines;
-    // <dir, point>, valid region is at the left side of the line
-    dv.x = vel_opt[agent_id].x;
-    dv.y = vel_opt[agent_id].y;
+    Vec2_vel dp, dv, dir, p, u;
+    std::vector<Line> lines;
+
     for (std::size_t i = 0, n = ob_pos.size(); i < n; ++i)
     {
         dp.x = ob_pos[i].x - agent_pos[agent_id].x;
         dp.y = ob_pos[i].y - agent_pos[agent_id].y;
+        dv.x = vel_opt[agent_id].x - ob_vel[i].x;
+        dv.y = vel_opt[agent_id].y - ob_vel[i].y;
 
-        gen_orca_line(dp, dv, agent_pos[agent_id].z + ob_pos[i].z);
-
-        p.x = vel_opt[agent_id].x + u.x;
-        p.y = vel_opt[agent_id].y + u.y;
-
-        lines.emplace_back(dir, p);
-
+        if (gen_orca_line(dp, dv, ob_pos[i].z + agent_pos[agent_id].z, dir, u))
+        {
+            p.x = vel_opt[agent_id].x + u.x;
+            p.y = vel_opt[agent_id].y + u.y;
+            lines.emplace_back(dir, p);
+        }
     }
+    auto n_ob_lines = lines.size();
+
     for (std::size_t i = 0, n = agent_pos.size(); i < n; ++i)
     {
         if (i == agent_id) continue;
@@ -1145,41 +1260,307 @@ Vec2_vel ORCA(const T_time tau,
         dv.x = vel_opt[agent_id].x - vel_opt[i].x;
         dv.y = vel_opt[agent_id].y - vel_opt[i].y;
 
-        gen_orca_line(dp, dv, agent_pos[agent_id].z + agent_pos[i].z);
-
-        p.x = vel_opt[agent_id].x + u.x/2;
-        p.y = vel_opt[agent_id].y + u.y/2;
-
-        lines.emplace_back(dir, p);
+        if (gen_orca_line(dp, dv, agent_pos[i].z + agent_pos[agent_id].z, dir, u))
+        {
+            p.x = vel_opt[agent_id].x + u.x * T_dist(.5);
+            p.y = vel_opt[agent_id].y + u.y * T_dist(.5);
+            lines.emplace_back(dir, p);
+        }
     }
 
+//    CGAL::Quadratic_program<float> qp(CGAL::SMALLER);
+//
+//    qp.set_d(0, 0, 2); qp.set_d(1, 1, 2);
+//    qp.set_c(0, -2*vel_pref[agent_id].x), qp.set_c(1, -2*vel_pref[agent_id].y);
+//    qp.set_c0(vel_pref[agent_id].x*vel_pref[agent_id].x + vel_pref[agent_id].y*vel_pref[agent_id].y);
+//
+//    auto row = 0;
+//    for (const auto &l: lines)
+//    {
+//        // line: dir.y * x - dir.x * y - (dir.y*point.x - dir.x*point.y) = 0
+//        // valid region is the left side of the line
+//        auto c = l.first.y * l.second.x - l.first.x * l.second.y;
+//        if (c < 1e-2)
+//        {
+//            if (c > -1e-2)
+//            {
+//                if (l.first.x > 0) c = 1e-2;
+//                else c = -1e-2;
+//            }
+//        }
+//        qp.set_a(0, row, l.first.y); qp.set_a(1, row, -l.first.x);
+//        qp.set_b(row, c);
+//        ++row;
+//    }
+//    qp.set_u(0, true, v_upper_bound.x);
+//    qp.set_u(1, true, v_upper_bound.y);
+//    qp.set_l(0, true, v_lower_bound.x);
+//    qp.set_l(1, true, v_lower_bound.y);
+//
+//    CGAL::Quadratic_program_solution<CGAL::MP_Float> s;
+//    auto success = false;
+//    try
+//    {
+//        s = CGAL::solve_quadratic_program(qp, CGAL::MP_Float());
+//        success = true;
+////    std::cout << "v_pref: " << vel_pref[agent_id].x << ", " << vel_pref[agent_id].y << std::endl;
+////        std::cout << s << std::endl;
+////        std::cout << static_cast<decltype(dv.x)>(CGAL::to_double(*(s.variable_values_begin()))) << ", "
+////                  << static_cast<decltype(dv.y)>(CGAL::to_double(*(++(s.variable_values_begin())))) << std::endl;
+//    }
+//    catch (std::exception &e)
+//    {
+//        std::cout << e.what() << std::endl;
+//    }
+//
+//    if (success)
+//        return {static_cast<decltype(dv.x)>(CGAL::to_double(*(s.variable_values_begin()))),
+//                static_cast<decltype(dv.y)>(CGAL::to_double(*(++(s.variable_values_begin()))))};
+//    else
+//        return {decltype(dv.x)(0), decltype(dv.y)(0)};
 
-    CGAL::Quadratic_program<float> qp(CGAL::SMALLER);
+    //
+    // Given a batch of linear constraints lines,
+    // (the left side of a line is the feasible region), and
+    // a quadratic constraint: ||v||^2 < v_max^2
+    // minimize the objective function ||v - v_pref||^2
+    //
+    // Basic bounded 2D linear programming program solution:
+    // get a possible solution from the intersect of two constraint lines
+    // for each of the remaining constraint lines
+    //    if the current solution is not feasible with the constraint
+    //       get the intersect of the new constraint line and
+    //       former constraint lines
+    //       do 1d LP, choose the intersect on the new constraint line
+    //       that maximizes the object function as the solution
+    //
+    // Solution for this invariant LP programming program
+    // Choose the initial solution as v = v_pref
+    // for each of the constraint line:
+    //     if the current solution is not feasible with the constraint
+    //
 
-    qp.set_d(0, 0, 2); qp.set_d(1, 1, 2);
-    qp.set_c(0, -2*vel_pref[agent_id].x), qp.set_c(1, -2*vel_pref[agent_id].y);
-    qp.set_c0(vel_pref[agent_id].x*vel_pref[agent_id].x + vel_pref[agent_id].y*vel_pref[agent_id].y);
 
-    auto row = 0;
-    for (const auto &l: lines)
+    auto lp1d = [&](Vec2_vel const &obj, T_dist const &max_r,
+                   const Line *lines, std::size_t last_line,
+                   bool optimize_dir,
+                   Vec2_vel &solution)
     {
-        // line: dir.y * x - dir.x * y - (dir.y*point.x - dir.x*point.y) = 0
-        // valid region is the left side of the line
-        qp.set_a(0, row, l.first.y); qp.set_a(1, row, -l.first.x);
-        qp.set_b(row, l.first.y * l.second.x - l.first.x * l.second.y);
-        ++row;
+        auto &l = lines[last_line];
+
+        // if the circle ((0, 0), max_r) is completely at the right half plane of line l
+        // then no feasible region
+        auto proj = dot(l.p, l.dir);
+        auto discriminant = proj*proj + max_r*max_r - len2(l.p);
+        if (discriminant < 0) return false;
+
+        discriminant = std::sqrt(discriminant);
+
+        // we can obtain an upper and lower bound as
+        // the two intersects of the circle ((0, 0), max_r) the line l
+        auto lower_bound = -proj - discriminant; // lower_bound and upper_bound
+        auto upper_bound = -proj + discriminant; // here are the directional distance from line.point to the bound point
+
+        for (std::size_t i = 0; i < last_line; ++i)
+        {
+            // there is no common feasible region
+            // if the line i is at the right half plane of the line l
+            // and they have opposite directions
+            //
+            // 1d LP also fails if line i is parallel to l and at the left
+            // half plane of l,
+            // because no point on line l can satisfy the constraint of i
+
+            auto den = det(l.dir, lines[i].dir);
+            auto num = det(lines[i].dir, l.p - lines[i].p);
+
+            //       i  ^     ^  i'
+            //         /     /
+            //        x     /
+            //       / \   /
+            //      /   \ /
+            //   --p-----x--------->   l
+            //
+            //    num : den = px : 1
+            //    x is the point the line's point
+            //    num is the distance between i and i'
+            //        where i is parallel to i'
+            //    den is the distance from p' to l
+            //        where pp' has length 1
+
+            if (den > decltype(den)(-1e-5) && den < decltype(den)(1e-5))
+            {
+                // line i is parallel to the current line l
+                if (num < 0)
+                    // the current line l is
+                    // there is no common feasible region
+                    // or line l cannot provide a point to satisfy line i
+                    //
+                    // num < 0  infeasible
+                    //
+                    //      //////         //////
+                    //      -----> i   or  -----> i
+                    //      -----> l       <----- l
+                    //                     //////
+                    // num > 0
+                    //      /////          <----- l
+                    //      ----> l   or    /////
+                    //      ----> i        -----> i
+                    //
+                    return false;
+                // no intersect of line i and l
+                // line l can satisfy the constraint of line i directly
+                continue;
+            }
+
+            proj = num / den;
+
+            if (den > 0)
+            {
+                // line i is towards the left half plane of line l
+                // the feasible region is the left half plane of line i and l
+                // such that line i provides a upper bound of feasible points on line l
+                //
+                //  ===   ^  i
+                //  ===  /
+                //  -------> l
+                upper_bound = std::min(upper_bound, proj);
+            }
+            else // if (den < 0)
+            {
+                // line i is towards the right half plane of line l
+                //
+                //  -------->
+                //    \  ===
+                //     v ===
+                lower_bound = std::max(lower_bound, proj);
+            }
+            if (lower_bound > upper_bound)
+                return false;
+        }
+        
+        // the objective function is a quadratic function
+        // with minimum value 0 when x = obj
+        // consider it as a linear objective function
+        // between the line's point to the point obj
+        // where the line's point is the nearest point from dv to the scaled VO region
+        // and the obj point the preferred velocity
+        //
+        // this choice means that we hope the agent to move from the nearest point
+        // to the preferred velocity ?
+
+        if (optimize_dir)
+        {
+            if (dot(obj, l.dir) > 0.f)
+                proj = upper_bound;
+            else
+                proj = lower_bound;
+        }
+        else
+        {
+            proj = dot(obj - l.p, l.dir); // the projection of the objective linear function
+            if (proj < lower_bound)       // on line l is the optimal choice
+                proj = lower_bound;       // but we should make sure it is in the region
+            else if (proj > upper_bound)  // of [lower_bound, upper_bound]
+                proj = upper_bound;
+        }
+
+        solution = l.p + l.dir * proj;
+
+        return true;
+    };
+    auto lp2d = [&](Vec2_vel const &obj, T_dist const &max_r,
+                   std::vector<Line> const &lines,
+                   bool optimize_dir,
+                   Vec2_vel &solution)
+    {
+        if (optimize_dir)
+            solution = obj * max_r;
+        else
+        {
+            auto v2 = len2(obj);
+            if (v2 > max_r*max_r)
+                solution = obj * (max_r/std::sqrt(v2));
+            else
+                solution = obj;
+        }
+
+        auto n = lines.size();
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            if (det(lines[i].dir, lines[i].p - solution) > 0)
+            {   // current solution is at the right side of the line
+                // try to choose another feasible solution
+                auto tmp = solution;
+                if (!lp1d(obj, max_r, lines.data(), i, optimize_dir, solution))
+                {
+                    solution = tmp;
+                    return i;
+                }
+            }
+        }
+        return n;
+    };
+
+    Vec2_vel solution;
+    auto failed_at = lp2d(vel_pref[agent_id], v_max, lines, false, solution);
+
+    auto n_lines = lines.size();
+    if (failed_at < n_lines)
+    {
+        // linear programming fails
+        auto dist = T_dist(0);
+        std::vector<Line> proj_lines;
+        proj_lines.reserve(n_lines);
+        proj_lines.assign(lines.begin(),
+                          std::next(lines.begin(), n_ob_lines));
+
+        assert(proj_lines.size() == n_ob_lines);
+
+        // there should always be a solution for ORCA lines from obstacles
+        // unless in some special cases of collision
+        // e.g. the agent is into the obstacle too deep such that it is impossible to get out from the obstacles even by v_max
+        //  or  more than one collision is happening and no common feasible region exists
+        for (auto i = std::max(failed_at, n_ob_lines); i < n_lines; ++i)
+        {
+            auto &l = lines[i];
+
+            if (det(l.dir, solution - lines[i].p) < dist)
+            {
+                proj_lines.resize(n_ob_lines);
+
+                for (auto j = n_ob_lines; j < i; ++j)
+                {
+                    auto discriminant = det(l.dir, lines[j].dir);
+                    if (discriminant > decltype(discriminant)(-1e-5) && discriminant < decltype(discriminant)(1e-5))
+                    {
+                        if (dot(l.dir, lines[j].dir) > 0)
+                            continue;
+                        else
+                            p = (l.p + lines[j].p) * T_dist(.5);
+                    }
+                    else
+                    {
+                        p = l.p + l.dir * (det(lines[j].dir, l.p - lines[j].p)/discriminant);
+                    }
+
+                    dir = lines[j].dir - l.dir;
+                    auto dir_len = std::sqrt(len2(dir));
+                    dir.x /= dir_len; dir.y /= dir_len;
+
+                    proj_lines.emplace_back(dir, p);
+                }
+                auto tmp = solution;
+                Vec2_vel new_obj; new_obj.x = -l.dir.y; new_obj.y = l.dir.x;
+                if (lp2d(new_obj, v_max, proj_lines, true, solution) < proj_lines.size())
+                    solution = tmp;
+
+                dist = det(l.dir, solution - l.p);
+            }
+        }
     }
-    qp.set_u(0, true, v_upper_bound.x);
-    qp.set_u(1, true, v_upper_bound.y);
-    qp.set_l(0, true, v_lower_bound.x);
-    qp.set_l(1, true, v_lower_bound.y);
 
-    auto s = CGAL::solve_quadratic_program(qp, CGAL::MP_Float());
-//    std::cout << "v_pref: " << vel_pref[agent_id].x << ", " << vel_pref[agent_id].y << std::endl;
-//    std::cout << s << std::endl;
-
-    return {static_cast<decltype(dv.x)>(CGAL::to_double(*(s.variable_values_begin()))),
-            static_cast<decltype(dv.y)>(CGAL::to_double(*(++(s.variable_values_begin()))))};
+    return solution;
 }
 
 } }

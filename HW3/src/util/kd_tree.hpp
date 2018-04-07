@@ -8,10 +8,11 @@
 namespace px
 {
 
-template<typename T, typename D>
+template<typename T, typename D, class Dist>
 class KdTree
 {
 public:
+    Dist dist;
     const unsigned int k;
     const unsigned int depth;
 
@@ -22,23 +23,8 @@ public:
         return const_cast<T&>(lhs)[k] < const_cast<T&>(rhs)[k];
     };
 
-    class Dist
-    {
-    public:
-        unsigned int k;
-        explicit Dist(unsigned int k) : k(k) {}
-
-        D operator()(const T &lhs, const T &rhs)
-        {
-            auto d = static_cast<D>(0);
-            for (typename std::remove_const<decltype(k)>::type i = 0; i < k; ++i)
-                d += (const_cast<T&>(lhs)[i] - const_cast<T&>(rhs)[i]) * (const_cast<T&>(lhs)[i] - const_cast<T&>(rhs)[i]);
-            return d;
-        }
-    };
-
-    KdTree(unsigned int k, unsigned int depth = 32)
-            : k(k), depth(depth)
+    KdTree(const Dist &dist, unsigned int k, unsigned int depth = 32)
+            : dist(dist), k(k), depth(depth)
     {}
     ~KdTree() = default;
 
@@ -158,7 +144,7 @@ protected:
     }
 
 public:
-    template<typename T2, class DistHelper = Dist>
+    template<typename T2>
     std::size_t nearest(const T2 &p, const std::vector<T> &points,
                         const D &max_distance = std::numeric_limits<float>::max()) const
     {
@@ -240,19 +226,18 @@ public:
 //        if (nodes.size() == 0) return -1;
 //        auto nearest = std::size_t(-1);
 //        auto ref_dist = max_distance;
-//        _nearest<T2, DistHelper>(p, points, nodes.size()-1, 0,
+//        _nearest<T2>(p, points, nodes.size()-1, 0,
 //                                 p, ref_dist, nearest);
         return nearest;
     }
 
 //protected:
-//    template<typename T2, class DistHelper = Dist>
+//    template<typename T2>
 //    void _nearest(const T2 &p, const std::vector<T> &points,
 //                  const std::size_t node, const std::size_t dim,
 //                  T2 ref_point, D &ref_dist,
 //                  std::size_t &nearest) const
 //    {
-//        DistHelper dist(k);
 //        const auto &n = nodes[node];
 //        if (n.split == std::size_t(-1))
 //        {
@@ -279,25 +264,25 @@ public:
 //
 //            if (const_cast<T2&>(p)[dim] <= split)
 //            {
-//                _nearest<T2, DistHelper>(p, points, n.left,  next_dim, ref_point, ref_dist,
+//                _nearest<T2>(p, points, n.left,  next_dim, ref_point, ref_dist,
 //                         nearest);
 //                ref_point[dim] = split;
 //                if (dist(p, ref_point) <= ref_dist)
 //                {
-//                    _nearest<T2, DistHelper>(p, points, n.right, next_dim,
+//                    _nearest<T2>(p, points, n.right, next_dim,
 //                             ref_point, ref_dist,
 //                             nearest);
 //                }
 //            }
 //            else
 //            {
-//                _nearest<T2, DistHelper>(p, points, n.right, next_dim,
+//                _nearest<T2>(p, points, n.right, next_dim,
 //                         ref_point, ref_dist,
 //                         nearest);
 //                ref_point[dim] = split;
 //                if (dist(p, ref_point) <= ref_dist)
 //                {
-//                    _nearest<T2, DistHelper>(p, points, n.left, next_dim,
+//                    _nearest<T2>(p, points, n.left, next_dim,
 //                             ref_point, ref_dist,
 //                             nearest);
 //                }
@@ -306,7 +291,7 @@ public:
 //    }
 
 public:
-    template <typename T2, class DistHelper = Dist>
+    template <typename T2>
     std::vector<std::pair<std::size_t, D> >
         around(const T2 &p, const std::vector<T> &points, const D &radius) const
     {
@@ -322,8 +307,6 @@ public:
         };
         std::vector<Task> tasks(depth);
         tasks[0] = {p, static_cast<D>(0), nodes.size() - 1, 0};
-
-        DistHelper dist(k);
 
         auto current_task = 0;
         do
@@ -384,19 +367,18 @@ public:
 
 //        if (nodes.empty()) return neighbors;
 //
-//        _around<T2, DistHelper>(p, points, nodes.size()-1, 0,
+//        _around<T2>(p, points, nodes.size()-1, 0,
 //                                p, radius, neighbors);
 //        return neighbors;
     }
 //
 //protected:
-//    template <typename T2, class DistHelper>
+//    template <typename T2>
 //    void _around(const T2 &p, const std::vector<T> &points,
 //            const std::size_t node, const std::size_t dim,
 //            T2 ref_point, const D &radius,
 //            std::vector<std::pair<std::size_t, D> > &neighbors) const
 //    {
-//        DistHelper dist(k);
 //        const auto &n = nodes[node];
 //        if (n.split == std::size_t(-1))
 //        {
@@ -421,27 +403,27 @@ public:
 //
 //            if (const_cast<T2&>(p)[dim] <= split)
 //            {
-//                _around<T2, DistHelper>(p, points, n.left, next_dim,
+//                _around<T2>(p, points, n.left, next_dim,
 //                                         ref_point, radius,
 //                                         neighbors);
 //
 //                ref_point[dim] = split;
 //                if (dist(p, ref_point) <= radius)
 //                {
-//                    _around<T2, DistHelper>(p, points, n.right, next_dim,
+//                    _around<T2>(p, points, n.right, next_dim,
 //                                         ref_point, radius,
 //                                         neighbors);
 //                }
 //            }
 //            else
 //            {
-//                _around<T2, DistHelper>(p, points, n.right, next_dim,
+//                _around<T2>(p, points, n.right, next_dim,
 //                                        ref_point, radius,
 //                                        neighbors);
 //                ref_point[dim] = split;
 //                if (dist(p, ref_point) <= radius)
 //                {
-//                    _around<T2, DistHelper>(p, points, n.left, next_dim,
+//                    _around<T2>(p, points, n.left, next_dim,
 //                                            ref_point, radius,
 //                                            neighbors);
 //                }
