@@ -23,6 +23,8 @@ public:
     float t_h;  // for TTC
     float tau; // for ROCA
 
+    bool smooth_path;
+
     int n_obstacles;
     bool keep_obstacles; // keep current obstacles or not when restart
     bool keep_milestones;   // keep current milestone samples or not when restart

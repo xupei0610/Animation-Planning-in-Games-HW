@@ -25,8 +25,8 @@ public:
     bool is_planning, planning_success, sampling_complete, sampling_upload, road_upload;
 
     float &v_max, &rrt_step_min, &rrt_step_max, &rewire_radius, &neighbor_radius, &t_h, &tau;
+    bool &smooth_path;
     int n_sampling; int k; int n_road; int solution_size;
-    bool resampling;
     glm::vec2 upper_bound, lower_bound;
     glm::vec3 agent_pos; glm::vec2 agent_vel;
     glm::vec2 goal_pos;
@@ -115,6 +115,7 @@ public:
               rewire_radius(parent->rewire_radius),
               neighbor_radius(parent->neighbor_radius),
               t_h(parent->t_h), tau(parent->tau),
+              smooth_path(parent->smooth_path),
               worker_thread(nullptr),
               skybox(nullptr),
               mark_shader(nullptr), edge_shader(nullptr), road_shader(nullptr),
@@ -162,7 +163,7 @@ public:
             {
                 roadmap = planning::PRM<float>(
                         milestones, 0, 1, path,
-                        glm::distance2<float, glm::highp, glm::tvec2>,
+                        glm::distance<float, glm::highp, glm::tvec2>,
                         std::bind(&impl::collide, this, std::placeholders::_1,
                                   std::placeholders::_2),
                         planning::uniformCost<float>,
@@ -172,11 +173,11 @@ public:
             {
                 auto h = [&](std::size_t i)
                 {
-                    return glm::distance2(milestones[1], milestones[i]);
+                    return glm::distance(milestones[1], milestones[i]);
                 };
                 roadmap = planning::PRM<float>(
                         milestones, 0, 1, path,
-                        glm::distance2<float, glm::highp, glm::tvec2>,
+                        glm::distance<float, glm::highp, glm::tvec2>,
                         std::bind(&impl::collide, this,
                                   std::placeholders::_1, std::placeholders::_2),
                         std::bind(planning::AStar<float, decltype(h)>,
@@ -197,7 +198,7 @@ public:
             if (pathfinder == scene::RoadmapScene::PathFinder::UniformCost)
                 roadmap = planning::PRMLazy<float>(
                         milestones, 0, 1, path,
-                        glm::distance2<float, glm::highp, glm::tvec2>,
+                        glm::distance<float, glm::highp, glm::tvec2>,
                         std::bind(&impl::collide, this, std::placeholders::_1,
                                   std::placeholders::_2),
                         planning::uniformCost<float>);
@@ -207,12 +208,12 @@ public:
                 auto h = [&](std::size_t i)
                 {
                     if (h_val[i] == -1.f)
-                        h_val[i] = glm::distance2(milestones[1], milestones[i]);
+                        h_val[i] = glm::distance(milestones[1], milestones[i]);
                     return h_val[i];
                 };
                 roadmap = planning::PRMLazy<float>(
                         milestones, 0, 1, path,
-                        glm::distance2<float, glm::highp, glm::tvec2>,
+                        glm::distance<float, glm::highp, glm::tvec2>,
                         std::bind(&impl::collide, this, std::placeholders::_1,
                                   std::placeholders::_2),
                         std::bind(planning::AStar<float, decltype(h)>,
@@ -315,6 +316,7 @@ public:
         std::cout << std::endl;
 
         // smooth path
+        if (smooth_path)
         planning::smoothe(20, path, [&](const std::size_t p1, const std::size_t p2) {
                     return collide(milestones[p1], milestones[p2]);
                 });
@@ -575,8 +577,9 @@ scene::RoadmapScene::RoadmapScene()
           rrt_step_min(.2f), rrt_step_max(1.f), rewire_radius(5.f),
           neighbor_radius(5.f),
           t_h(1.5f), tau(2.f),
+          smooth_path(true),
           n_obstacles(10),
-          planning_method(PlanningMethod::TTC),
+          planning_method(PlanningMethod::PRM),
           pathfinder(PathFinder::AStar)
 {
     pimpl = std::make_unique<impl>(this);
@@ -831,7 +834,6 @@ void scene::RoadmapScene::update(float dt)
             pimpl->agent_vel = pimpl->orca(v_pref, pos, dt);
             break;
         case PlanningMethod::TTC:
-//            std::cout << tar.x << " " << tar.y << " " << pos.x << " " << pos.y << " " << v_pref.x << " " << v_pref.y << std::endl;
             pimpl->agent_vel = pimpl->ttc(v_pref, pos, dt);
             break;
         default:
@@ -949,7 +951,17 @@ void scene::RoadmapScene::renderInfo()
                               glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                               Anchor::RightTop);
     }
-
+    if (planning_method == PlanningMethod::PRM
+        || planning_method == PlanningMethod::LazyPRM
+        || planning_method == PlanningMethod::RRT
+           || planning_method == PlanningMethod::RRTStar)
+    {
+        h -= 25;
+        App::instance()->text("Press O to " + std::string(smooth_path ? "Disable" : "Enable") + " path finder algorithm",
+                              w, h, .4f,
+                              glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                              Anchor::RightTop);
+    }
 }
 
 void scene::RoadmapScene::processInput(float dt)
@@ -965,12 +977,25 @@ void scene::RoadmapScene::processInput(float dt)
         last_key = GLFW_KEY_P;
     else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
         last_key = GLFW_KEY_B;
+    else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+        last_key = GLFW_KEY_O;
     else
     {
         if (last_key == GLFW_KEY_B)
             resetCamera();
         else if (last_key == GLFW_KEY_P)
             pause = !pause;
+        else if (last_key == GLFW_KEY_O)
+        {
+            smooth_path = !smooth_path;
+            auto tmp1 = keep_obstacles;
+            auto tmp2 = keep_milestones;
+            keep_obstacles = true;
+            keep_milestones = true;
+            App::instance()->scene.restart();
+            keep_obstacles = tmp1;
+            keep_milestones = tmp2;
+        }
         else if (last_key == GLFW_KEY_M)
         {
             if (planning_method == PlanningMethod::PRM)

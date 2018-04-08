@@ -71,8 +71,8 @@ void AStar(const std::vector<std::vector<T> > &roadmap,
     std::vector<bool> visited(n_v, false); // close set
     std::vector<bool> waited(n_v, false);  // open set + close set
 
-    std::vector<T> g_val(n_v, std::numeric_limits<float>::infinity());
-    std::vector<T> f_val(n_v, std::numeric_limits<float>::infinity());
+    std::vector<T> g_val(n_v, std::numeric_limits<T>::infinity());
+    std::vector<T> f_val(n_v, std::numeric_limits<T>::infinity());
     std::vector<std::size_t> parent(n_v, std::size_t(-1));
     std::list<std::size_t> frontier;
     auto min_f = [&](const std::size_t &lhs, const std::size_t &rhs)
@@ -91,7 +91,7 @@ void AStar(const std::vector<std::vector<T> > &roadmap,
     visited[u] = true;
     for (;;)
     {
-        for (decltype(n_v) v = 1; v < n_v; ++v)
+        for (decltype(n_v) v = 0; v < n_v; ++v)
         {
             if (visited[v] ||
                 roadmap[u][v] == std::numeric_limits<T>::infinity())
@@ -105,6 +105,7 @@ void AStar(const std::vector<std::vector<T> > &roadmap,
 #endif
                 waited[v] = true;
             }
+
 
             auto alt = g_val[u] + roadmap[u][v];
             if (alt < g_val[v])
@@ -120,6 +121,9 @@ void AStar(const std::vector<std::vector<T> > &roadmap,
 
         auto it = std::min_element(frontier.begin(), frontier.end(), min_f);
         u = *it;
+
+//        if (parent[u] != std::size_t(-1))
+//        std::cout << u << " " << parent[u] << " " << roadmap[parent[u]][u] << std::endl;
 
 #ifndef NDEBUG
         ++n_expanded;
@@ -170,14 +174,13 @@ void uniformCost(const std::vector<std::vector<T> > &roadmap,
 {
     auto n_v = roadmap.size();
 
-    std::vector<bool> visited(n_v, false); // has been popped out from the open set
-    std::vector<bool> waited(n_v, false);  // has been pushed into the open set
+    std::vector<bool> visited(n_v, false); // close set
+    std::vector<bool> waited(n_v, false);  // open set + close set
 
-    std::vector<std::size_t>  parent(n_v, std::size_t(-1));
     std::vector<T> g_val(n_v, std::numeric_limits<T>::infinity());
-
+    std::vector<std::size_t> parent(n_v, std::size_t(-1));
     std::list<std::size_t> frontier;
-    auto min_g = [&](const std::size_t &lhs, const std::size_t &rhs)
+    auto min_f = [&](const std::size_t &lhs, const std::size_t &rhs)
     {
         return g_val[lhs] < g_val[rhs];
     };
@@ -192,7 +195,7 @@ void uniformCost(const std::vector<std::vector<T> > &roadmap,
     visited[u] = true;
     for (;;)
     {
-        for (decltype(n_v) v = 1; v < n_v; ++v)
+        for (decltype(n_v) v = 0; v < n_v; ++v)
         {
             if (visited[v] ||
                 roadmap[u][v] == std::numeric_limits<T>::infinity())
@@ -218,7 +221,7 @@ void uniformCost(const std::vector<std::vector<T> > &roadmap,
         if (frontier.empty())
             break;
 
-        auto it = std::min_element(frontier.begin(), frontier.end(), min_g);
+        auto it = std::min_element(frontier.begin(), frontier.end(), min_f);
         u = *it;
 
 #ifndef NDEBUG
@@ -236,8 +239,8 @@ void uniformCost(const std::vector<std::vector<T> > &roadmap,
     }
 #ifndef NDEBUG
     std::cout << "Method: Uniform Cost Search\n"
-            "Nodes Expanded: " << n_expanded << "\n"
-                      "Nodes Loaded: " << n_loaded << std::endl;
+                 "Nodes Expanded: " << n_expanded << "\n"
+                 "Nodes Loaded: " << n_loaded << std::endl;
 #endif
 
     // build path
